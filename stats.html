@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Статистика · Тишина</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f4f7;--card:#fff;--ink:#2a2224;--mute:#8d8590;--acc:#bf6052;--acc2:#e8977c;--track:#ebe7ee;--sh:0 10px 28px -14px rgba(130,60,48,.35);--nav:rgba(250,249,251,.85)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#150b09;--card:#241310;--ink:#f6e9e2;--mute:#b79a8f;--track:#3a2420;--sh:0 10px 28px -14px #000;--nav:rgba(28,14,11,.85)}}
+:root[data-theme="dark"]{--bg:#150b09;--card:#241310;--ink:#f6e9e2;--mute:#b79a8f;--track:#3a2420;--sh:0 10px 28px -14px #000;--nav:rgba(28,14,11,.85)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 15px/1.4 Manrope,system-ui,sans-serif;padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+.page{max-width:480px;margin:0 auto}
+.hero{position:relative;height:262px;overflow:hidden;background:#7a2c1d}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:6% 50%;will-change:transform}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.25),transparent 30%,transparent 55%,var(--bg))}
+.back{position:absolute;z-index:2;left:16px;top:calc(14px + env(safe-area-inset-top,0px));width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.88);display:grid;place-items:center;color:#2a2224}
+.sec{padding:0 18px}
+.seg{position:relative;display:grid;grid-template-columns:repeat(3,1fr);margin:-6px 0 16px;padding:4px;border-radius:99px;background:var(--card);box-shadow:var(--sh);--i:1}
+.seg i{position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/3);border-radius:99px;background:var(--acc);transform:translateX(calc(var(--i)*100%));transition:transform .45s cubic-bezier(.3,1.35,.5,1)}
+.seg button{position:relative;border:0;background:none;padding:11px 0;font:700 14px Manrope,sans-serif;color:var(--mute);transition:color .3s}
+.seg button.on{color:#fff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:var(--card);border-radius:26px;padding:16px;box-shadow:var(--sh);margin-bottom:12px;position:relative;overflow:hidden}
+.grid .card{margin:0}
+.rv{opacity:0;transform:translateY(16px);transition:opacity .6s,transform .6s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+h3{margin:0 0 4px;font:700 14px Manrope,sans-serif;color:var(--mute)}
+.big{font:700 38px/1.05 "Cormorant Garamond",serif;letter-spacing:-.5px}
+.big small{font:700 15px Manrope,sans-serif;margin:0 4px 0 2px;color:var(--mute)}
+.d{display:inline-block;margin-top:4px;font:700 12px Manrope,sans-serif;color:#3f9a62}
+.bars{display:flex;align-items:flex-end;gap:3px;height:54px;margin-top:10px}
+.bar{flex:1;height:4px;min-height:4px;border-radius:4px 4px 2px 2px;background:linear-gradient(var(--acc2),var(--acc));opacity:.55;transition:height .9s cubic-bezier(.2,.9,.2,1)}
+.bar.go{height:var(--h)}
+.bar:last-child{opacity:1}
+.goal{display:flex;align-items:center;gap:18px}
+.ringbox{position:relative;width:112px;height:112px;flex:none}
+.ringbox svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ringbox b{position:absolute;inset:0;display:grid;place-items:center;font:700 30px "Cormorant Garamond",serif}
+.rbg{stroke:var(--track)}
+.rfg{stroke:var(--acc);stroke-linecap:round;stroke-dasharray:263.9;stroke-dashoffset:263.9;transition:stroke-dashoffset 1.6s cubic-bezier(.2,.8,.2,1) .2s}
+.in .rfg{stroke-dashoffset:var(--off)}
+.goal p{margin:0;color:var(--mute);font-size:14px}
+.goal .big{font-size:34px;color:var(--ink)}
+.gen{display:flex;align-items:center;gap:18px}
+.donut{width:116px;height:116px;flex:none;transform:rotate(-90deg)}
+.seg-d{fill:none;stroke-width:15;stroke-dasharray:0 251.3;transition:stroke-dasharray 1.1s cubic-bezier(.2,.8,.2,1)}
+.in .seg-d{stroke-dasharray:var(--len) 251.3}
+.leg{list-style:none;margin:0;padding:0;flex:1;display:grid;gap:7px}
+.leg li{display:flex;align-items:center;gap:8px;font-size:14px}
+.leg i{width:10px;height:10px;border-radius:50%;flex:none}
+.leg em{margin-left:auto;font-style:normal;font-weight:700}
+.act svg{width:100%;height:auto;display:block;touch-action:none;overflow:visible}
+.lp{fill:none;stroke:var(--acc);stroke-width:2.6;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.5s ease}
+.lp.go{stroke-dashoffset:0}
+.area{fill:url(#ag);opacity:0;transition:opacity 1s .8s}
+.area.go{opacity:1}
+.lab{display:flex;justify-content:space-between;color:var(--mute);font-size:12px;font-weight:600;margin-top:6px}
+.tip{position:absolute;pointer-events:none;transform:translate(-50%,-100%);background:var(--acc);color:#fff;font:700 12px Manrope,sans-serif;padding:4px 9px;border-radius:99px;opacity:0;transition:opacity .2s;white-space:nowrap}
+.mini{text-align:center;padding:14px 8px}
+.mini .big{font-size:28px}
+.mini h3{margin:2px 0 0;font-size:12px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.row3 .card{margin:0}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;justify-content:space-around;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--nav);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+.nav a{display:grid;justify-items:center;gap:3px;font:700 12px Manrope,sans-serif;color:var(--mute);text-decoration:none;width:90px}
+.nav a.on{color:var(--acc)}
+.nav svg{width:26px;height:26px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hero"><img id="cat" alt="Кот спит на стопке книг рядом с экраном статистики" src="header-stats.jpg">
+    
+  </div>
+
+  <div class="sec">
+    <div class="seg" id="seg"><i></i>
+      <button data-k="week">Неделя</button><button data-k="month" class="on">Месяц</button><button data-k="year">Год</button>
+    </div>
+
+    <div class="grid rv">
+      <div class="card"><h3>Прочитано книг</h3><div class="big" id="books">0</div><span class="d" id="dBooks"></span><div class="bars" id="barsB"></div></div>
+      <div class="card"><h3>Время чтения</h3><div class="big" id="time">0</div><span class="d" id="dTime"></span><div class="bars" id="barsT"></div></div>
+    </div>
+    <div style="height:12px"></div>
+
+    <div class="card rv goal">
+      <div class="ringbox"><svg viewBox="0 0 100 100"><circle class="rbg" cx="50" cy="50" r="42" fill="none" stroke-width="10"/><circle class="rfg" cx="50" cy="50" r="42" fill="none" stroke-width="10" style="--off:73.9"/></svg><b>72%</b></div>
+      <div><h3>Цель на год</h3><div class="big">18 <small>из 25</small></div><p>Осталось 7 книг. Темп хороший.</p></div>
+    </div>
+
+    <div class="card rv act">
+      <h3>Активность</h3>
+      <div class="tip" id="tip"></div>
+      <svg id="chart" viewBox="0 0 300 120"><defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bf6052" stop-opacity=".32"/><stop offset="1" stop-color="#bf6052" stop-opacity="0"/></linearGradient></defs></svg>
+      <div class="lab" id="labs"></div>
+    </div>
+
+    <div class="card rv gen">
+      <svg class="donut" viewBox="0 0 100 100" id="donut"></svg>
+      <ul class="leg" id="leg"></ul>
+    </div>
+
+    <div class="row3 rv">
+      <div class="card mini"><div class="big" id="streak">0</div><h3>дней подряд</h3></div>
+      <div class="card mini"><div class="big" id="pages">0</div><h3>страниц</h3></div>
+      <div class="card mini"><div class="big" id="speed">0</div><h3>стр. в час</h3></div>
+    </div>
+  </div>
+</div>
+
+<nav class="navbar">
+  <a class="navbtn" href="index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg>
+    Домой
+  </a>
+  <a class="navbtn on" href="stats.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-6 4 3 5-8"/></svg>
+    Статистика
+  </a>
+  <a class="navbtn" href="index.html" onclick="localStorage.setItem('tishina.goto','settings')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Настройки
+  </a>
+</nav>
+<style>
+.navbar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid #e9e9ee;padding:8px 0 calc(10px + env(safe-area-inset-bottom));display:flex;justify-content:space-around}
+.navbtn{border:none;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font:700 10.5px Manrope,sans-serif;color:#8e8e93;cursor:pointer;padding:4px 20px;text-decoration:none}
+.navbtn svg{width:24px;height:24px}
+.navbtn.on{color:#c65b4e}
+</style>
+
+<script>
+const $=s=>document.querySelector(s);
+const D={
+ week:{b:3,db:'+1',m:384,dm:'+1 ч 12 мин',bb:[1,0,1,0,0,1,0],tb:[40,0,95,20,0,150,79],act:[40,0,95,20,0,150,79],lab:['Пн','Вт','Ср','Чт','Пт','Сб','Вс'],st:12,pg:410,sp:38},
+ month:{b:6,db:'+2',m:1520,dm:'+3 ч 40 мин',bb:[1,2,1,2],tb:[300,420,330,470],act:[300,420,330,470],lab:['Нед 1','Нед 2','Нед 3','Нед 4'],st:12,pg:1680,sp:41},
+ year:{b:24,db:'+6',m:2912,dm:'+12 ч',bb:[1,1,2,2,1,3,2,2,3,2,3,2],tb:[110,150,190,230,170,310,260,240,330,250,370,302],act:[110,150,190,230,170,310,260,240,330,250,370,302],lab:['Я','Ф','М','А','М','И','И','А','С','О','Н','Д'],st:12,pg:6840,sp:38}
+};
+const GEN=[['Фантастика',35,'#bf6052'],['Детективы',25,'#e8977c'],['Фэнтези',18,'#8f3b30'],['Романы',12,'#f0b9a4'],['Другие',10,'#b9a9a4']];
+const fmtT=m=>{const h=Math.floor(m/60),r=Math.round(m%60);return h?`${h}<small>ч</small>${r}<small>мин</small>`:`${r}<small>мин</small>`};
+const fmtN=n=>Math.round(n).toLocaleString('ru-RU');
+function count(el,to,fmt){const t0=performance.now(),T=1100;(function f(t){const k=Math.min(1,(t-t0)/T),e=1-Math.pow(1-k,3);el.innerHTML=fmt(to*e);if(k<1)requestAnimationFrame(f)})(t0)}
+function go(card){card.querySelectorAll('.bar,.lp,.area').forEach(x=>x.classList.add('go'))}
+function bars(el,arr){const mx=Math.max(...arr,1);el.innerHTML=arr.map(v=>`<div class="bar" style="--h:${Math.max(8,v/mx*100)}%"></div>`).join('');requestAnimationFrame(()=>requestAnimationFrame(()=>{if(el.closest('.rv.in'))go(el)}))}
+function chart(arr,lab){
+  const W=300,H=120,p=10,mx=Math.max(...arr,1)*1.15,n=arr.length;
+  const P=arr.map((v,i)=>[p+i*(W-2*p)/(n-1),H-8-v/mx*(H-24)]);
+  let d=`M${P[0]}`;
+  for(let i=0;i<n-1;i++){const a=P[i-1]||P[i],b=P[i],c=P[i+1],e=P[i+2]||c;
+    d+=`C${b[0]+(c[0]-a[0])/6},${b[1]+(c[1]-a[1])/6} ${c[0]-(e[0]-b[0])/6},${c[1]-(e[1]-b[1])/6} ${c}`}
+  const s=$('#chart');
+  s.querySelectorAll('.x').forEach(x=>x.remove());
+  s.insertAdjacentHTML('beforeend',`<g class="x"><path class="area" d="${d}L${P[n-1][0]},${H}L${P[0][0]},${H}Z"/><path class="lp" pathLength="1" d="${d}"/>${P.map((q,i)=>`<circle cx="${q[0]}" cy="${q[1]}" r="3.6" fill="var(--card)" stroke="var(--acc)" stroke-width="2"/>`).join('')}<circle id="hot" r="6" fill="var(--acc)" opacity="0"/></g>`);
+  $('#labs').innerHTML=lab.map(l=>`<span>${l}</span>`).join('');
+  s._P=P;s._A=arr;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{if(s.closest('.rv.in'))go(s)}));
+}
+$('#chart').addEventListener('pointermove',e=>{
+  const s=e.currentTarget,r=s.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*300;
+  let k=0;s._P.forEach((q,i)=>{if(Math.abs(q[0]-x)<Math.abs(s._P[k][0]-x))k=i});
+  const q=s._P[k],h=$('#hot'),t=$('#tip');
+  h.setAttribute('cx',q[0]);h.setAttribute('cy',q[1]);h.setAttribute('opacity',1);
+  t.innerHTML=fmtT(s._A[k]).replace(/<\/?small>/g,m=>m=='</small>'?' ':' ').trim();
+  t.style.opacity=1;t.style.left=(s.getBoundingClientRect().left-s.parentElement.getBoundingClientRect().left+q[0]/300*r.width)+'px';
+  t.style.top=(s.getBoundingClientRect().top-s.parentElement.getBoundingClientRect().top+q[1]/120*r.height-10)+'px';
+});
+$('#chart').addEventListener('pointerleave',()=>{$('#tip').style.opacity=0;const h=$('#hot');h&&h.setAttribute('opacity',0)});
+
+function render(k){
+  const d=D[k];
+  count($('#books'),d.b,v=>Math.round(v));$('#dBooks').textContent='▲ '+d.db;
+  count($('#time'),d.m,fmtT);$('#dTime').textContent='▲ '+d.dm;
+  bars($('#barsB'),d.bb);bars($('#barsT'),d.tb);
+  chart(d.act,d.lab);
+  count($('#streak'),d.st,fmtN);count($('#pages'),d.pg,fmtN);count($('#speed'),d.sp,fmtN);
+}
+// донат и легенда (один раз)
+(function(){let cum=0,h='',l='';
+  GEN.forEach(([n,v,c])=>{const len=v/100*251.3;
+    h+=`<circle class="seg-d" cx="50" cy="50" r="40" stroke="${c}" style="--len:${len-1.5}px" stroke-dashoffset="${-cum}"/>`;
+    l+=`<li><i style="background:${c}"></i>${n}<em>${v}%</em></li>`;cum+=len});
+  $('#donut').innerHTML=`<circle cx="50" cy="50" r="40" fill="none" stroke="var(--track)" stroke-width="15"/>`+h;$('#leg').innerHTML=l})();
+
+// переключатель периода
+const seg=$('#seg');
+seg.querySelectorAll('button').forEach((b,i)=>b.addEventListener('click',()=>{
+  seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+  seg.style.setProperty('--i',i);render(b.dataset.k);if(navigator.vibrate)navigator.vibrate(6)}));
+render('month');
+
+// появление секций при прокрутке
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');go(e.target);io.unobserve(e.target)}}),{threshold:.2});
+document.querySelectorAll('.rv').forEach(x=>io.observe(x));
+
+// лёгкий параллакс кота
+const cat=$('#cat');
+addEventListener('scroll',()=>{const y=Math.min(scrollY,260);cat.style.transform=`translateY(${y*.25}px) scale(${1+y*.0004})`},{passive:true});
+</script>
+</body>
+</html>

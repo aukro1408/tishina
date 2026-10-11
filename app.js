@@ -329,5 +329,10 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") closeDetail(
 window.__toast = toast;
 window.__shelfReload = reload;
 
-reload();
+reload().then(() => {
+  if (localStorage.getItem("tishina.goto") === "settings") {
+    localStorage.removeItem("tishina.goto");
+    showView("settings");
+  }
+});
 })();
