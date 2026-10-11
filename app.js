@@ -103,30 +103,13 @@ function renderShelf() {
     </div>
     <div class="sec">Все книги</div>
     <div class="lib-grid">${books.map(bookCard).join("")}</div>`;
-  /* прогресс в цвете обложки + акварельный эффект */
+  /* акварельный прогресс в терракотовых цветах */
   const inkEl = v.querySelector("#heroInk");
   const inkFill = v.querySelector("#heroInkFill");
   const targetP = pct(cur);
-  const shade = (hex, f) => {
-    const n = parseInt(hex.slice(1), 16);
-    const r = Math.min(255, Math.round(((n>>16)&255)*f));
-    const g = Math.min(255, Math.round(((n>>8)&255)*f));
-    const b = Math.min(255, Math.round((n&255)*f));
-    return `rgb(${r},${g},${b})`;
-  };
-  const paintInk = base => {
-    const c = base || "#bf6052";
-    inkFill.style.background = `linear-gradient(to right, ${shade(c,.75)}, ${c}, ${shade(c,1.25)})`;
-    inkEl.style.setProperty("--c", c);
-  };
-  coverColor(cur.cover, col => {
-    let base = "#bf6052";
-    if (col) {
-      const m = col.match(/(\d+),(\d+),(\d+)/);
-      if (m) base = "#" + [1,2,3].map(i => (+m[i]).toString(16).padStart(2,"0")).join("");
-    }
-    paintInk(base);
-  });
+  const INK = ["#a34a3e", "#d9755f", "#e8977c", "#bf6052", "#c4695a"];
+  inkFill.style.background = `linear-gradient(to right, ${INK.map((c, i) =>
+    `${c} ${(i / (INK.length - 1) * 100).toFixed(1)}%`).join(", ")})`;
   /* чернила растекаются до прогресса */
   let shown = 0;
   const flowInk = () => {
