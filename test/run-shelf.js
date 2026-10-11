@@ -39,12 +39,12 @@ const mk = (id, title, prog, ago) => ({ id, title, authors: ["Автор " + id]
     src: new Blob([new Uint8Array(8)]), parserV: 1,
     addedAt: Date.now(), lastOpened: Date.now() });
   const rp = await P.reparseIfStale(await P.get("old"));
-  ok(rp.parserV === 3 && rp.chapters[0].html === "<p>x</p>", "перепарсинг обновил главы");
+  ok(rp.parserV === 4 && rp.chapters[0].html === "<p>x</p>", "перепарсинг обновил главы");
   ok(rp.annotation === "Новое описание", "перепарсинг обновил описание");
   ok(rp.progress === 0.4 && rp.lastRead.page === 1 && rp.marks.length === 1, "прогресс и закладки целы");
   // свежая книга не трогается
   await P.put({ id: "fresh", title: "F", chapters: [{ label: "Г", html: "<p>y</p>" }],
-    parserV: 3, src: new Blob([new Uint8Array(8)]), // parseBook мока не вызовется: parserV свежий
+    parserV: 4, src: new Blob([new Uint8Array(8)]), // parseBook мока не вызовется: parserV свежий
     addedAt: Date.now(), lastOpened: Date.now() });
   const fr = await P.reparseIfStale(await P.get("fresh"));
   ok(fr.chapters[0].html === "<p>y</p>", "свежая книга не перепарсивается");

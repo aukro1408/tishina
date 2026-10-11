@@ -128,6 +128,7 @@ async function importFile(file) {
       title: parsed.title, authors: parsed.authors, format: parsed.format,
       fileName: parsed.fileName, cover: parsed.cover,
       toc: parsed.toc, chapters: parsed.chapters,
+      notes: parsed.notes || {},
       annotation: parsed.annotation || "",
       src: new Blob([u8], { type: file.type || "" }),
       parserV: TishinaParser.VERSION,
