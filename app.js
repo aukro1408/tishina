@@ -79,7 +79,12 @@ function renderShelf() {
         <div class="hero-label">Читаю сейчас</div>
         <div class="hero-title">${esc(cur.title)}</div>
         <div class="hero-author">${esc((cur.authors || []).join(", ") || "Автор неизвестен")}</div>
-        <div class="pbar"><i style="width:${pct(cur)}%"></i></div>
+        <div class="ink-progress" id="heroInk">
+          <div class="ink-track">
+            <div class="ink-wrap"><div class="ink-fill" id="heroInkFill"></div></div>
+            <div class="ink-grain"></div>
+          </div>
+        </div>
         <div class="hero-foot">
           <span class="hero-pct">${pct(cur)}%</span>
           <button class="read-btn hero-btn liquid-btn" data-read="${cur.id}">
@@ -98,11 +103,42 @@ function renderShelf() {
     </div>
     <div class="sec">Все книги</div>
     <div class="lib-grid">${books.map(bookCard).join("")}</div>`;
-  /* прогресс в цвете обложки */
+  /* прогресс в цвете обложки + акварельный эффект */
+  const inkEl = v.querySelector("#heroInk");
+  const inkFill = v.querySelector("#heroInkFill");
+  const targetP = pct(cur);
+  const shade = (hex, f) => {
+    const n = parseInt(hex.slice(1), 16);
+    const r = Math.min(255, Math.round(((n>>16)&255)*f));
+    const g = Math.min(255, Math.round(((n>>8)&255)*f));
+    const b = Math.min(255, Math.round((n&255)*f));
+    return `rgb(${r},${g},${b})`;
+  };
+  const paintInk = base => {
+    const c = base || "#bf6052";
+    inkFill.style.background = `linear-gradient(to right, ${shade(c,.75)}, ${c}, ${shade(c,1.25)})`;
+    inkEl.style.setProperty("--c", c);
+  };
   coverColor(cur.cover, col => {
-    const bar = v.querySelector(".hero-card .pbar i");
-    if (bar && col) bar.style.background = col;
+    let base = "#bf6052";
+    if (col) {
+      const m = col.match(/(\d+),(\d+),(\d+)/);
+      if (m) base = "#" + [1,2,3].map(i => (+m[i]).toString(16).padStart(2,"0")).join("");
+    }
+    paintInk(base);
   });
+  /* чернила растекаются до прогресса */
+  let shown = 0;
+  const flowInk = () => {
+    const diff = targetP - shown;
+    shown += diff * .08;
+    if (Math.abs(diff) < .3) shown = targetP;
+    inkEl.style.setProperty("--p", shown + "%");
+    inkEl.classList.toggle("flow", Math.abs(diff) > 2);
+    if (shown !== targetP) requestAnimationFrame(flowInk);
+    else inkEl.classList.remove("flow");
+  };
+  setTimeout(flowInk, 350);
 }
 
 function render() {
