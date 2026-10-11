@@ -28,6 +28,7 @@ const st = () => Reader._state();
   const ch = i => ({ label: "Глава " + (i + 1), html: "<p>текст</p>" });
   await Shelf.put({ id: "b1", title: "Книга", authors: ["А"], format: "epub", fileName: "b.epub",
     cover: null, toc: [], chapters: [ch(0), ch(1), ch(2)],
+    annotation: "Тестовое описание книги.",
     progress: 0, addedAt: now, lastOpened: now, lastRead: { ch: 1, page: 2 } });
 
   Reader._measure = () => 5; // стаб: 5 страниц в главе
@@ -139,6 +140,13 @@ const st = () => Reader._state();
   document.querySelector('#drawTabs [data-tab="bm"]').click();
   document.querySelector("#rBmList [data-del]").click();
   ok(document.querySelectorAll("#rBmList .bm-row").length === 0, "закладка удалена");
+  // таб «О книге»
+  document.querySelector('#drawTabs [data-tab="about"]').click();
+  ok(!document.getElementById("rDrawAbout").hidden, "таб о книге");
+  ok(document.getElementById("abTitle").textContent === "Книга", "название в «о книге»");
+  ok(document.getElementById("abAuthor").textContent === "А", "автор в «о книге»");
+  ok(document.getElementById("abDesc").textContent === "Тестовое описание книги.", "описание в «о книге»");
+  ok(document.getElementById("abMeta").textContent.includes("глав: 3"), "мета: " + document.getElementById("abMeta").textContent);
   document.getElementById("rDrawX").click();
   ok(!document.getElementById("rDraw").classList.contains("open"), "шторка закрыта крестиком");
   // шестерёнка на странице книги → Reader.openSettings

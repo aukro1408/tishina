@@ -277,19 +277,35 @@ function renderBm() {
     </div>`;
   }).join("") || `<div class="bm-empty">Пока пусто — нажми «+ Добавить закладку»</div>`;
 }
+function renderAbout() {
+  const b = book; if (!b) return;
+  $("abCover").innerHTML = b.cover
+    ? `<img src="${b.cover}" alt="">`
+    : `<div class="cover-ph">${escapeHtml((b.title || "?").slice(0, 32))}</div>`;
+  $("abTitle").textContent = b.title || "(без названия)";
+  $("abAuthor").textContent = (b.authors || []).join(", ") || "Автор неизвестен";
+  const ann = (b.annotation || "").trim();
+  const d = $("abDesc");
+  d.textContent = ann || "Описания нет";
+  d.classList.toggle("empty", !ann);
+  $("abMeta").textContent =
+    `${b.format ? b.format.toUpperCase() : ""} · глав: ${b.chapters.length}`.replace(/^ · /, "");
+}
 function renderDraw() {
   if (!book) return;
   document.querySelectorAll("#drawTabs button").forEach(b =>
     b.classList.toggle("on", b.dataset.tab === drawTab));
   $("rDrawCh").hidden = drawTab !== "ch";
   $("rDrawBm").hidden = drawTab !== "bm";
+  $("rDrawAbout").hidden = drawTab !== "about";
   if (drawTab === "ch") {
     $("rDrawCh").innerHTML = book.chapters.map((c, i) =>
       `<button class="ch-row${i === chIdx ? " cur" : ""}" data-ch="${i}">
         <span class="ch-label">${escapeHtml(c.label || "Глава " + (i + 1))}</span>
         ${i === chIdx ? `<span class="tick">✓</span>` : ""}
       </button>`).join("");
-  } else renderBm();
+  } else if (drawTab === "bm") renderBm();
+  else renderAbout();
   const ch = book.chapters[chIdx];
   $("rDrawFoot").textContent = `${ch ? ch.label : ""} · стр. ${page + 1}/${pages}`;
 }

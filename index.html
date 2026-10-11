@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=10"></script>
-<script src="store.js?v=10"></script>
+<script src="parser.js?v=11"></script>
+<script src="store.js?v=11"></script>
 <style>
 @font-face{font-family:'Tishina Times';src:url('fonts/times.ttf') format('truetype');font-display:swap}
 :root{
@@ -133,14 +133,14 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 .hidden{display:none!important}
 
 /* ридер */
-.reader{--rbg:#ffffff;--rink:#1c1c1e;--rmuted:#8e8e93;--rline:#e9e9ee;--rbar:rgba(255,255,255,.94);--rbgimg:none;
+.reader{--rbg:#ffffff;--rink:#1c1c1e;--rmuted:#8e8e93;--rline:#e9e9ee;--rbgimg:none;
   position:fixed;inset:0;background-color:var(--rbg);background-image:var(--rbgimg);color:var(--rink);z-index:70;display:flex;flex-direction:column;
   transform:translateY(102%);transition:transform .3s ease}
-.reader[data-bg="cream"]{--rbg:#f3f0e4;--rink:#2c2620;--rmuted:#8a7d68;--rline:#e0d4b8;--rbar:rgba(243,240,228,.94);--rbgimg:url('bg/cream.png')}
-.reader[data-bg="sepia"]{--rbg:#f3e9d2;--rink:#43382b;--rmuted:#8a7a5f;--rline:#e0d2b2;--rbar:rgba(243,233,210,.94);--rbgimg:none}
-.reader[data-bg="blue"]{--rbg:#98babc;--rink:#1f2a30;--rmuted:#54696f;--rline:#86a3a8;--rbar:rgba(152,186,188,.94);--rbgimg:url('bg/blue.png')}
-.reader[data-bg="sand"]{--rbg:#dcc2a1;--rink:#33291c;--rmuted:#77644c;--rline:#c6a67f;--rbar:rgba(220,194,161,.94);--rbgimg:url('bg/sand.png')}
-.reader[data-bg="night"]{--rbg:#17171a;--rink:#e8e3d8;--rmuted:#98989d;--rline:#2c2c31;--rbar:rgba(23,23,26,.94);--rbgimg:none}
+.reader[data-bg="cream"]{--rbg:#f3f0e4;--rink:#2c2620;--rmuted:#8a7d68;--rline:#e0d4b8;--rbgimg:url('bg/cream.png')}
+.reader[data-bg="sepia"]{--rbg:#f3e9d2;--rink:#43382b;--rmuted:#8a7a5f;--rline:#e0d2b2;--rbgimg:none}
+.reader[data-bg="blue"]{--rbg:#98babc;--rink:#1f2a30;--rmuted:#54696f;--rline:#86a3a8;--rbgimg:url('bg/blue.png')}
+.reader[data-bg="sand"]{--rbg:#dcc2a1;--rink:#33291c;--rmuted:#77644c;--rline:#c6a67f;--rbgimg:url('bg/sand.png')}
+.reader[data-bg="night"]{--rbg:#17171a;--rink:#e8e3d8;--rmuted:#98989d;--rline:#2c2c31;--rbgimg:none}
 .reader.open{transform:none}
 .r-top{position:absolute;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;gap:12px;
   padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top));
@@ -251,6 +251,17 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 .bm-meta{font-size:12px;color:var(--rmuted);margin-top:5px;font-weight:600}
 .bm-del{border:none;background:none;color:var(--rmuted);font-size:15px;cursor:pointer;padding:4px 8px;font-family:inherit;flex:0 0 auto}
 .bm-empty{padding:26px 20px;color:var(--rmuted);font-size:14px;text-align:center}
+.about-wrap{padding:18px 22px 26px;text-align:center}
+.about-cover img{width:120px;border-radius:8px;box-shadow:0 10px 26px rgba(0,0,0,.25)}
+.about-cover .cover-ph{width:120px;aspect-ratio:2/3;margin:0 auto;border-radius:8px;
+  background:linear-gradient(135deg,#3a3a3f,#6b6b72);color:#fff;display:flex;align-items:center;
+  justify-content:center;font-family:'Cormorant Garamond',serif;font-size:16px;padding:10px;
+  box-shadow:0 10px 26px rgba(0,0,0,.25)}
+.about-title{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:22px;margin:14px 0 2px}
+.about-author{color:var(--rmuted);font-size:14px;margin-bottom:14px}
+.about-desc{color:var(--rink);font-size:14.5px;line-height:1.6;text-align:justify;margin:0 0 12px}
+.about-desc.empty{color:var(--rmuted);text-align:center}
+.about-meta{color:var(--rmuted);font-size:12.5px;font-weight:700}
 .r-draw-foot{padding:12px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--rline);
   font-size:13px;font-weight:700;color:var(--rmuted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .r-set-row-col{flex-direction:column;align-items:stretch;gap:10px}
@@ -335,8 +346,8 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 
 <div class="reader" id="reader">
   <div class="r-top" id="rTop">
-    <button class="r-back" id="rMenu">☰</button>
     <button class="r-back" id="rBack">←</button>
+    <button class="r-back" id="rMenu">☰</button>
     <div class="r-title" id="rTitle"></div>
     <button class="r-aa" id="rAa">Aa</button>
     <div class="r-pct" id="rPct"></div>
@@ -356,7 +367,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
     <div class="r-draw-panel">
       <div class="r-draw-head">
         <div class="seg" id="drawTabs">
-          <button data-tab="ch" class="on">Главы</button><button data-tab="bm">Закладки</button>
+          <button data-tab="ch" class="on">Главы</button><button data-tab="bm">Закладки</button><button data-tab="about">О книге</button>
         </div>
         <button class="r-note-x" id="rDrawX">✕</button>
       </div>
@@ -364,6 +375,15 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       <div class="r-draw-list" id="rDrawBm" hidden>
         <button class="bm-add" id="bmAdd">+ Добавить закладку</button>
         <div id="rBmList"></div>
+      </div>
+      <div class="r-draw-list" id="rDrawAbout" hidden>
+        <div class="about-wrap">
+          <div class="about-cover" id="abCover"></div>
+          <div class="about-title" id="abTitle"></div>
+          <div class="about-author" id="abAuthor"></div>
+          <p class="about-desc" id="abDesc"></p>
+          <div class="about-meta" id="abMeta"></div>
+        </div>
       </div>
       <div class="r-draw-foot" id="rDrawFoot"></div>
     </div>
@@ -390,7 +410,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       </div>
     </div>
   </div>
-<script src="reader.js?v=10"></script>
-<script src="app.js?v=10"></script>
+<script src="reader.js?v=11"></script>
+<script src="app.js?v=11"></script>
 </body>
 </html>
