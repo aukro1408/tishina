@@ -60,12 +60,22 @@ function renderLib() {
     v.innerHTML = `<div class="empty"><div class="big">📚</div><p>Библиотека пуста.</p></div>`;
     return;
   }
-  v.innerHTML = `<div class="lib-grid">` + books.map(b => `
+  const now = Date.now();
+  v.innerHTML = `<div class="lib-grid">` + books.map(b => {
+    const prog = b.progress || 0;
+    const isNew = !prog && (now - (b.addedAt || 0)) < 7 * 24 * 3600 * 1000;
+    const pct = prog > 0 ? Math.round(prog * 100) + "%" : "";
+    return `
     <div class="book" data-open="${b.id}">
-      ${coverHTML(b)}
+      <div class="cover-wrap">${coverHTML(b)}</div>
       <div class="bt">${esc(b.title)}</div>
       <div class="ba">${esc((b.authors || []).join(", ") || "Автор неизвестен")}</div>
-    </div>`).join("") + `</div>`;
+      <div class="bmeta">
+        ${isNew ? `<span class="bnew">NEW</span>` : (pct ? `<span class="bprog">${pct}</span>` : `<span></span>`)}
+        <button class="bdots" data-menu="${b.id}" title="Меню">•••</button>
+      </div>
+    </div>`;
+  }).join("") + `</div>`;
 }
 
 function render() {
@@ -153,6 +163,8 @@ document.addEventListener("click", e => {
   if (t) { tab = t.dataset.tab; render(); window.scrollTo(0, 0); return; }
   const read = e.target.closest("[data-read]");
   if (read) { e.stopPropagation(); Reader.open(read.dataset.read); return; }
+  const menu = e.target.closest("[data-menu]");
+  if (menu) { e.stopPropagation(); openDetail(menu.dataset.menu); return; }
   const open = e.target.closest("[data-open]");
   if (open) { openDetail(open.dataset.open); return; }
   const goto = e.target.closest("[data-goto]");
