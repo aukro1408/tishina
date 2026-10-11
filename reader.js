@@ -226,16 +226,30 @@ function showNote(text) {
   $("rNote").classList.add("open");
 }
 function closeNote() { $("rNote").classList.remove("open"); }
-// ближайшая сноска в радиусе ~24px от точки тапа — палец редко попадает точно в мелкий индекс
+// сноска под точкой тапа: сначала хит-тест, потом геометрия (на некоторых
+// Android-хромах elementFromPoint в многоколоночной вёрстке врёт)
 function nearestFn(x, y) {
   const at = (px, py) => {
     if (typeof document.elementFromPoint !== "function") return null;
     const el = document.elementFromPoint(px, py);
     return el && el.closest ? el.closest("a.fn") : null;
   };
-  return at(x, y)
+  const hit = at(x, y)
     || at(x - 22, y) || at(x + 22, y) || at(x, y - 22) || at(x, y + 22)
     || at(x - 15, y - 15) || at(x + 15, y - 15) || at(x - 15, y + 15) || at(x + 15, y + 15);
+  if (hit) return hit;
+  // геометрия: ищем ссылку, в чей расширенный rect попала точка
+  try {
+    const pad = 26;
+    const links = document.querySelectorAll("#rPages a.fn");
+    for (const a of links) {
+      const r = a.getBoundingClientRect();
+      if (!r.width && !r.height) continue;
+      if (r.right < -50 || r.left > innerWidth + 50 || r.bottom < -50 || r.top > innerHeight + 50) continue;
+      if (x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad) return a;
+    }
+  } catch (e) {}
+  return null;
 }
 
 /* ---------- шторка глав / закладок ---------- */
