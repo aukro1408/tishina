@@ -125,6 +125,7 @@ async function parseEpub(u8, fileName, onProgress) {
   const title = textOf(metadata, "title") || fileName.replace(/\.[^.]+$/, "");
   const authors = els(metadata, "creator").map(c => (c.textContent || "").trim()).filter(Boolean);
   const lang = textOf(metadata, "language");
+  const annotation = (textOf(metadata, "description") || "").replace(/\s+/g, " ").trim().slice(0, 2000);
 
   // manifest: id -> {href, type}
   const manifest = {};
@@ -276,7 +277,7 @@ async function parseEpub(u8, fileName, onProgress) {
   }
   if (!toc.length) toc = chapters.map((c, i) => ({ label: c.label, chapter: i }));
 
-  return { format: "epub", fileName, title, authors, lang, cover, toc, chapters, notes: epubNotes || {} };
+  return { format: "epub", fileName, title, authors, lang, cover, toc, chapters, notes: epubNotes || {}, annotation };
 }
 
 /* ---------- FB2 ---------- */
@@ -305,6 +306,8 @@ function parseFb2(u8, fileName, onProgress) {
     [textOf(a, "first-name"), textOf(a, "middle-name"), textOf(a, "last-name")]
       .filter(Boolean).join(" ")).filter(Boolean) : [];
   const lang = ti ? textOf(ti, "lang") : "";
+  const annEl = ti ? first(ti, "annotation") : null;
+  const annotation = annEl ? (annEl.textContent || "").replace(/\s+/g, " ").trim().slice(0, 2000) : "";
 
   // бинарники → dataURL
   const binaries = {};
@@ -418,7 +421,7 @@ function parseFb2(u8, fileName, onProgress) {
   if (!chapters.length) fail("FB2: не нашли текст");
 
   const toc = chapters.map((c, i) => ({ label: c.label, chapter: i }));
-  return { format: "fb2", fileName, title, authors, lang, cover, toc, chapters, notes };
+  return { format: "fb2", fileName, title, authors, lang, cover, toc, chapters, notes, annotation };
 }
 
 /* ---------- ZIP ---------- */

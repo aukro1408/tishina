@@ -6,6 +6,7 @@
 <book-title>Тестовая FB2-книга</book-title>
 <lang>ru</lang>
 <coverpage><image l:href="#cover.png"/></coverpage>
+<annotation><p>Аннотация тестовой книги для проверки.</p></annotation>
 </title-info></description>
 <body>
 <section><title><p>Глава первая</p></title>

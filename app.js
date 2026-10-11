@@ -84,11 +84,24 @@ async function openDetail(id) {
   const b = await Shelf.get(id);
   if (!b) return;
   detailId = id;
+  const hb = $("dHeroBg");
+  if (b.cover) { hb.style.backgroundImage = `url("${b.cover}")`; hb.classList.remove("ph"); }
+  else { hb.style.backgroundImage = ""; hb.classList.add("ph"); }
   $("dCover").innerHTML = coverHTML(b);
   $("dTitle").textContent = b.title || "(без названия)";
   $("dAuthor").textContent = (b.authors || []).join(", ") || "Автор неизвестен";
+  const started = !!(b.lastRead || (b.progress || 0) > 0);
+  $("dRead").textContent = started ? "Продолжить чтение" : "Читать";
+  const p = pct(b);
+  $("dProg").hidden = !(p > 0);
+  $("dPct").textContent = p + "%";
+  $("dRingFg").style.strokeDashoffset = (119.4 * (1 - p / 100)).toFixed(1);
+  const ann = (b.annotation || "").trim();
+  $("dDescSec").hidden = !ann;
+  $("dDesc").textContent = ann;
   $("dToc").innerHTML = (b.toc || []).map((t, i) =>
     `<div class="row" data-goto="${i}"><span>${esc(t.label)}</span><span class="n">${i + 1}</span></div>`).join("");
+  $("detail").scrollTop = 0;
   $("detail").classList.add("open");
   document.body.style.overflow = "hidden";
   Shelf.touch(id, {});
@@ -112,6 +125,7 @@ async function importFile(file) {
       title: parsed.title, authors: parsed.authors, format: parsed.format,
       fileName: parsed.fileName, cover: parsed.cover,
       toc: parsed.toc, chapters: parsed.chapters,
+      annotation: parsed.annotation || "",
       progress: 0, addedAt: Date.now(), lastOpened: Date.now()
     };
     await Shelf.put(book);
@@ -141,6 +155,7 @@ document.addEventListener("click", e => {
 $("addBtn").onclick = () => $("fileInput").click();
 $("fileInput").onchange = e => { importFile(e.target.files[0]); e.target.value = ""; };
 $("dClose").onclick = closeDetail;
+$("dGear").onclick = () => { if (window.Reader) window.Reader.openSettings(); };
 $("dRead").onclick = () => { const id = detailId; closeDetail(); Reader.open(id); };
 $("dDel").onclick = async () => {
   if (!detailId) return;

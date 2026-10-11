@@ -141,10 +141,11 @@ const st = () => Reader._state();
   ok(document.querySelectorAll("#rBmList .bm-row").length === 0, "закладка удалена");
   document.getElementById("rDrawX").click();
   ok(!document.getElementById("rDraw").classList.contains("open"), "шторка закрыта крестиком");
-  // шестерёнка снизу
-  document.getElementById("rGear").click();
-  ok(document.getElementById("rSet").classList.contains("open"), "шестерёнка открывает настройки");
+  // шестерёнка на странице книги → Reader.openSettings
+  Reader.openSettings();
+  ok(document.getElementById("rSet").classList.contains("open"), "openSettings открывает шторку");
   document.getElementById("rSet").click();
+  ok(!document.getElementById("rSet").classList.contains("open"), "шторка закрылась");
   Reader.close();
 
   console.log(`\nИтого: ${pass} ok, ${failed} failed`);

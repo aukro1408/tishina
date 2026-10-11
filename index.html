@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=9"></script>
-<script src="store.js?v=9"></script>
+<script src="parser.js?v=10"></script>
+<script src="store.js?v=10"></script>
 <style>
 @font-face{font-family:'Tishina Times';src:url('fonts/times.ttf') format('truetype');font-display:swap}
 :root{
@@ -83,20 +83,47 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 /* детали книги */
 .detail{position:fixed;inset:0;background:var(--bg);z-index:50;overflow-y:auto;transform:translateY(100%);transition:transform .3s ease}
 .detail.open{transform:translateY(0)}
-.d-wrap{max-width:560px;margin:0 auto;padding:14px 20px 60px}
-.d-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-.d-close{border:none;background:var(--bg2);width:36px;height:36px;border-radius:50%;font-size:16px;cursor:pointer;color:var(--ink)}
-.d-del{border:none;background:none;color:#d33;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer}
-.d-head{text-align:center;margin-bottom:8px}
-.d-head .cover{width:170px;border-radius:10px;box-shadow:0 14px 34px rgba(0,0,0,.25);margin-bottom:16px}
-.d-head h2{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:30px;margin:0 0 4px;line-height:1.15}
-.d-head .da{color:var(--muted);font-size:15px;margin:0 0 14px}
-.d-actions{display:flex;gap:10px;justify-content:center;margin:6px 0 8px}
-.d-toc{margin-top:18px;border-top:1px solid var(--line)}
+.d-hero{position:relative;overflow:hidden;padding:calc(12px + env(safe-area-inset-top)) 16px 0}
+.d-hero-bg{position:absolute;inset:-30px;background-size:cover;background-position:center;
+  filter:blur(30px) saturate(1.5);opacity:.6;transform:scale(1.15)}
+.d-hero-bg.ph{background:linear-gradient(135deg,#3a3a3f,#6b6b72)}
+.d-nav{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center}
+.d-navbtn{border:none;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;
+  background:rgba(255,255,255,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:#1c1c1e;font-family:inherit;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.d-cover{position:relative;z-index:1;width:186px;margin:14px auto 0}
+.d-cover .cover{width:100%;border-radius:14px;box-shadow:0 18px 44px rgba(0,0,0,.35);display:block}
+.d-cover .cover-ph{width:100%;aspect-ratio:2/3;border-radius:14px;background:linear-gradient(135deg,#3a3a3f,#6b6b72);
+  color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;
+  font-size:20px;padding:18px;text-align:center;box-shadow:0 18px 44px rgba(0,0,0,.35)}
+.d-body{position:relative;background:var(--bg);border-radius:30px 30px 0 0;margin-top:-30px;
+  padding:30px 22px 70px;max-width:560px;margin-left:auto;margin-right:auto}
+.d-body h2{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:30px;margin:0 0 4px;line-height:1.15;text-align:center}
+.d-body .da{color:var(--muted);font-size:15px;margin:0 0 18px;text-align:center}
+.d-read{display:block;width:100%;padding:16px;font-size:17px;border-radius:999px;margin:0 0 16px;
+  background:var(--accent);color:#fff;border:none;font-family:inherit;font-weight:800;cursor:pointer}
+.d-read:active{transform:scale(.98)}
+.d-prog{display:flex;align-items:center;justify-content:space-between;gap:14px;
+  background:var(--bg2);border-radius:20px;padding:16px 18px;margin:0 0 6px}
+.d-prog-t{font-weight:800;font-size:16px;margin-bottom:3px}
+.d-prog-s{color:var(--muted);font-size:13.5px}
+.ring{position:relative;width:64px;height:64px;flex:0 0 auto}
+.ring svg{width:64px;height:64px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:5;stroke-linecap:round}
+.ring .ring-bg{stroke:#e4e4e9}
+.ring .ring-fg{stroke:var(--accent);stroke-dasharray:119.4;stroke-dashoffset:119.4}
+.ring span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:800;color:var(--accent)}
+.d-sec{margin-top:22px}
+.d-sec-t{font-weight:800;font-size:19px;margin-bottom:10px}
+.d-desc{color:#55555c;font-size:15px;line-height:1.6;margin:0;text-align:justify}
+.d-toc{border-top:1px solid var(--line)}
 .d-toc .row{display:flex;justify-content:space-between;align-items:center;padding:13px 2px;border-bottom:1px solid var(--line);
   font-size:15px;cursor:pointer}
 .d-toc .row span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-right:12px}
 .d-toc .row .n{color:var(--muted);font-size:13px;flex:0 0 auto}
+.d-del{display:block;width:100%;border:none;background:none;color:#d33;font-family:inherit;
+  font-size:15px;font-weight:700;cursor:pointer;margin-top:26px;padding:12px}
 
 /* тост */
 .toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
@@ -154,9 +181,12 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 .r-bottom .row span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* шторка настроек */
-.r-set{position:absolute;inset:0;z-index:8;display:flex;align-items:flex-end;justify-content:center;
+.r-set{position:fixed;inset:0;z-index:90;display:flex;align-items:flex-end;justify-content:center;
   background:rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .25s}
 .r-set.open{opacity:1;pointer-events:auto}
+/* меню всегда одного цвета — не красятся в фон страниц */
+.r-set-card,.r-draw-panel,.r-note-card{
+  --rbg:#ffffff;--rink:#1c1c1e;--rmuted:#8e8e93;--rline:#e9e9ee;--rbar:#ffffff;--rbgimg:none}
 .r-set-card{width:100%;max-width:560px;background:var(--rbar);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
   border-radius:22px 22px 0 0;padding:8px 22px calc(24px + env(safe-area-inset-bottom));
   transform:translateY(103%);transition:transform .28s ease;color:var(--rink)}
@@ -268,21 +298,37 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   </button>
 </div></nav>
 
-<div class="detail" id="detail"><div class="d-wrap">
-  <div class="d-top">
-    <button class="d-close" id="dClose">✕</button>
-    <button class="d-del" id="dDel">Удалить</button>
+<div class="detail" id="detail">
+  <div class="d-hero" id="dHero">
+    <div class="d-hero-bg" id="dHeroBg"></div>
+    <div class="d-nav">
+      <button class="d-navbtn" id="dClose">←</button>
+      <button class="d-navbtn" id="dGear">⚙</button>
+    </div>
+    <div class="d-cover" id="dCover"></div>
   </div>
-  <div class="d-head">
-    <div id="dCover"></div>
+  <div class="d-body">
     <h2 id="dTitle"></h2>
     <p class="da" id="dAuthor"></p>
-    <div class="d-actions">
-      <button class="read-btn" id="dRead">Читать</button>
+    <button class="read-btn d-read" id="dRead">Читать</button>
+    <div class="d-prog" id="dProg" hidden>
+      <div class="d-prog-info">
+        <div class="d-prog-t">Прогресс чтения</div>
+        <div class="d-prog-s">Продолжите с того же места</div>
+      </div>
+      <div class="ring"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" class="ring-bg"/><circle cx="22" cy="22" r="19" class="ring-fg" id="dRingFg"/></svg><span id="dPct">0%</span></div>
     </div>
+    <div class="d-sec" id="dDescSec" hidden>
+      <div class="d-sec-t">Описание</div>
+      <p class="d-desc" id="dDesc"></p>
+    </div>
+    <div class="d-sec">
+      <div class="d-sec-t">Оглавление</div>
+      <div class="d-toc" id="dToc"></div>
+    </div>
+    <button class="d-del" id="dDel">Удалить книгу</button>
   </div>
-  <div class="d-toc" id="dToc"></div>
-</div></div>
+</div>
 
 <div class="toast" id="toast"></div>
 <input type="file" id="fileInput" accept=".epub,.fb2,.zip" class="hidden">
@@ -297,28 +343,8 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   </div>
   <div class="r-content" id="rContent"><div class="r-pages" id="rPages"></div></div>
   <div class="r-bottom" id="rBottom">
-    <div class="row"><span id="rCh"></span><span class="r-row-right"><span id="rPageInfo"></span><button class="r-gear" id="rGear">⚙</button></span></div>
+    <div class="row"><span id="rCh"></span><span id="rPageInfo"></span></div>
     <div class="pbar"><i id="rBar"></i></div>
-  </div>
-  <div class="r-set" id="rSet">
-    <div class="r-set-card">
-      <div class="r-set-row"><span>Размер шрифта</span>
-        <div class="stepper"><button id="fsMinus">A−</button><span id="fsVal">19</span><button id="fsPlus">A+</button></div>
-      </div>
-      <div class="r-set-row"><span>Шрифт</span>
-        <div class="seg" id="fontSeg"><button data-font="serif" class="on">Serif</button><button data-font="times">Times</button><button data-font="sans">Sans</button></div>
-      </div>
-      <div class="r-set-row r-set-row-col"><span>Фон страниц</span>
-        <div class="bg-pick" id="bgPick">
-          <button data-bg="white" class="on"><i></i>Белый</button><button data-bg="cream"><i></i>Крем</button><button data-bg="sepia"><i></i>Сепия</button><button data-bg="blue"><i></i>Голубой</button><button data-bg="sand"><i></i>Песочный</button><button data-bg="night"><i></i>Ночь</button>
-        </div>
-      </div>
-      <div class="r-set-row r-set-row-col"><span>Перелистывание</span>
-        <div class="fx-group" id="fxGroup">
-          <button data-fx="none">Нет</button><button data-fx="slide" class="on">Слайд</button><button data-fx="shift">Сдвиг</button><button data-fx="fade">Затухание</button><button data-fx="curl">Переворот</button>
-        </div>
-      </div>
-    </div>
   </div>
   <div class="r-note" id="rNote">
     <div class="r-note-card">
@@ -344,7 +370,27 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   </div>
 </div>
 
-<script src="reader.js?v=9"></script>
-<script src="app.js?v=9"></script>
+  <div class="r-set" id="rSet">
+    <div class="r-set-card">
+      <div class="r-set-row"><span>Размер шрифта</span>
+        <div class="stepper"><button id="fsMinus">A−</button><span id="fsVal">19</span><button id="fsPlus">A+</button></div>
+      </div>
+      <div class="r-set-row"><span>Шрифт</span>
+        <div class="seg" id="fontSeg"><button data-font="serif" class="on">Serif</button><button data-font="times">Times</button><button data-font="sans">Sans</button></div>
+      </div>
+      <div class="r-set-row r-set-row-col"><span>Фон страниц</span>
+        <div class="bg-pick" id="bgPick">
+          <button data-bg="white" class="on"><i></i>Белый</button><button data-bg="cream"><i></i>Крем</button><button data-bg="sepia"><i></i>Сепия</button><button data-bg="blue"><i></i>Голубой</button><button data-bg="sand"><i></i>Песочный</button><button data-bg="night"><i></i>Ночь</button>
+        </div>
+      </div>
+      <div class="r-set-row r-set-row-col"><span>Перелистывание</span>
+        <div class="fx-group" id="fxGroup">
+          <button data-fx="none">Нет</button><button data-fx="slide" class="on">Слайд</button><button data-fx="shift">Сдвиг</button><button data-fx="fade">Затухание</button><button data-fx="curl">Переворот</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<script src="reader.js?v=10"></script>
+<script src="app.js?v=10"></script>
 </body>
 </html>

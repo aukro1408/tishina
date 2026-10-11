@@ -352,7 +352,6 @@ function bind() {
     set.bg = b.dataset.bg; saveSet(); applySettings();
   });
   $("rMenu").addEventListener("click", e => { e.stopPropagation(); openDraw(); });
-  $("rGear").addEventListener("click", e => { e.stopPropagation(); openSet(); });
   $("rDrawX").addEventListener("click", () => closeDraw());
   $("rDraw").addEventListener("click", e => { if (e.target === $("rDraw")) closeDraw(); });
   $("drawTabs").addEventListener("click", e => {
@@ -419,7 +418,7 @@ function bind() {
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (opened) layout(); });
 }
 
-const Reader = { open, close, next, prev, go, layout, applySettings,
+const Reader = { open, close, next, prev, go, layout, applySettings, openSettings: openSet,
   _settings: () => ({ ...set }),
   _state: () => ({ book: book && book.id, chIdx, page, pages, progress: bookProgress() }) };
 global.Reader = Reader;

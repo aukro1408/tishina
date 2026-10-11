@@ -22,7 +22,7 @@ const q = s => document.querySelector(s), qa = s => Array.from(document.querySel
   const now = Date.now();
   const mk = (id, title, prog, ago, cover) => ({ id, title, authors: ["Автор " + id], format: "epub",
     fileName: "t.epub", cover: cover || null, toc: [{ label: "Глава 1", chapter: 0 }], chapters: [],
-    progress: prog, addedAt: now - ago, lastOpened: now - ago });
+    annotation: "Аннотация " + id, progress: prog, addedAt: now - ago, lastOpened: now - ago });
   await Shelf.put(mk("b1", "Первая книга", 0.43, 1000, "data:image/png;base64,AAA"));
   await Shelf.put(mk("b2", "Вторая книга", 0.25, 2000));
   await Shelf.put(mk("b3", "Третья", 0, 3000));
@@ -38,15 +38,31 @@ const q = s => document.querySelector(s), qa = s => Array.from(document.querySel
   q('[data-tab="lib"]').click();
   ok(q("#pageTitle").textContent === "Библиотека", "переключение вкладки");
   ok(qa(".lib-grid .book").length === 3, "в сетке 3 книги");
-  // детали
+  // детали b1 (прогресс 43%)
   qa(".lib-grid .book")[0].click();
   await new Promise(r => setTimeout(r, 200));
   ok(q("#detail").classList.contains("open"), "детали открылись");
   ok(q("#dTitle").textContent === "Первая книга", "заголовок в деталях");
+  ok(q("#dRead").textContent === "Продолжить чтение", "кнопка «продолжить»");
+  ok(!q("#dProg").hidden, "прогресс виден");
+  ok(q("#dPct").textContent === "43%", "кольцо 43%");
+  ok(Math.abs(parseFloat(q("#dRingFg").style.strokeDashoffset) - 119.4 * 0.57) < 1, "кольцо заполнено");
+  ok(q("#dDesc").textContent === "Аннотация b1", "описание");
+  ok(q("#dHeroBg").style.backgroundImage.includes("data:image"), "блюр-фон из обложки");
   ok(qa("#dToc .row").length === 1, "оглавление в деталях");
+  q("#dGear").click(); // Reader не загружен — не должно падать
+  ok(true, "шестерёнка без ридера не падает");
   q("#dClose").click();
   await new Promise(r => setTimeout(r, 200));
   ok(!q("#detail").classList.contains("open"), "детали закрылись");
+  // детали b3 (не читалась)
+  qa(".lib-grid .book")[2].click();
+  await new Promise(r => setTimeout(r, 200));
+  ok(q("#dRead").textContent === "Читать", "кнопка «читать» для новой");
+  ok(q("#dProg").hidden, "прогресс скрыт для новой");
+  ok(q("#dHeroBg").classList.contains("ph"), "плейсхолдер фона без обложки");
+  q("#dClose").click();
+  await new Promise(r => setTimeout(r, 200));
   console.log(`\nИтого: ${pass} ok, ${failed} failed`);
   process.exit(failed ? 1 : 0);
 })().catch(e => { console.error("CRASH:", e); process.exit(1); });
