@@ -69,7 +69,6 @@ function renderShelf() {
 }
 
 function render() {
-  $("pageTitle").textContent = "Полка";
   const tc = $("topCount");
   if (books.length) {
     const n = books.length;
