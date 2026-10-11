@@ -11,6 +11,7 @@
 <body>
 <section><title><p>Глава первая</p></title>
 <p>Первый абзац в кодировке windows-1251. Ёлки-палки, проверка.<a l:href="#n1" type="note">[1]</a></p>
+<p>Словарь Уэбстера[46] как в книге Мизери.</p>
 <p>Второй абзац с <emphasis>курсивом</emphasis> и <strong>жирным</strong>.</p>
 <empty-line/>
 <image l:href="#cover.png"/>
@@ -21,6 +22,7 @@
 </body>
 <body name="notes">
 <section id="n1"><title><p>1</p></title><p>Текст пояснения-сноски для теста.</p></section>
+<section id="n46"><title><p>46</p></title><p>Ноа Уэбстер — американский лексикограф.</p></section>
 </body>
 <binary id="cover.png" content-type="image/png">iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==</binary>
 </FictionBook>

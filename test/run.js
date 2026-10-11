@@ -42,6 +42,8 @@ const load = n => ({ name: n, data: new Uint8Array(fs.readFileSync(n)) });
   ok(fb2.chapters[0].label === "Глава первая", "label: " + fb2.chapters[0].label);
   ok(fb2.notes && fb2.notes.n1 && fb2.notes.n1.includes("пояснения-сноски"), "сноска из notes body: " + (fb2.notes && fb2.notes.n1));
   ok(fb2.chapters[0].html.includes('class="fn" data-fn="n1"'), "ссылка-сноска → a.fn");
+  ok(fb2.chapters[0].html.includes('data-fn="n46">[46]</a>'), "текстовая [46] → синяя сноска");
+  ok(fb2.notes.n46 && fb2.notes.n46.includes("Уэбстер"), "текст сноски 46");
   ok(fb2.annotation === "Аннотация тестовой книги для проверки.", "аннотация: " + fb2.annotation);
 
   console.log("ZIP:");

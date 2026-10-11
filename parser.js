@@ -52,6 +52,57 @@ function mimeForExt(ext) {
   return { png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", gif: "image/gif",
            webp: "image/webp", svg: "image/svg+xml" }[ext] || "image/png";
 }
+/* Текстовые [N] → ссылки-сноски (как MoonReader/Paciuk): если есть сноска
+   с таким номером, подсвечиваем синим. */
+function notesByNum(notes) {
+  const m = {};
+  for (const id of Object.keys(notes || {})) {
+    const d = String(id).match(/(\d+)$/);
+    if (d && !m[d[1]]) m[d[1]] = id;
+  }
+  return m;
+}
+function linkBracketNotes(html, byNum) {
+  if (!html || !byNum || !Object.keys(byNum).length) return html;
+  if (!/\[\d{1,3}\]/.test(html)) return html;
+  try {
+    const doc = global.document.implementation.createHTMLDocument("");
+    doc.body.innerHTML = html;
+    const NF = (global.document.defaultView || {}).NodeFilter;
+    if (!NF) return html;
+    const walker = doc.createTreeWalker(doc.body, NF.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    const re = /\[(\d{1,3})\]/g;
+    for (const node of nodes) {
+      if (node.parentElement && node.parentElement.closest("a.fn")) continue;
+      const text = node.textContent;
+      re.lastIndex = 0;
+      if (!re.test(text)) continue;
+      re.lastIndex = 0;
+      const frag = doc.createDocumentFragment();
+      let last = 0, m, any = false;
+      while ((m = re.exec(text))) {
+        const id = byNum[m[1]];
+        if (!id) continue;
+        any = true;
+        if (m.index > last) frag.appendChild(doc.createTextNode(text.slice(last, m.index)));
+        const a = doc.createElement("a");
+        a.setAttribute("class", "fn");
+        a.setAttribute("data-fn", id);
+        a.textContent = m[0];
+        frag.appendChild(a);
+        last = m.index + m[0].length;
+      }
+      if (any) {
+        if (last < text.length) frag.appendChild(doc.createTextNode(text.slice(last)));
+        node.parentNode.replaceChild(frag, node);
+      }
+    }
+    return doc.body.innerHTML;
+  } catch (e) { return html; }
+}
+
 function u8ToBase64(u8) {
   let s = "";
   for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
@@ -238,6 +289,9 @@ async function parseEpub(u8, fileName, onProgress) {
       if (touched) ch.html = d.body.innerHTML;
     }
   } catch (e) { var epubNotes = {}; }
+  // текстовые [N] без <a> → тоже сноски
+  const epubByNum = notesByNum(epubNotes);
+  if (Object.keys(epubByNum).length) for (const ch of chapters) ch.html = linkBracketNotes(ch.html, epubByNum);
 
   // оглавление: nav (epub3) → ncx → fallback по главам
   let toc = [];
@@ -419,6 +473,10 @@ function parseFb2(u8, fileName, onProgress) {
     if (onProgress) onProgress(i + 1, list.length);
   });
   if (!chapters.length) fail("FB2: не нашли текст");
+
+  // текстовые [N] без <a> → тоже сноски
+  const byNum = notesByNum(notes);
+  if (Object.keys(byNum).length) for (const ch of chapters) ch.html = linkBracketNotes(ch.html, byNum);
 
   const toc = chapters.map((c, i) => ({ label: c.label, chapter: i }));
   return { format: "fb2", fileName, title, authors, lang, cover, toc, chapters, notes, annotation };
