@@ -181,8 +181,15 @@ function prev() {
 }
 function setChapter() {
   const ch = book.chapters[chIdx];
-  $("rPages").innerHTML =
-    `<div class="r-chapter-label">${escapeHtml(ch.label || "")}</div>` + (ch.html || "");
+  let html = `<div class="r-chapter-label">${escapeHtml(ch.label || "")}</div>` + (ch.html || "");
+  // страховка: сноски проставляем при каждом рендере (на случай битого HTML в старых книгах)
+  try {
+    const P = global.TishinaParser;
+    if (P && book.notes && Object.keys(book.notes).length) {
+      html = P.linkBracketNotes(html, P.notesByNum(book.notes));
+    }
+  } catch (e) {}
+  $("rPages").innerHTML = html;
   $("rPages").setAttribute("lang", book.lang || "ru");
   $("rPages").scrollLeft = 0;
   layout();
@@ -425,9 +432,18 @@ function bind() {
 
   const content = $("rContent");
   content.addEventListener("click", e => {
-    // сноска — попап вместо листания
-    const fn0 = e.target.closest("a.fn");
-    const fn = fn0 || nearestFn(e.clientX, e.clientY);
+    // сноска — попап вместо листания.
+    // 1) прямое попадание; 2) сноска в том же абзаце (без координат — для хромов с битым хит-тестом);
+    // 3) ближайшая по координатам.
+    let fn = e.target.closest ? e.target.closest("a.fn") : null;
+    if (!fn && e.target.closest) {
+      const p = e.target.closest("p, li, blockquote");
+      if (p) {
+        const links = p.querySelectorAll("a.fn");
+        if (links.length === 1) fn = links[0];
+      }
+    }
+    if (!fn) fn = nearestFn(e.clientX, e.clientY);
     if (fn && book && book.notes && book.notes[fn.dataset.fn]) {
       e.stopPropagation();
       showNote(book.notes[fn.dataset.fn]);
