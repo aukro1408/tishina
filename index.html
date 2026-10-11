@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=26"></script>
-<script src="store.js?v=26"></script>
+<script src="parser.js?v=27"></script>
+<script src="store.js?v=27"></script>
 <style>
 @font-face{font-family:'Tishina Times';src:url('fonts/times.ttf') format('truetype');font-display:swap}
 :root{
@@ -144,6 +144,21 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   opacity:0;transition:.25s;z-index:80;pointer-events:none;max-width:86vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .hidden{display:none!important}
+
+/* меню книги (action sheet) */
+.sheet{position:fixed;inset:0;z-index:70;display:flex;align-items:flex-end;justify-content:center;
+  background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .25s}
+.sheet.open{opacity:1;pointer-events:auto}
+.sheet-card{width:100%;max-width:560px;background:var(--bg);border-radius:22px 22px 0 0;
+  padding:10px 16px calc(20px + env(safe-area-inset-bottom));transform:translateY(103%);transition:transform .3s ease}
+.sheet.open .sheet-card{transform:none}
+.sheet-title{font-size:15px;font-weight:800;text-align:center;padding:10px 0 6px;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheet-btn{display:block;width:100%;border:none;background:var(--bg2);font-family:inherit;font-size:16px;
+  font-weight:600;color:var(--ink);padding:15px;border-radius:14px;margin-top:8px;cursor:pointer}
+.sheet-btn:active{opacity:.6}
+.sheet-btn.danger{color:#ff3b30}
+.sheet-btn.cancel{background:none;color:var(--accent);font-weight:800}
 
 /* ридер */
 .reader{--rbg:#ffffff;--rink:#1c1c1e;--rmuted:#8e8e93;--rline:#e9e9ee;--rbar:rgba(255,255,255,.94);--rbgimg:none;
@@ -344,6 +359,17 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 </div>
 
 <div class="toast" id="toast"></div>
+
+<div class="sheet" id="bookMenu">
+  <div class="sheet-card">
+    <div class="sheet-title" id="bmTitle">Книга</div>
+    <button class="sheet-btn" id="bmOpen">Подробнее</button>
+    <button class="sheet-btn danger" id="bmDelShelf">Удалить с полки</button>
+    <button class="sheet-btn danger" id="bmDelDevice">Удалить с устройства</button>
+    <button class="sheet-btn cancel" id="bmCancel">Отмена</button>
+  </div>
+</div>
+
 <input type="file" id="fileInput" accept=".epub,.fb2,.zip" class="hidden">
 
 <div class="reader" id="reader">
@@ -412,7 +438,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       </div>
     </div>
   </div>
-<script src="reader.js?v=26"></script>
-<script src="app.js?v=26"></script>
+<script src="reader.js?v=27"></script>
+<script src="app.js?v=27"></script>
 </body>
 </html>

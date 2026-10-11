@@ -75,6 +75,17 @@ function render() {
 
 async function reload() { books = await Shelf.all(); render(); }
 
+/* ---------- меню книги ---------- */
+let menuId = null;
+function openBookMenu(id) {
+  const b = books.find(x => x.id === id);
+  if (!b) return;
+  menuId = id;
+  $("bmTitle").textContent = b.title || "Книга";
+  $("bookMenu").classList.add("open");
+}
+function closeBookMenu() { $("bookMenu").classList.remove("open"); menuId = null; }
+
 /* ---------- детали ---------- */
 
 async function openDetail(id) {
@@ -149,7 +160,7 @@ document.addEventListener("click", e => {
   const read = e.target.closest("[data-read]");
   if (read) { e.stopPropagation(); Reader.open(read.dataset.read); return; }
   const menu = e.target.closest("[data-menu]");
-  if (menu) { e.stopPropagation(); openDetail(menu.dataset.menu); return; }
+  if (menu) { e.stopPropagation(); openBookMenu(menu.dataset.menu); return; }
   const open = e.target.closest("[data-open]");
   if (open) { openDetail(open.dataset.open); return; }
   const goto = e.target.closest("[data-goto]");
@@ -166,6 +177,30 @@ $("dDel").onclick = async () => {
   await Shelf.del(detailId);
   closeDetail();
   toast("Книга удалена");
+};
+/* меню книги */
+$("bmCancel").onclick = closeBookMenu;
+$("bookMenu").addEventListener("click", e => { if (e.target === $("bookMenu")) closeBookMenu(); });
+$("bmOpen").onclick = () => { const id = menuId; closeBookMenu(); if (id) openDetail(id); };
+$("bmDelShelf").onclick = async () => {
+  const id = menuId;
+  if (!id) return;
+  const b = books.find(x => x.id === id);
+  if (!confirm(`Убрать «${b ? b.title : "книгу"}» с полки?`)) return;
+  closeBookMenu();
+  await Shelf.del(id);
+  await reload();
+  toast("Убрано с полки");
+};
+$("bmDelDevice").onclick = async () => {
+  const id = menuId;
+  if (!id) return;
+  const b = books.find(x => x.id === id);
+  if (!confirm(`Удалить «${b ? b.title : "книгу"}» с устройства?\nКнига и все данные будут стёрты безвозвратно.`)) return;
+  closeBookMenu();
+  await Shelf.del(id);
+  await reload();
+  toast("Удалено с устройства");
 };
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeDetail(); });
 
