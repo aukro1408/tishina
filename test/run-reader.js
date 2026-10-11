@@ -68,13 +68,13 @@ const st = () => Reader._state();
   ok(document.getElementById("reader").style.getPropertyValue("--rfs") === "19.5px", "--rfs применён");
   document.getElementById("fsMinus").click(); document.getElementById("fsMinus").click();
   ok(Math.abs(Reader._settings().fontSize - 17.5) < 1e-9, "размер −2");
-  document.querySelector('#themeSeg [data-theme="night"]').click();
-  ok(document.getElementById("reader").classList.contains("th-night"), "ночная тема");
-  ok(Reader._settings().theme === "night", "тема в настройках");
+  document.querySelector('#bgPick [data-bg="night"]').click();
+  ok(document.getElementById("reader").dataset.bg === "night", "ночной фон");
+  ok(Reader._settings().bg === "night", "фон в настройках");
   document.querySelector('#fontSeg [data-font="sans"]').click();
   ok(document.getElementById("reader").classList.contains("ff-sans"), "sans-шрифт");
   const stored = JSON.parse(window.localStorage.getItem("tishina.read"));
-  ok(stored && stored.theme === "night" && Math.abs(stored.fontSize - 17.5) < 1e-9, "настройки в localStorage");
+  ok(stored && stored.bg === "night" && Math.abs(stored.fontSize - 17.5) < 1e-9, "настройки в localStorage");
   document.getElementById("rAa").click();
   ok(document.getElementById("rSet").classList.contains("open"), "шторка открылась");
   document.getElementById("rSet").click();
@@ -111,6 +111,40 @@ const st = () => Reader._state();
   ok(document.getElementById("rNoteText").textContent === "Текст пояснения", "текст сноски верный");
   document.getElementById("rNoteX").click();
   ok(!document.getElementById("rNote").classList.contains("open"), "попап закрылся");
+  Reader.close();
+
+  // шторка глав/закладок
+  await Reader.open("b1");
+  document.getElementById("rMenu").click();
+  ok(document.getElementById("rDraw").classList.contains("open"), "шторка открылась");
+  ok(document.querySelectorAll("#rDrawCh .ch-row").length === 3, "3 главы в списке");
+  ok(!!document.querySelector("#rDrawCh .ch-row.cur .tick"), "текущая глава с галочкой");
+  ok(document.getElementById("rDrawFoot").textContent.includes("стр."), "футер со страницей");
+  document.querySelector('#rDrawCh [data-ch="2"]').click();
+  s = st();
+  ok(s.chIdx === 2 && s.page === 0, "переход к главе из шторки");
+  ok(!document.getElementById("rDraw").classList.contains("open"), "шторка закрылась");
+  // закладки
+  document.getElementById("rMenu").click();
+  document.querySelector('#drawTabs [data-tab="bm"]').click();
+  ok(!document.getElementById("rDrawBm").hidden, "таб закладок");
+  document.getElementById("bmAdd").click();
+  ok(document.querySelectorAll("#rBmList .bm-row").length === 1, "закладка добавлена");
+  const bmMeta = document.querySelector("#rBmList .bm-meta").textContent;
+  ok(bmMeta.includes("Глава 3") && bmMeta.includes("стр. 1"), "мета закладки: " + bmMeta);
+  document.querySelector("#rBmList .bm-go").click();
+  s = st();
+  ok(s.chIdx === 2 && s.page === 0 && !document.getElementById("rDraw").classList.contains("open"), "переход по закладке");
+  document.getElementById("rMenu").click();
+  document.querySelector('#drawTabs [data-tab="bm"]').click();
+  document.querySelector("#rBmList [data-del]").click();
+  ok(document.querySelectorAll("#rBmList .bm-row").length === 0, "закладка удалена");
+  document.getElementById("rDrawX").click();
+  ok(!document.getElementById("rDraw").classList.contains("open"), "шторка закрыта крестиком");
+  // шестерёнка снизу
+  document.getElementById("rGear").click();
+  ok(document.getElementById("rSet").classList.contains("open"), "шестерёнка открывает настройки");
+  document.getElementById("rSet").click();
   Reader.close();
 
   console.log(`\nИтого: ${pass} ok, ${failed} failed`);

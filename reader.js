@@ -14,13 +14,16 @@ const SET_KEY = "tishina.read";
 let set = { fontSize: 18.5, font: "serif", theme: "day", turn: "slide" };
 try { Object.assign(set, JSON.parse(localStorage.getItem(SET_KEY) || "{}")); } catch (e) {}
 function saveSet() { try { localStorage.setItem(SET_KEY, JSON.stringify(set)); } catch (e) {} }
+function curBg() {
+  if (set.bg) return set.bg;
+  return ({ day: "white", sepia: "sepia", night: "night" })[set.theme] || "white";
+}
 function applySettings() {
   const r = $("reader");
   r.style.setProperty("--rfs", set.fontSize + "px");
+  r.dataset.bg = curBg();
   r.classList.toggle("ff-sans", set.font === "sans");
   r.classList.toggle("ff-times", set.font === "times");
-  r.classList.toggle("th-sepia", set.theme === "sepia");
-  r.classList.toggle("th-night", set.theme === "night");
   syncSetUI();
   if (opened) layout();
 }
@@ -209,6 +212,8 @@ function syncSetUI() {
     b.classList.toggle("on", b.dataset.theme === set.theme));
   document.querySelectorAll("#fxGroup button").forEach(b =>
     b.classList.toggle("on", b.dataset.fx === (set.turn || "slide")));
+  document.querySelectorAll("#bgPick button").forEach(b =>
+    b.classList.toggle("on", b.dataset.bg === curBg()));
   $("fsVal").textContent = Math.round(set.fontSize);
 }
 function openSet() { $("rSet").classList.add("open"); }
@@ -221,6 +226,73 @@ function showNote(text) {
   $("rNote").classList.add("open");
 }
 function closeNote() { $("rNote").classList.remove("open"); }
+
+/* ---------- шторка глав / закладок ---------- */
+let drawTab = "ch";
+function openDraw(tab) { drawTab = tab || drawTab; renderDraw(); $("rDraw").classList.add("open"); }
+function closeDraw() { $("rDraw").classList.remove("open"); }
+function getMarks() { return (book && book.marks) || []; }
+function persistMarks() { if (book && global.Shelf) global.Shelf.touch(book.id, { marks: book.marks }); }
+function fmtDate(ts) {
+  try { return new Date(ts).toLocaleDateString("ru-RU", { day: "numeric", month: "short" }); }
+  catch (e) { return ""; }
+}
+function pageSnippet() {
+  // первый видимый текст текущей страницы
+  try {
+    const crp = document.caretRangeFromPoint;
+    if (typeof crp !== "function") return "";
+    const r = $("rContent").getBoundingClientRect();
+    const range = crp.call(document, r.left + 28, r.top + 30);
+    if (!range || !range.startContainer) return "";
+    const walker = document.createTreeWalker($("rPages"), NodeFilter.SHOW_TEXT);
+    walker.currentNode = range.startContainer;
+    let node = range.startContainer, off = range.startOffset, out = "", first = true;
+    while (node) {
+      let t = node.textContent || "";
+      if (first) { t = t.slice(off); first = false; }
+      out += t + " ";
+      if (out.length > 110) break;
+      node = walker.nextNode();
+    }
+    return out.replace(/\s+/g, " ").trim().slice(0, 100);
+  } catch (e) { return ""; }
+}
+function addMark() {
+  if (!book) return;
+  book.marks = [{ ch: chIdx, page, snippet: pageSnippet(), ts: Date.now() },
+    ...getMarks()].slice(0, 200);
+  persistMarks(); renderBm();
+}
+function renderBm() {
+  const ms = getMarks();
+  $("rBmList").innerHTML = ms.map((m, i) => {
+    const ch = book.chapters[m.ch];
+    return `<div class="bm-row">
+      <button class="bm-go" data-bm="${i}">
+        <div class="bm-snippet">${escapeHtml(m.snippet || (ch && ch.label) || "")}</div>
+        <div class="bm-meta">${escapeHtml((ch && ch.label) || "")} · стр. ${m.page + 1} · ${fmtDate(m.ts)}</div>
+      </button>
+      <button class="bm-del" data-del="${i}" title="Удалить">✕</button>
+    </div>`;
+  }).join("") || `<div class="bm-empty">Пока пусто — нажми «+ Добавить закладку»</div>`;
+}
+function renderDraw() {
+  if (!book) return;
+  document.querySelectorAll("#drawTabs button").forEach(b =>
+    b.classList.toggle("on", b.dataset.tab === drawTab));
+  $("rDrawCh").hidden = drawTab !== "ch";
+  $("rDrawBm").hidden = drawTab !== "bm";
+  if (drawTab === "ch") {
+    $("rDrawCh").innerHTML = book.chapters.map((c, i) =>
+      `<button class="ch-row${i === chIdx ? " cur" : ""}" data-ch="${i}">
+        <span class="ch-label">${escapeHtml(c.label || "Глава " + (i + 1))}</span>
+        ${i === chIdx ? `<span class="tick">✓</span>` : ""}
+      </button>`).join("");
+  } else renderBm();
+  const ch = book.chapters[chIdx];
+  $("rDrawFoot").textContent = `${ch ? ch.label : ""} · стр. ${page + 1}/${pages}`;
+}
 
 async function open(id, chapter, pg) {
   const b = await global.Shelf.get(id);
@@ -271,13 +343,43 @@ function bind() {
     const b = e.target.closest("button"); if (!b) return;
     set.font = b.dataset.font; saveSet(); applySettings();
   });
-  $("themeSeg").addEventListener("click", e => {
-    const b = e.target.closest("button"); if (!b) return;
-    set.theme = b.dataset.theme; saveSet(); applySettings();
-  });
   $("fxGroup").addEventListener("click", e => {
     const b = e.target.closest("button"); if (!b) return;
     set.turn = b.dataset.fx; saveSet(); syncSetUI();
+  });
+  $("bgPick").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    set.bg = b.dataset.bg; saveSet(); applySettings();
+  });
+  $("rMenu").addEventListener("click", e => { e.stopPropagation(); openDraw(); });
+  $("rGear").addEventListener("click", e => { e.stopPropagation(); openSet(); });
+  $("rDrawX").addEventListener("click", () => closeDraw());
+  $("rDraw").addEventListener("click", e => { if (e.target === $("rDraw")) closeDraw(); });
+  $("drawTabs").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    drawTab = b.dataset.tab; renderDraw();
+  });
+  $("rDrawCh").addEventListener("click", e => {
+    const b = e.target.closest("[data-ch]"); if (!b) return;
+    const i = +b.dataset.ch;
+    closeDraw();
+    chIdx = i; page = 0; setChapter(); paint(1);
+    saveSoon();
+  });
+  $("bmAdd").addEventListener("click", addMark);
+  $("rBmList").addEventListener("click", e => {
+    const del = e.target.closest("[data-del]");
+    if (del) {
+      const ms = getMarks(); ms.splice(+del.dataset.del, 1);
+      book.marks = ms; persistMarks(); renderBm(); return;
+    }
+    const go2 = e.target.closest("[data-bm]");
+    if (go2) {
+      const m = getMarks()[+go2.dataset.bm]; if (!m) return;
+      closeDraw();
+      chIdx = clamp(m.ch, 0, book.chapters.length - 1);
+      setChapter(); go(m.page);
+    }
   });
 
   const content = $("rContent");

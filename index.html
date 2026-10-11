@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=8"></script>
-<script src="store.js?v=8"></script>
+<script src="parser.js?v=9"></script>
+<script src="store.js?v=9"></script>
 <style>
 @font-face{font-family:'Tishina Times';src:url('fonts/times.ttf') format('truetype');font-display:swap}
 :root{
@@ -106,11 +106,14 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 .hidden{display:none!important}
 
 /* ридер */
-.reader{--rbg:#ffffff;--rink:#1c1c1e;--rmuted:#8e8e93;--rline:#e9e9ee;--rbar:rgba(255,255,255,.94);
-  position:fixed;inset:0;background:var(--rbg);color:var(--rink);z-index:70;display:flex;flex-direction:column;
+.reader{--rbg:#ffffff;--rink:#1c1c1e;--rmuted:#8e8e93;--rline:#e9e9ee;--rbar:rgba(255,255,255,.94);--rbgimg:none;
+  position:fixed;inset:0;background-color:var(--rbg);background-image:var(--rbgimg);color:var(--rink);z-index:70;display:flex;flex-direction:column;
   transform:translateY(102%);transition:transform .3s ease}
-.reader.th-sepia{--rbg:#f3e9d2;--rink:#43382b;--rmuted:#8a7a5f;--rline:#e0d2b2;--rbar:rgba(243,233,210,.94)}
-.reader.th-night{--rbg:#17171a;--rink:#e8e3d8;--rmuted:#98989d;--rline:#2c2c31;--rbar:rgba(23,23,26,.94)}
+.reader[data-bg="cream"]{--rbg:#f3f0e4;--rink:#2c2620;--rmuted:#8a7d68;--rline:#e0d4b8;--rbar:rgba(243,240,228,.94);--rbgimg:url('bg/cream.png')}
+.reader[data-bg="sepia"]{--rbg:#f3e9d2;--rink:#43382b;--rmuted:#8a7a5f;--rline:#e0d2b2;--rbar:rgba(243,233,210,.94);--rbgimg:none}
+.reader[data-bg="blue"]{--rbg:#98babc;--rink:#1f2a30;--rmuted:#54696f;--rline:#86a3a8;--rbar:rgba(152,186,188,.94);--rbgimg:url('bg/blue.png')}
+.reader[data-bg="sand"]{--rbg:#dcc2a1;--rink:#33291c;--rmuted:#77644c;--rline:#c6a67f;--rbar:rgba(220,194,161,.94);--rbgimg:url('bg/sand.png')}
+.reader[data-bg="night"]{--rbg:#17171a;--rink:#e8e3d8;--rmuted:#98989d;--rline:#2c2c31;--rbar:rgba(23,23,26,.94);--rbgimg:none}
 .reader.open{transform:none}
 .r-top{position:absolute;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;gap:12px;
   padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top));
@@ -170,6 +173,56 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   color:var(--rink);font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}
 .stepper button:active{transform:scale(.93)}
 #fsVal{min-width:30px;text-align:center;font-size:16px}
+.r-row-right{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.r-gear{border:none;background:none;font-size:17px;color:var(--rmuted);cursor:pointer;padding:2px 4px;font-family:inherit}
+.r-gear:active{transform:rotate(40deg)}
+
+/* выбор фона */
+.bg-pick{display:flex;gap:4px;flex-wrap:wrap}
+.bg-pick button{border:none;background:none;font-family:inherit;font-size:11px;font-weight:700;color:var(--rmuted);
+  display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:4px 2px;min-width:54px}
+.bg-pick button i{width:44px;height:44px;border-radius:50%;display:block;
+  border:1px solid var(--rline);box-shadow:inset 0 0 0 3px rgba(255,255,255,.22)}
+.bg-pick [data-bg="white"] i{background:#ffffff}
+.bg-pick [data-bg="cream"] i{background:#f3f0e4 url('bg/cream.png')}
+.bg-pick [data-bg="sepia"] i{background:#f3e9d2}
+.bg-pick [data-bg="blue"] i{background:#98babc url('bg/blue.png')}
+.bg-pick [data-bg="sand"] i{background:#dcc2a1 url('bg/sand.png')}
+.bg-pick [data-bg="night"] i{background:#17171a}
+.bg-pick button.on{color:var(--rink)}
+.bg-pick button.on i{box-shadow:0 0 0 2px var(--rbg),0 0 0 4px var(--rink)}
+
+/* шторка глав/закладок */
+.r-draw{position:absolute;inset:0;z-index:11;pointer-events:none}
+.r-draw::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.35);opacity:0;transition:opacity .3s}
+.r-draw.open{pointer-events:auto}
+.r-draw.open::after{opacity:1}
+.r-draw-panel{position:absolute;top:0;bottom:0;left:0;width:min(340px,88%);z-index:1;
+  background-color:var(--rbg);background-image:var(--rbgimg);color:var(--rink);
+  border-right:1px solid var(--rline);display:flex;flex-direction:column;
+  transform:translateX(-104%);transition:transform .32s cubic-bezier(0.25,0.46,0.45,0.94);
+  padding-top:env(safe-area-inset-top);box-shadow:10px 0 34px rgba(0,0,0,.2)}
+.r-draw.open .r-draw-panel{transform:none}
+.r-draw-head{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 14px 12px;border-bottom:1px solid var(--rline)}
+.r-draw-list{flex:1;overflow-y:auto;padding:4px 0;-webkit-overflow-scrolling:touch}
+.ch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+  border:none;background:none;text-align:left;font-family:inherit;cursor:pointer;
+  font-size:15px;font-weight:600;color:var(--rink);padding:13px 20px;
+  border-bottom:1px dashed var(--rline)}
+.ch-row .tick{color:#c65b4e;font-weight:800;flex:0 0 auto}
+.ch-row.cur .ch-label{font-weight:800}
+.bm-add{display:block;width:calc(100% - 40px);margin:12px 20px;padding:12px;border-radius:14px;
+  border:1.5px dashed var(--rmuted);background:none;color:var(--rink);font-family:inherit;
+  font-size:14px;font-weight:700;cursor:pointer}
+.bm-row{display:flex;align-items:flex-start;gap:6px;border-bottom:1px dashed var(--rline);padding:12px 12px 12px 20px}
+.bm-go{flex:1;min-width:0;border:none;background:none;text-align:left;font-family:inherit;cursor:pointer;padding:0;color:var(--rink)}
+.bm-snippet{font-size:14px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bm-meta{font-size:12px;color:var(--rmuted);margin-top:5px;font-weight:600}
+.bm-del{border:none;background:none;color:var(--rmuted);font-size:15px;cursor:pointer;padding:4px 8px;font-family:inherit;flex:0 0 auto}
+.bm-empty{padding:26px 20px;color:var(--rmuted);font-size:14px;text-align:center}
+.r-draw-foot{padding:12px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--rline);
+  font-size:13px;font-weight:700;color:var(--rmuted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .r-set-row-col{flex-direction:column;align-items:stretch;gap:10px}
 .fx-group{display:flex;flex-wrap:wrap;gap:8px}
 .fx-group button{border:none;background:rgba(120,120,128,.16);font-family:inherit;font-weight:700;font-size:13px;
@@ -236,6 +289,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 
 <div class="reader" id="reader">
   <div class="r-top" id="rTop">
+    <button class="r-back" id="rMenu">☰</button>
     <button class="r-back" id="rBack">←</button>
     <div class="r-title" id="rTitle"></div>
     <button class="r-aa" id="rAa">Aa</button>
@@ -243,7 +297,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   </div>
   <div class="r-content" id="rContent"><div class="r-pages" id="rPages"></div></div>
   <div class="r-bottom" id="rBottom">
-    <div class="row"><span id="rCh"></span><span id="rPageInfo"></span></div>
+    <div class="row"><span id="rCh"></span><span class="r-row-right"><span id="rPageInfo"></span><button class="r-gear" id="rGear">⚙</button></span></div>
     <div class="pbar"><i id="rBar"></i></div>
   </div>
   <div class="r-set" id="rSet">
@@ -254,8 +308,10 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       <div class="r-set-row"><span>Шрифт</span>
         <div class="seg" id="fontSeg"><button data-font="serif" class="on">Serif</button><button data-font="times">Times</button><button data-font="sans">Sans</button></div>
       </div>
-      <div class="r-set-row"><span>Тема</span>
-        <div class="seg" id="themeSeg"><button data-theme="day" class="on">День</button><button data-theme="sepia">Сепия</button><button data-theme="night">Ночь</button></div>
+      <div class="r-set-row r-set-row-col"><span>Фон страниц</span>
+        <div class="bg-pick" id="bgPick">
+          <button data-bg="white" class="on"><i></i>Белый</button><button data-bg="cream"><i></i>Крем</button><button data-bg="sepia"><i></i>Сепия</button><button data-bg="blue"><i></i>Голубой</button><button data-bg="sand"><i></i>Песочный</button><button data-bg="night"><i></i>Ночь</button>
+        </div>
       </div>
       <div class="r-set-row r-set-row-col"><span>Перелистывание</span>
         <div class="fx-group" id="fxGroup">
@@ -270,9 +326,25 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       <div class="r-note-text" id="rNoteText"></div>
     </div>
   </div>
+  <div class="r-draw" id="rDraw">
+    <div class="r-draw-panel">
+      <div class="r-draw-head">
+        <div class="seg" id="drawTabs">
+          <button data-tab="ch" class="on">Главы</button><button data-tab="bm">Закладки</button>
+        </div>
+        <button class="r-note-x" id="rDrawX">✕</button>
+      </div>
+      <div class="r-draw-list" id="rDrawCh"></div>
+      <div class="r-draw-list" id="rDrawBm" hidden>
+        <button class="bm-add" id="bmAdd">+ Добавить закладку</button>
+        <div id="rBmList"></div>
+      </div>
+      <div class="r-draw-foot" id="rDrawFoot"></div>
+    </div>
+  </div>
 </div>
 
-<script src="reader.js?v=8"></script>
-<script src="app.js?v=8"></script>
+<script src="reader.js?v=9"></script>
+<script src="app.js?v=9"></script>
 </body>
 </html>

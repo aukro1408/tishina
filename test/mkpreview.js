@@ -40,6 +40,7 @@ const openScript = `<script>
 (async () => {
   try {
     await Reader.open("b1");
+
     ${hide ? 'document.getElementById("rTop").classList.add("gone");document.getElementById("rBottom").classList.add("gone");' : ""}
     document.title = "OPENED";
   } catch (e) { document.title = "ERR " + (e && e.message); }
