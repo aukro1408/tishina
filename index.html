@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=7"></script>
-<script src="store.js?v=7"></script>
+<script src="parser.js?v=8"></script>
+<script src="store.js?v=8"></script>
 <style>
 @font-face{font-family:'Tishina Times';src:url('fonts/times.ttf') format('truetype');font-display:swap}
 :root{
@@ -170,6 +170,11 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   color:var(--rink);font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}
 .stepper button:active{transform:scale(.93)}
 #fsVal{min-width:30px;text-align:center;font-size:16px}
+.r-set-row-col{flex-direction:column;align-items:stretch;gap:10px}
+.fx-group{display:flex;flex-wrap:wrap;gap:8px}
+.fx-group button{border:none;background:rgba(120,120,128,.16);font-family:inherit;font-weight:700;font-size:13px;
+  padding:9px 14px;border-radius:999px;cursor:pointer;color:var(--rink)}
+.fx-group button.on{background:var(--rink);color:var(--rbg)}
 
 /* попап сноски */
 .r-note{position:absolute;inset:0;z-index:9;display:flex;align-items:flex-end;justify-content:center;
@@ -252,6 +257,11 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       <div class="r-set-row"><span>Тема</span>
         <div class="seg" id="themeSeg"><button data-theme="day" class="on">День</button><button data-theme="sepia">Сепия</button><button data-theme="night">Ночь</button></div>
       </div>
+      <div class="r-set-row r-set-row-col"><span>Перелистывание</span>
+        <div class="fx-group" id="fxGroup">
+          <button data-fx="none">Нет</button><button data-fx="slide" class="on">Слайд</button><button data-fx="shift">Сдвиг</button><button data-fx="fade">Затухание</button><button data-fx="curl">Переворот</button>
+        </div>
+      </div>
     </div>
   </div>
   <div class="r-note" id="rNote">
@@ -262,7 +272,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   </div>
 </div>
 
-<script src="reader.js?v=7"></script>
-<script src="app.js?v=7"></script>
+<script src="reader.js?v=8"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>

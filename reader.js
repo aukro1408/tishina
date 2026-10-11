@@ -11,7 +11,7 @@ let chLens = [], totalLen = 0;
 
 /* ---------- настройки чтения ---------- */
 const SET_KEY = "tishina.read";
-let set = { fontSize: 18.5, font: "serif", theme: "day" };
+let set = { fontSize: 18.5, font: "serif", theme: "day", turn: "slide" };
 try { Object.assign(set, JSON.parse(localStorage.getItem(SET_KEY) || "{}")); } catch (e) {}
 function saveSet() { try { localStorage.setItem(SET_KEY, JSON.stringify(set)); } catch (e) {} }
 function applySettings() {
@@ -71,10 +71,68 @@ function layout() {
   page = clamp(page, 0, pages - 1);
   paint();
 }
-function paint() {
+function paint(dir) {
+  const el = $("rPages");
   const { w } = dims();
-  $("rPages").scrollLeft = page * (w + GAP);
+  const target = page * (w + GAP);
   updateChrome();
+  const fx = (global.matchMedia && global.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    ? "none" : (set.turn || "slide");
+  if (fx === "none" || !dir) { jumpTo(el, target); return; }
+  if (fx === "shift") { smoothTo(el, target); return; }
+  // slide / fade / curl — как в Paciuk Reader: стартовая поза → прыжок → анимация к покою
+  const D = dir > 0 ? 1 : -1;
+  el.style.transition = "none";
+  el.style.transformOrigin = "";
+  el.style.filter = "none";
+  if (fx === "slide") {
+    el.style.transform = `translateX(${D * 42}px) scale(0.97)`;
+    el.style.opacity = "0";
+  } else if (fx === "fade") {
+    el.style.transform = "none";
+    el.style.opacity = "0";
+  } else if (fx === "curl") {
+    el.style.transformOrigin = D > 0 ? "left center" : "right center";
+    el.style.transform = `perspective(1400px) rotateY(${D * -14}deg) scale(0.96)`;
+    el.style.opacity = "1";
+    el.style.filter = "brightness(0.93)";
+  }
+  jumpTo(el, target);
+  nextFrame(() => {
+    el.style.transition = "transform .38s cubic-bezier(0.25,0.46,0.45,0.94), opacity .35s ease, filter .38s ease";
+    el.style.transform = "none";
+    el.style.opacity = "1";
+    el.style.filter = "none";
+    clearTimeout(paint._t);
+    paint._t = setTimeout(() => { el.style.transition = "none"; el.style.transformOrigin = ""; }, 450);
+  });
+}
+function jumpTo(el, left) {
+  if (typeof el.scrollTo === "function") el.scrollTo({ left, behavior: "instant" });
+  else el.scrollLeft = left;
+}
+// двойной rAF с фолбэком (jsdom/старые WebView без rAF)
+function nextFrame(fn) {
+  const raf = global.requestAnimationFrame;
+  if (typeof raf === "function") raf(() => raf(fn));
+  else setTimeout(fn, 32);
+}
+function smoothTo(el, target) {
+  const raf = global.requestAnimationFrame, caf = global.cancelAnimationFrame;
+  if (typeof raf !== "function" || typeof caf !== "function") {
+    jumpTo(el, target); return;
+  }
+  caf(smoothTo._r);
+  const from = el.scrollLeft, dx = target - from;
+  if (!dx) return;
+  const t0 = performance.now(), dur = 300;
+  const step = now => {
+    const k = Math.min(1, (now - t0) / dur);
+    const e = 1 - Math.pow(1 - k, 3);
+    el.scrollLeft = from + dx * e;
+    if (k < 1) smoothTo._r = requestAnimationFrame(step);
+  };
+  smoothTo._r = requestAnimationFrame(step);
 }
 
 /* ---------- хром (панели) ---------- */
@@ -99,23 +157,23 @@ function showChrome() {
 
 /* ---------- навигация ---------- */
 
-function go(p) {
+function go(p, dir) {
   page = clamp(p, 0, pages - 1);
-  paint();
+  paint(dir);
   saveSoon();
 }
 function next() {
-  if (page < pages - 1) { go(page + 1); return; }
+  if (page < pages - 1) { go(page + 1, 1); return; }
   if (chIdx < book.chapters.length - 1) {
-    chIdx++; page = 0; setChapter();
+    chIdx++; page = 0; setChapter(); paint(1);
     if (global.__toast) global.__toast(book.chapters[chIdx].label);
   }
 }
 function prev() {
-  if (page > 0) { go(page - 1); return; }
+  if (page > 0) { go(page - 1, -1); return; }
   if (chIdx > 0) {
     chIdx--; setChapter();
-    page = pages - 1; paint(); saveSoon();
+    page = pages - 1; paint(-1); saveSoon();
   }
 }
 function setChapter() {
@@ -149,6 +207,8 @@ function syncSetUI() {
     b.classList.toggle("on", b.dataset.font === set.font));
   document.querySelectorAll("#themeSeg button").forEach(b =>
     b.classList.toggle("on", b.dataset.theme === set.theme));
+  document.querySelectorAll("#fxGroup button").forEach(b =>
+    b.classList.toggle("on", b.dataset.fx === (set.turn || "slide")));
   $("fsVal").textContent = Math.round(set.fontSize);
 }
 function openSet() { $("rSet").classList.add("open"); }
@@ -214,6 +274,10 @@ function bind() {
   $("themeSeg").addEventListener("click", e => {
     const b = e.target.closest("button"); if (!b) return;
     set.theme = b.dataset.theme; saveSet(); applySettings();
+  });
+  $("fxGroup").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    set.turn = b.dataset.fx; saveSet(); syncSetUI();
   });
 
   const content = $("rContent");

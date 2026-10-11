@@ -81,6 +81,17 @@ const st = () => Reader._state();
   await new Promise(r => setTimeout(r, 50));
   ok(!document.getElementById("rSet").classList.contains("open"), "шторка закрылась по тапу вне");
 
+  // эффекты перелистывания
+  ok(Reader._settings().turn === "slide", "эффект по умолчанию — слайд");
+  for (const fx of ["none", "slide", "shift", "fade", "curl"]) {
+    document.querySelector(`#fxGroup [data-fx="${fx}"]`).click();
+    ok(Reader._settings().turn === fx, "выбран эффект " + fx);
+    Reader.next(); Reader.prev();
+  }
+  ok(document.querySelector('#fxGroup [data-fx="curl"]').classList.contains("on"), "пилюля curl активна");
+  const storedFx = JSON.parse(window.localStorage.getItem("tishina.read"));
+  ok(storedFx && storedFx.turn === "curl", "эффект в localStorage");
+
   // шрифт Times
   document.querySelector('#fontSeg [data-font="times"]').click();
   ok(document.getElementById("reader").classList.contains("ff-times"), "times-шрифт");
