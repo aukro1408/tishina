@@ -22,6 +22,28 @@ function coverHTML(b, cls) {
     : `<div class="${cls} cover-ph">${esc((b.title || "?").slice(0, 32))}</div>`;
 }
 function pct(b) { return Math.round((b.progress || 0) * 100); }
+/* доминантный цвет обложки для прогресс-бара */
+function coverColor(src, cb) {
+  if (!src || !src.startsWith("data:")) { cb(null); return; }
+  const img = new Image();
+  img.onload = () => {
+    try {
+      const c = document.createElement("canvas");
+      c.width = 24; c.height = 36;
+      const x = c.getContext("2d");
+      x.drawImage(img, 0, 0, 24, 36);
+      const d = x.getImageData(0, 0, 24, 36).data;
+      let r = 0, g = 0, b = 0, n = 0;
+      for (let i = 0; i < d.length; i += 16) {
+        r += d[i]; g += d[i+1]; b += d[i+2]; n++;
+      }
+      r = Math.round(r/n); g = Math.round(g/n); b = Math.round(b/n);
+      cb(`rgb(${r},${g},${b})`);
+    } catch(e) { cb(null); }
+  };
+  img.onerror = () => cb(null);
+  img.src = src;
+}
 
 /* ---------- рендер: одна полка ---------- */
 
@@ -76,6 +98,11 @@ function renderShelf() {
     </div>
     <div class="sec">Все книги</div>
     <div class="lib-grid">${books.map(bookCard).join("")}</div>`;
+  /* прогресс в цвете обложки */
+  coverColor(cur.cover, col => {
+    const bar = v.querySelector(".hero-card .pbar i");
+    if (bar && col) bar.style.background = col;
+  });
 }
 
 function render() {
@@ -121,6 +148,8 @@ async function openDetail(id) {
   $("dProg").hidden = !(p > 0);
   $("dPct").textContent = p + "%";
   $("dRingFg").style.strokeDashoffset = (119.4 * (1 - p / 100)).toFixed(1);
+  /* кольцо прогресса в цвете обложки */
+  coverColor(b.cover, col => { if (col) $("dRingFg").style.stroke = col; });
   const ann = (b.annotation || "").trim();
   $("dDescSec").hidden = !ann;
   $("dDesc").textContent = ann;

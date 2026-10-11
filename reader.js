@@ -169,7 +169,6 @@ function next() {
   if (page < pages - 1) { go(page + 1, 1); return; }
   if (chIdx < book.chapters.length - 1) {
     chIdx++; page = 0; setChapter(); paint(1);
-    if (global.__toast) global.__toast(book.chapters[chIdx].label);
   }
 }
 function prev() {
