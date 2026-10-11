@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=25"></script>
-<script src="store.js?v=25"></script>
+<script src="parser.js?v=26"></script>
+<script src="store.js?v=26"></script>
 <style>
 @font-face{font-family:'Tishina Times';src:url('fonts/times.ttf') format('truetype');font-display:swap}
 :root{
@@ -30,18 +30,19 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 .add-btn:active{transform:scale(.92)}
 
 /* текущая книга — hero */
-.hero-card{display:flex;gap:20px;padding:20px;background:var(--bg2);border-radius:20px;
-  margin:6px 0 26px;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.06)}
-.hero-cover{flex:0 0 110px}
-.hero-cover .cover{width:110px;aspect-ratio:2/3;object-fit:cover;border-radius:8px;box-shadow:0 10px 26px rgba(0,0,0,.22);display:block}
-.hero-info{flex:1;min-width:0;display:flex;flex-direction:column}
-.hero-label{font-size:11px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
-.hero-title{font-size:20px;font-weight:800;margin:0 0 4px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.hero-author{font-size:13.5px;color:var(--muted);margin:0 0 14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hero-card .pbar{margin-bottom:10px}
-.hero-foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto}
-.hero-pct{font-size:13px;color:var(--muted);font-weight:700}
-.hero-btn{margin:0;padding:10px 22px;font-size:13.5px}
+.hero-card{display:flex;gap:20px;padding:22px;background:var(--bg2);border-radius:24px;
+  margin:6px 0 28px;cursor:pointer;box-shadow:0 8px 32px rgba(0,0,0,.10)}
+.hero-cover{flex:0 0 120px;perspective:600px}
+.hero-cover .cover{width:120px;aspect-ratio:2/3;object-fit:cover;border-radius:10px;display:block;
+  box-shadow:12px 14px 30px rgba(0,0,0,.28);transform:rotateY(-8deg);transform-origin:left center}
+.hero-info{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.hero-label{font-size:11px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.hero-title{font-size:22px;font-weight:800;margin:0 0 4px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hero-author{font-size:14px;color:var(--muted);margin:0 0 16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-card .pbar{margin-bottom:10px;height:5px}
+.hero-foot{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.hero-pct{font-size:14px;color:var(--muted);font-weight:700}
+.hero-btn{margin:0;padding:12px 26px;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
 .pbar{height:4px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:8px}
 .pbar i{display:block;height:100%;background:var(--ink);border-radius:99px}
 .read-btn{margin-top:12px;border:none;background:var(--ink);color:#fff;font-family:inherit;font-weight:700;
@@ -64,7 +65,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 .lib-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:26px 20px;padding-top:8px}
 .book{cursor:pointer;position:relative}
 .book .cover-wrap{position:relative}
-.book .cover{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:4px;box-shadow:0 8px 20px rgba(0,0,0,.18);background:var(--bg2);display:block}
+.book .cover{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:10px;box-shadow:0 10px 24px rgba(0,0,0,.16);background:var(--bg2);display:block}
 .book .bt{font-size:13.5px;font-weight:700;margin:10px 0 2px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .book .ba{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .book .bmeta{display:flex;align-items:center;justify-content:space-between;margin-top:6px;min-height:22px}
@@ -309,15 +310,6 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   </div>
   <div id="viewShelf"></div>
 </div>
-  <button class="tab on" data-tab="now">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.5A2.5 2.5 0 0 1 4.5 3H20v15H4.5A2.5 2.5 0 0 0 2 20.5z"/><path d="M2 20.5A2.5 2.5 0 0 1 4.5 18H20"/></svg>
-    Сейчас
-  </button>
-  <button class="tab" data-tab="lib">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-    Библиотека
-  </button>
-</div></nav>
 
 <div class="detail" id="detail">
   <div class="d-hero" id="dHero">
@@ -420,7 +412,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       </div>
     </div>
   </div>
-<script src="reader.js?v=25"></script>
-<script src="app.js?v=25"></script>
+<script src="reader.js?v=26"></script>
+<script src="app.js?v=26"></script>
 </body>
 </html>
