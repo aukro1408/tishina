@@ -43,12 +43,10 @@ function renderShelf() {
     <div class="book" data-open="${b.id}">
       <div class="cover-wrap">${coverHTML(b)}
         <button class="bdots" data-menu="${b.id}" title="Меню">⋮</button>
+        ${isNew ? `<span class="bnew">NEW</span>` : (pc ? `<span class="bprog">${pc}</span>` : ``)}
       </div>
       <div class="bt">${esc(b.title)}</div>
       <div class="ba">${esc((b.authors || []).join(", ") || "Автор неизвестен")}</div>
-      <div class="bmeta">
-        ${isNew ? `<span class="bnew">NEW</span>` : (pc ? `<span class="bprog">${pc}</span>` : ``)}
-      </div>
     </div>`;
   };
   v.innerHTML = `
