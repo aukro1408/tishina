@@ -147,7 +147,30 @@ function updateChrome() {
   $("rPct").textContent = Math.round(bookProgress() * 100) + "%";
   $("rCh").textContent = ch ? ch.label : "";
   $("rPageInfo").textContent = (page + 1) + " / " + pages;
-  $("rBar").style.width = (bookProgress() * 100) + "%";
+  paintReaderInk(bookProgress() * 100);
+}
+/* акварельные чернила прогресса ридера */
+const INK_COLORS = ["#a34a3e", "#d9755f", "#e8977c", "#bf6052", "#c4695a"];
+let rInkShown = 0, rInkRaf = null;
+function paintReaderInk(target) {
+  const el = $("rInk"), fill = $("rInkFill");
+  if (!el || !fill) return;
+  if (!fill.dataset.painted) {
+    const stops = INK_COLORS.map((c, i) =>
+      `${c} ${(i / (INK_COLORS.length - 1) * 100).toFixed(1)}%`).join(", ");
+    fill.style.background = `linear-gradient(to right, ${stops})`;
+    fill.dataset.painted = "1";
+  }
+  const frame = () => {
+    const diff = target - rInkShown;
+    rInkShown += diff * .12;
+    if (Math.abs(diff) < .2) rInkShown = target;
+    el.style.setProperty("--p", rInkShown + "%");
+    el.classList.toggle("flow", Math.abs(diff) > 1.5);
+    if (rInkShown !== target) rInkRaf = requestAnimationFrame(frame);
+    else { rInkRaf = null; el.classList.remove("flow"); }
+  };
+  if (!rInkRaf) rInkRaf = requestAnimationFrame(frame);
 }
 function toggleChrome() {
   $("rTop").classList.toggle("gone");
@@ -352,6 +375,8 @@ async function open(id, chapter, pg) {
   chIdx = clamp(chapter != null ? chapter : (lr.ch || 0), 0, b.chapters.length - 1);
   page = 0;
   opened = true;
+  rInkShown = 0;
+  if ($("rInkFill")) delete $("rInkFill").dataset.painted;
   $("reader").classList.add("open");
   document.body.style.overflow = "hidden";
   applySettings();
