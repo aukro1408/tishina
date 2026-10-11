@@ -70,6 +70,13 @@ function renderShelf() {
 
 function render() {
   $("pageTitle").textContent = "Полка";
+  const tc = $("topCount");
+  if (books.length) {
+    const n = books.length;
+    const word = n % 10 === 1 && n % 100 !== 11 ? "книга" : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "книги" : "книг");
+    tc.textContent = `${n} ${word}`;
+    tc.hidden = false;
+  } else tc.hidden = true;
   renderShelf();
 }
 
@@ -168,6 +175,9 @@ document.addEventListener("click", e => {
 });
 $("addBtn").onclick = () => $("fileInput").click();
 $("fileInput").onchange = e => { importFile(e.target.files[0]); e.target.value = ""; };
+/* навбар */
+$("navHome").onclick = () => { window.scrollTo({ top: 0, behavior: "smooth" }); };
+$("navSet").onclick = () => { if (window.Reader) window.Reader.openSettings(); };
 $("dClose").onclick = closeDetail;
 $("dGear").onclick = () => { if (window.Reader) window.Reader.openSettings(); };
 $("dRead").onclick = () => { const id = detailId; closeDetail(); Reader.open(id); };
