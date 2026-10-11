@@ -81,6 +81,8 @@ function sanitize(node, doc, imgResolver) {
       if (DROP[tag]) continue;
       if (!KEEP[tag]) { walk(n, dst); continue; } // неизвестный тег — разворачиваем
       const el = doc.createElement(tag.toLowerCase());
+      const nid = n.getAttribute("id");
+      if (nid) el.setAttribute("id", nid); // якоря для сносок
       if (tag === "IMG") {
         const src = n.getAttribute("src") || hrefOf(n);
         const dataUrl = imgResolver ? imgResolver(src) : null;
@@ -199,6 +201,43 @@ async function parseEpub(u8, fileName, onProgress) {
   }
   if (!chapters.length) fail("EPUB: не нашли глав");
 
+  // сноски: ссылки #id → попап, если цель с текстом найдена в главах
+  try {
+    const mkDoc = html => {
+      const d = global.document.implementation.createHTMLDocument("");
+      d.body.innerHTML = html;
+      return d;
+    };
+    const idIndex = {};
+    for (const ch of chapters) {
+      mkDoc(ch.html).querySelectorAll("[id]").forEach(el => {
+        const t = (el.textContent || "").replace(/\s+/g, " ").trim();
+        if (t.length > 30 && !idIndex[el.id]) idIndex[el.id] = t;
+      });
+    }
+    var epubNotes = {};
+    for (const ch of chapters) {
+      const d = mkDoc(ch.html);
+      let touched = false;
+      d.querySelectorAll("a[href]").forEach(a => {
+        const href = a.getAttribute("href") || "";
+        const hi = href.indexOf("#");
+        const id = hi >= 0 ? href.slice(hi + 1) : "";
+        const txt = id && idIndex[id];
+        if (txt) {
+          a.setAttribute("class", ((a.getAttribute("class") || "") + " fn").trim());
+          a.setAttribute("data-fn", id);
+          a.removeAttribute("href");
+          epubNotes[id] = txt;
+        } else {
+          a.replaceWith(...a.childNodes); // битая/внешняя ссылка — просто текст
+        }
+        touched = true;
+      });
+      if (touched) ch.html = d.body.innerHTML;
+    }
+  } catch (e) { var epubNotes = {}; }
+
   // оглавление: nav (epub3) → ncx → fallback по главам
   let toc = [];
   const navId = Object.keys(manifest).find(id => /\bnav\b/.test(manifest[id].props));
@@ -237,7 +276,7 @@ async function parseEpub(u8, fileName, onProgress) {
   }
   if (!toc.length) toc = chapters.map((c, i) => ({ label: c.label, chapter: i }));
 
-  return { format: "epub", fileName, title, authors, lang, cover, toc, chapters };
+  return { format: "epub", fileName, title, authors, lang, cover, toc, chapters, notes: epubNotes || {} };
 }
 
 /* ---------- FB2 ---------- */
@@ -284,6 +323,20 @@ function parseFb2(u8, fileName, onProgress) {
   const bodies = els(fb, "body");
   const main = bodies.find(b => !b.getAttribute("name")) || bodies[0];
   if (!main) fail("FB2: нет <body>");
+
+  // сноски: все именованные body (notes и др.), кроме основного
+  const notes = {};
+  for (const b of bodies) {
+    if (b === main) continue;
+    for (const s of Array.from(b.getElementsByTagName("section"))) {
+      const id = s.getAttribute("id");
+      if (id && !notes[id]) {
+        const t = (s.textContent || "").replace(/\s+/g, " ").trim();
+        if (t) notes[id] = t;
+      }
+    }
+  }
+
   const sections = Array.from(main.childNodes).filter(n => n.nodeType === 1 &&
     n.tagName.split(":").pop().toLowerCase() === "section");
 
@@ -336,7 +389,17 @@ function parseFb2(u8, fileName, onProgress) {
       const map = { "strong": "strong", "emphasis": "em", "strikethrough": "s", "sub": "sub", "sup": "sup", "code": "code" };
       const htmlTag = map[tag];
       if (htmlTag) { const el = hdoc.createElement(htmlTag); inlineChildren(n, el); dst.appendChild(el); }
-      else inlineChildren(n, dst); // a и прочие — разворачиваем
+      else if (tag === "a") {
+        const href = hrefOf(n);
+        const id = href.startsWith("#") ? href.slice(1) : null;
+        if (id && notes[id]) {
+          // сноска → попап в ридере
+          const a = hdoc.createElement("a");
+          a.setAttribute("class", "fn"); a.setAttribute("data-fn", id);
+          inlineChildren(n, a); dst.appendChild(a);
+        } else inlineChildren(n, dst); // обычная ссылка — просто текст
+      }
+      else inlineChildren(n, dst); // прочие — разворачиваем
     }
   }
 
@@ -355,7 +418,7 @@ function parseFb2(u8, fileName, onProgress) {
   if (!chapters.length) fail("FB2: не нашли текст");
 
   const toc = chapters.map((c, i) => ({ label: c.label, chapter: i }));
-  return { format: "fb2", fileName, title, authors, lang, cover, toc, chapters };
+  return { format: "fb2", fileName, title, authors, lang, cover, toc, chapters, notes };
 }
 
 /* ---------- ZIP ---------- */

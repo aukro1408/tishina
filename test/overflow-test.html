@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><title>INIT</title>
+<style>
+body{margin:0}
+.pg{width:364px;height:600px;margin:0 auto;overflow:hidden;
+  column-width:364px;column-gap:48px;column-fill:auto;-webkit-column-fill:auto;font-size:18.5px}
+.pg p{font-family:Georgia,serif;line-height:1.68;margin:0 0 1em;text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+</style></head><body>
+<div class="pg" id="pg" lang="ru"></div>
+<script>
+var sents = [
+"noch поезд X",
+"BBB"];
+var html = "";
+for (var r = 0; r < 40; r++) html += "<p>" + sents[r % 2] + " " + sents[(r+1) % 2] + " дополнительные слова для длины строки и проверки переносов слов в узкой колонке текста.</p>";
+document.getElementById("pg").innerHTML = html;
+var W = 364, GAP = 48, step = W + GAP, bad = 0, total = 0, firstBad = "";
+var baseLeft = document.getElementById("pg").getBoundingClientRect().left;
+var ps = document.querySelectorAll("#pg p");
+for (var i = 0; i < ps.length; i++) {
+  var rs = ps[i].getClientRects();
+  for (var j = 0; j < rs.length; j++) {
+    total++;
+    var colIdx = Math.round((rs[j].left - baseLeft) / step), colStart = colIdx * step;
+    if (rs[j].right - baseLeft > colStart + W + 1.5) { bad++; if (!firstBad) firstBad = ps[i].textContent.slice(0, 30); }
+  }
+}
+document.title = "DONE total=" + total + " bad=" + bad + " first=" + firstBad;
+</script></body></html>

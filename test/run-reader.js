@@ -81,6 +81,27 @@ const st = () => Reader._state();
   await new Promise(r => setTimeout(r, 50));
   ok(!document.getElementById("rSet").classList.contains("open"), "шторка закрылась по тапу вне");
 
+  // шрифт Times
+  document.querySelector('#fontSeg [data-font="times"]').click();
+  ok(document.getElementById("reader").classList.contains("ff-times"), "times-шрифт");
+  ok(Reader._settings().font === "times", "times в настройках");
+
+  // сноски
+  Reader.close();
+  await Shelf.put({ id: "b2", title: "К2", authors: ["А"], format: "fb2", fileName: "b.fb2",
+    cover: null, toc: [], chapters: [{ label: "Г1", html: '<p>Текст<a class="fn" data-fn="n1">[1]</a></p>' }],
+    notes: { n1: "Текст пояснения" },
+    progress: 0, addedAt: Date.now(), lastOpened: Date.now(), lastRead: null });
+  await Reader.open("b2");
+  const fnLink = document.querySelector("#rPages a.fn");
+  ok(!!fnLink, "ссылка-сноска в тексте");
+  fnLink.click();
+  ok(document.getElementById("rNote").classList.contains("open"), "попап сноски открылся");
+  ok(document.getElementById("rNoteText").textContent === "Текст пояснения", "текст сноски верный");
+  document.getElementById("rNoteX").click();
+  ok(!document.getElementById("rNote").classList.contains("open"), "попап закрылся");
+  Reader.close();
+
   console.log(`\nИтого: ${pass} ok, ${failed} failed`);
   process.exit(failed ? 1 : 0);
 })().catch(e => { console.error("CRASH:", e); process.exit(1); });

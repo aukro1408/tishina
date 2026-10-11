@@ -9,7 +9,7 @@
 </title-info></description>
 <body>
 <section><title><p>Глава первая</p></title>
-<p>Первый абзац в кодировке windows-1251. Ёлки-палки, проверка.</p>
+<p>Первый абзац в кодировке windows-1251. Ёлки-палки, проверка.<a l:href="#n1" type="note">[1]</a></p>
 <p>Второй абзац с <emphasis>курсивом</emphasis> и <strong>жирным</strong>.</p>
 <empty-line/>
 <image l:href="#cover.png"/>
@@ -17,6 +17,9 @@
 <section><title><p>Глава вторая</p></title>
 <p>Текст второй главы. Всё должно распарситься.</p>
 </section>
+</body>
+<body name="notes">
+<section id="n1"><title><p>1</p></title><p>Текст пояснения-сноски для теста.</p></section>
 </body>
 <binary id="cover.png" content-type="image/png">iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==</binary>
 </FictionBook>

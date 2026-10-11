@@ -18,6 +18,7 @@ function applySettings() {
   const r = $("reader");
   r.style.setProperty("--rfs", set.fontSize + "px");
   r.classList.toggle("ff-sans", set.font === "sans");
+  r.classList.toggle("ff-times", set.font === "times");
   r.classList.toggle("th-sepia", set.theme === "sepia");
   r.classList.toggle("th-night", set.theme === "night");
   syncSetUI();
@@ -44,9 +45,12 @@ function bookProgress() {
 
 function dims() {
   const el = $("rContent");
+  // getBoundingClientRect — дробные px; clientWidth округляет до целого,
+  // из-за чего шаг колонок не совпадал с реальным и страницы «плыли» (буквы резались справа)
+  const r = el.getBoundingClientRect();
   const cs = global.getComputedStyle(el);
-  const w = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-  const h = el.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  const w = r.width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const h = r.height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
   return { w: Math.max(50, w), h: Math.max(50, h) };
 }
 function realMeasure() {
@@ -151,6 +155,13 @@ function openSet() { $("rSet").classList.add("open"); }
 function closeSet() { $("rSet").classList.remove("open"); }
 function toggleSet() { $("rSet").classList.toggle("open"); }
 
+/* ---------- сноски ---------- */
+function showNote(text) {
+  $("rNoteText").textContent = text;
+  $("rNote").classList.add("open");
+}
+function closeNote() { $("rNote").classList.remove("open"); }
+
 async function open(id, chapter, pg) {
   const b = await global.Shelf.get(id);
   if (!b || !b.chapters.length) return;
@@ -189,6 +200,7 @@ function bind() {
   $("rBack").addEventListener("click", e => { e.stopPropagation(); close(); });
   $("rAa").addEventListener("click", e => { e.stopPropagation(); toggleSet(); });
   $("rSet").addEventListener("click", e => { if (e.target === $("rSet")) closeSet(); });
+  $("rNote").addEventListener("click", e => { if (e.target === $("rNote") || e.target.closest("#rNoteX")) closeNote(); });
   $("fsMinus").addEventListener("click", () => {
     set.fontSize = Math.max(14, Math.round((set.fontSize - 1) * 10) / 10); saveSet(); applySettings();
   });
@@ -206,6 +218,13 @@ function bind() {
 
   const content = $("rContent");
   content.addEventListener("click", e => {
+    // сноска — попап вместо листания
+    const fn = e.target.closest("a.fn");
+    if (fn && book && book.notes && book.notes[fn.dataset.fn]) {
+      e.stopPropagation();
+      showNote(book.notes[fn.dataset.fn]);
+      return;
+    }
     const x = e.clientX, w = window.innerWidth;
     if (x < w * 0.32) prev();
     else if (x > w * 0.68) next();
