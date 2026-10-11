@@ -41,12 +41,13 @@ function renderShelf() {
     const pc = prog > 0 ? Math.round(prog * 100) + "%" : "";
     return `
     <div class="book" data-open="${b.id}">
-      <div class="cover-wrap">${coverHTML(b)}</div>
+      <div class="cover-wrap">${coverHTML(b)}
+        <button class="bdots" data-menu="${b.id}" title="Меню">⋮</button>
+      </div>
       <div class="bt">${esc(b.title)}</div>
       <div class="ba">${esc((b.authors || []).join(", ") || "Автор неизвестен")}</div>
       <div class="bmeta">
-        ${isNew ? `<span class="bnew">NEW</span>` : (pc ? `<span class="bprog">${pc}</span>` : `<span></span>`)}
-        <button class="bdots" data-menu="${b.id}" title="Меню">•••</button>
+        ${isNew ? `<span class="bnew">NEW</span>` : (pc ? `<span class="bprog">${pc}</span>` : ``)}
       </div>
     </div>`;
   };
