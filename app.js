@@ -132,16 +132,16 @@ document.addEventListener("click", e => {
   const t = e.target.closest(".tab");
   if (t) { tab = t.dataset.tab; render(); window.scrollTo(0, 0); return; }
   const read = e.target.closest("[data-read]");
-  if (read) { e.stopPropagation(); toast("Экран чтения — шаг 3 🙂"); return; }
+  if (read) { e.stopPropagation(); Reader.open(read.dataset.read); return; }
   const open = e.target.closest("[data-open]");
   if (open) { openDetail(open.dataset.open); return; }
   const goto = e.target.closest("[data-goto]");
-  if (goto) { toast("Чтение с главы — шаг 3 🙂"); return; }
+  if (goto) { const id = detailId, ch = +goto.dataset.goto; closeDetail(); Reader.open(id, ch); return; }
 });
 $("addBtn").onclick = () => $("fileInput").click();
 $("fileInput").onchange = e => { importFile(e.target.files[0]); e.target.value = ""; };
 $("dClose").onclick = closeDetail;
-$("dRead").onclick = () => toast("Экран чтения — шаг 3 🙂");
+$("dRead").onclick = () => { const id = detailId; closeDetail(); Reader.open(id); };
 $("dDel").onclick = async () => {
   if (!detailId) return;
   if (!confirm("Удалить книгу с полки?")) return;
@@ -150,6 +150,9 @@ $("dDel").onclick = async () => {
   toast("Книга удалена");
 };
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeDetail(); });
+
+window.__toast = toast;
+window.__shelfReload = reload;
 
 const qTab = new URLSearchParams(location.search).get("tab");
 if (qTab === "lib") tab = "lib";

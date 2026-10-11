@@ -100,9 +100,32 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 /* тост */
 .toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
   background:rgba(28,28,30,.92);color:#fff;font-size:14px;font-weight:600;padding:12px 22px;border-radius:999px;
-  opacity:0;transition:.25s;z-index:60;pointer-events:none;max-width:86vw;text-align:center}
+  opacity:0;transition:.25s;z-index:80;pointer-events:none;max-width:86vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .hidden{display:none!important}
+
+/* ридер */
+.reader{position:fixed;inset:0;background:#fff;z-index:70;display:flex;flex-direction:column;
+  transform:translateY(102%);transition:transform .3s ease}
+.reader.open{transform:none}
+.r-top{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);
+  padding-top:calc(12px + env(safe-area-inset-top))}
+.r-back{border:none;background:var(--bg2);width:38px;height:38px;border-radius:50%;font-size:17px;cursor:pointer;color:var(--ink);flex:0 0 auto}
+.r-title{flex:1;min-width:0;font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-pct{font-size:13px;color:var(--muted);font-weight:700;flex:0 0 auto}
+.r-content{flex:1;overflow:hidden;position:relative;padding:20px 24px;cursor:pointer}
+.r-pages{height:100%;column-fill:auto;-webkit-column-fill:auto;overflow:hidden}
+.r-pages p{font-family:Georgia,'Times New Roman',serif;font-size:18.5px;line-height:1.68;margin:0 0 1em;color:#1c1c1e}
+.r-pages h1,.r-pages h2,.r-pages h3{font-family:'Cormorant Garamond',serif;font-weight:600;break-after:avoid;margin:0 0 .7em;line-height:1.25}
+.r-pages img{max-width:100%;height:auto;break-inside:avoid;border-radius:8px}
+.r-pages blockquote,.r-pages figure{break-inside:avoid;margin:0 0 1em;padding-left:14px;border-left:3px solid var(--line);
+  font-family:Georgia,serif;font-style:italic}
+.r-chapter-label{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:27px;
+  margin:0 0 18px;break-after:avoid;line-height:1.2}
+.r-bottom{padding:12px 22px calc(18px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#fff}
+.r-bottom .row{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;color:var(--muted);
+  font-weight:600;margin-bottom:9px}
+.r-bottom .row span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 </head>
 <body>
@@ -145,6 +168,20 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 <div class="toast" id="toast"></div>
 <input type="file" id="fileInput" accept=".epub,.fb2,.zip" class="hidden">
 
+<div class="reader" id="reader">
+  <div class="r-top" id="rTop">
+    <button class="r-back" id="rBack">←</button>
+    <div class="r-title" id="rTitle"></div>
+    <div class="r-pct" id="rPct"></div>
+  </div>
+  <div class="r-content" id="rContent"><div class="r-pages" id="rPages"></div></div>
+  <div class="r-bottom" id="rBottom">
+    <div class="row"><span id="rCh"></span><span id="rPageInfo"></span></div>
+    <div class="pbar"><i id="rBar"></i></div>
+  </div>
+</div>
+
+<script src="reader.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
