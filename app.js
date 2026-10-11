@@ -28,7 +28,8 @@ function pct(b) { return Math.round((b.progress || 0) * 100); }
 function renderShelf() {
   const v = $("viewShelf");
   if (!books.length) {
-    v.innerHTML = `<div class="empty"><div class="big">📚</div>
+    v.innerHTML = `<div class="empty">
+      <img class="empty-img" src="empty-books.png?v=30" alt="">
       <p>Пока пусто.<br>Добавь первую книгу —<br>epub, fb2 или zip.</p>
       <button class="read-btn" data-add>Добавить книгу</button></div>`;
     return;
