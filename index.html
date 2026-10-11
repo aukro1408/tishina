@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=13"></script>
-<script src="store.js?v=13"></script>
+<script src="parser.js?v=14"></script>
+<script src="store.js?v=14"></script>
 <style>
 @font-face{font-family:'Tishina Times';src:url('fonts/times.ttf') format('truetype');font-display:swap}
 :root{
@@ -148,7 +148,9 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   border-bottom:1px solid var(--rline);
   transition:transform .28s ease,opacity .28s ease}
 .r-top.gone{transform:translateY(-105%);opacity:0;pointer-events:none}
-.r-back{border:none;background:var(--rline);width:38px;height:38px;border-radius:50%;font-size:17px;cursor:pointer;color:var(--rink);flex:0 0 auto}
+.r-back{border:none;background:#ececf0;width:38px;height:38px;border-radius:50%;font-size:17px;cursor:pointer;color:#1c1c1e;flex:0 0 auto}
+/* верх/низ всегда белые — текст в них тоже фиксированный тёмный */
+.r-top,.r-bottom{--rink:#1c1c1e;--rmuted:#8e8e93;--rline:#e9e9ee}
 .r-title{flex:1;min-width:0;font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .r-aa{border:none;background:none;font-size:21px;font-weight:600;cursor:pointer;color:var(--rink);padding:6px 8px;flex:0 0 auto;font-family:inherit}
 .r-pct{font-size:13px;color:var(--rmuted);font-weight:700;flex:0 0 auto}
@@ -410,7 +412,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       </div>
     </div>
   </div>
-<script src="reader.js?v=13"></script>
-<script src="app.js?v=13"></script>
+<script src="reader.js?v=14"></script>
+<script src="app.js?v=14"></script>
 </body>
 </html>

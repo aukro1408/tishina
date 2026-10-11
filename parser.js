@@ -527,6 +527,7 @@ async function parseBook(input, onProgress) {
 }
 
 global.TishinaParser = { parseBook, parseEpub, parseFb2, parseZip, VERSION: 3,
+  notesByNum, linkBracketNotes,
   _helpers: { els, textOf, resolvePath, fb2Decode } };
 
 })(typeof window !== "undefined" ? window : global);

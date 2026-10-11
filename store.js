@@ -49,22 +49,40 @@ function newId() {
   return (crypto.randomUUID ? crypto.randomUUID() : "id-" + Date.now() + "-" + Math.random().toString(36).slice(2));
 }
 
-// парсер обновился, а книга импортирована старой версией → тихо перепарсить
-// исходник, прогресс/закладки/место чтения сохранить
+// парсер обновился, а книга импортирована старой версией:
+// 1) если есть исходник — тихо перепарсить (прогресс/закладки сохранить);
+// 2) без исходника — хотя бы привязать текстовые [N] к уже сохранённым сноскам.
 async function reparseIfStale(b) {
-  const V = (global.TishinaParser || {}).VERSION || 0;
-  if (!b || !b.src || (b.parserV || 0) >= V) return b;
-  try {
-    const buf = await b.src.arrayBuffer();
-    const p = await global.TishinaParser.parseBook({ name: b.fileName || "book", data: new Uint8Array(buf) });
-    const keep = { progress: b.progress, lastRead: b.lastRead, marks: b.marks };
-    Object.assign(b, {
-      title: p.title, authors: p.authors, cover: p.cover,
-      toc: p.toc, chapters: p.chapters, notes: p.notes, annotation: p.annotation,
-      parserV: V
-    }, keep);
-    await put(b);
-  } catch (e) { console.warn("re-parse:", e && e.message); }
+  const P = global.TishinaParser || {};
+  const V = P.VERSION || 0;
+  if (!b || (b.parserV || 0) >= V) return b;
+  if (b.src && P.parseBook) {
+    try {
+      const buf = await b.src.arrayBuffer();
+      const p = await P.parseBook({ name: b.fileName || "book", data: new Uint8Array(buf) });
+      const keep = { progress: b.progress, lastRead: b.lastRead, marks: b.marks };
+      Object.assign(b, {
+        title: p.title, authors: p.authors, cover: p.cover,
+        toc: p.toc, chapters: p.chapters, notes: p.notes, annotation: p.annotation,
+        parserV: V
+      }, keep);
+      await put(b);
+      return b;
+    } catch (e) { console.warn("re-parse:", e && e.message); }
+  }
+  if (b.notes && P.notesByNum && P.linkBracketNotes) {
+    try {
+      const byNum = P.notesByNum(b.notes);
+      if (Object.keys(byNum).length) {
+        let changed = false;
+        for (const ch of b.chapters || []) {
+          const html2 = P.linkBracketNotes(ch.html, byNum);
+          if (html2 !== ch.html) { ch.html = html2; changed = true; }
+        }
+        if (changed) { b.parserV = V; await put(b); }
+      }
+    } catch (e) { console.warn("notes-migrate:", e && e.message); }
+  }
   return b;
 }
 

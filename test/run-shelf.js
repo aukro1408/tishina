@@ -1,8 +1,17 @@
 // Тесты полки: node run-shelf.js
 require("fake-indexeddb/auto");
 global.crypto = require("crypto").webcrypto;
+const { JSDOM } = require("jsdom");
+const pdom = new JSDOM("", {});
+global.document = pdom.window.document;
+global.DOMParser = pdom.window.DOMParser;
+global.JSZip = require("jszip");
+require("../parser.js"); // настоящие notesByNum/linkBracketNotes
 require("../store.js");
 const P = global.Shelf;
+global.TishinaParser.parseBook = async () => ({ title: "Новое", authors: ["А"], cover: null,
+  toc: [{ label: "Г", chapter: 0 }], chapters: [{ label: "Г", html: "<p>x</p>" }],
+  notes: {}, annotation: "Новое описание" });
 let pass = 0, failed = 0;
 const ok = (c, n) => { c ? pass++ : failed++; console.log((c ? "  ✓ " : "  ✗ FAIL: ") + n); };
 const mk = (id, title, prog, ago) => ({ id, title, authors: ["Автор " + id], format: "epub",
@@ -24,10 +33,6 @@ const mk = (id, title, prog, ago) => ({ id, title, authors: ["Автор " + id]
   ok((await P.all()).length === 2, "удаление работает");
   ok((await P.get("b2")) === undefined, "удалённый не находится");
   // автоперепарсинг устаревшей книги
-  global.TishinaParser = { VERSION: 3,
-    parseBook: async () => ({ title: "Новое", authors: ["А"], cover: null,
-      toc: [{ label: "Г", chapter: 0 }], chapters: [{ label: "Г", html: "<p>x</p>" }],
-      notes: {}, annotation: "Новое описание" }) };
   await P.put({ id: "old", title: "Старое", authors: ["А"], format: "fb2", fileName: "o.fb2",
     cover: null, toc: [], chapters: [{ label: "С", html: "<p>старое</p>" }], notes: {},
     progress: 0.4, lastRead: { ch: 0, page: 1 }, marks: [{ ch: 0, page: 0 }],
@@ -48,6 +53,14 @@ const mk = (id, title, prog, ago) => ({ id, title, authors: ["Автор " + id]
     parserV: 1, addedAt: Date.now(), lastOpened: Date.now() });
   const ns = await P.reparseIfStale(await P.get("nosrc"));
   ok(ns.chapters[0].html === "<p>z</p>", "без исходника не падаем");
+  // миграция сносок без исходника: текстовые [46] → ссылки по сохранённым notes
+  await P.put({ id: "oldnotes", title: "S", authors: ["А"], format: "fb2", fileName: "s.fb2",
+    cover: null, toc: [], chapters: [{ label: "Г", html: "<p>Словарь Уэбстера[46] конец.</p>" }],
+    notes: { n46: "Ноа Уэбстер — лексикограф." }, progress: 0.2,
+    addedAt: Date.now(), lastOpened: Date.now() });
+  const mn = await P.reparseIfStale(await P.get("oldnotes"));
+  ok(mn.chapters[0].html.includes('data-fn="n46">[46]</a>'), "миграция привязала [46] к сноске");
+  ok(mn.progress === 0.2, "прогресс цел после миграции");
   console.log(`\nИтого: ${pass} ok, ${failed} failed`);
   process.exit(failed ? 1 : 0);
 })().catch(e => { console.error("CRASH:", e); process.exit(1); });
