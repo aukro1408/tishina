@@ -154,6 +154,18 @@ const st = () => Reader._state();
   ok(document.getElementById("rSet").classList.contains("open"), "openSettings открывает шторку");
   document.getElementById("rSet").click();
   ok(!document.getElementById("rSet").classList.contains("open"), "шторка закрылась");
+  // тап на тачскрине не листает (только свайп)
+  const tap = x => document.getElementById("rContent").dispatchEvent(
+    new window.MouseEvent("click", { bubbles: true, cancelable: true, clientX: x, clientY: 400 }));
+  window.matchMedia = q => ({ matches: String(q).includes("coarse") });
+  await Reader.open("b1", 0, 0);
+  tap(900);
+  ok(st().page === 0, "тап справа не листает на таче");
+  // на десктопе тап-зоны как раньше
+  window.matchMedia = () => ({ matches: false });
+  tap(900);
+  ok(st().page === 1, "тап справа листает на десктопе");
+  delete window.matchMedia;
   Reader.close();
 
   console.log(`\nИтого: ${pass} ok, ${failed} failed`);

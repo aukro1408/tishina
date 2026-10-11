@@ -407,6 +407,9 @@ function bind() {
       showNote(book.notes[fn.dataset.fn]);
       return;
     }
+    // на тачскрине тап не листает — только свайп; тап показывает/прячет панели
+    const coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+    if (coarse) { toggleChrome(); return; }
     const x = e.clientX, w = window.innerWidth;
     if (x < w * 0.32) prev();
     else if (x > w * 0.68) next();
