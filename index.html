@@ -6,167 +6,145 @@
 <title>Тишина — ридер</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="parser.js"></script>
+<script src="store.js"></script>
 <style>
 :root{
-  --bg1:#d9735f; --bg2:#b4503f;
-  --paper:#f8f1e4; --ink:#3a2b23; --muted:#93806f;
-  --pill:#c65b4e; --shadow:0 14px 34px rgba(70,25,12,.28);
+  --ink:#1c1c1e; --muted:#8e8e93; --line:#e9e9ee; --bg:#ffffff; --bg2:#f6f6f8;
+  --accent:#c65b4e;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
-body{font-family:'Manrope',system-ui,sans-serif;color:var(--ink);
-  background:linear-gradient(165deg,var(--bg1),var(--bg2));background-attachment:fixed;min-height:100vh}
-.wrap{max-width:560px;margin:0 auto;padding:30px 18px 70px}
-.brand{text-align:center;color:#fff;margin-bottom:22px}
-.brand h1{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:46px;margin:0}
-.brand p{margin:6px 0 0;font-size:11px;letter-spacing:.32em;text-transform:uppercase;opacity:.88}
-.card{background:var(--paper);border-radius:26px;box-shadow:var(--shadow);padding:26px 22px;margin-bottom:18px}
-.drop{border:2px dashed #d8c6ae;border-radius:20px;padding:44px 20px;text-align:center;cursor:pointer;transition:.2s;background:#fdf9f0}
-.drop.over{border-color:var(--pill);background:#fff;transform:scale(1.01)}
-.drop .big{font-size:44px;margin-bottom:10px}
-.drop h2{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:30px;margin:0 0 6px}
-.drop p{color:var(--muted);font-size:14px;margin:0 0 18px;line-height:1.5}
-.pill{border:none;cursor:pointer;background:var(--pill);color:#fff;font-family:inherit;font-weight:700;
-  font-size:15px;padding:14px 38px;border-radius:999px;box-shadow:0 6px 16px rgba(198,91,78,.4)}
-.pill:active{transform:scale(.96)}
-.pill.ghost{background:none;border:1.5px solid var(--pill);color:var(--pill);box-shadow:none}
-.formats{margin-top:16px;font-size:12px;color:var(--muted);letter-spacing:.06em}
-.status{text-align:center;color:#fff;font-size:14px;min-height:22px;margin-bottom:12px;font-weight:600}
-.hidden{display:none!important}
+body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+.wrap{max-width:560px;margin:0 auto;padding:0 20px}
 
-/* результат */
-.book-head{display:flex;gap:16px;align-items:flex-start;margin-bottom:16px}
-.cover{width:96px;min-height:130px;border-radius:10px;object-fit:cover;background:#e8dcc4;box-shadow:0 4px 12px rgba(0,0,0,.18)}
-.cover-ph{width:96px;height:130px;border-radius:10px;background:linear-gradient(150deg,#c98a6d,#8a5f4d);
-  display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Cormorant Garamond',serif;
-  font-style:italic;font-size:15px;text-align:center;padding:8px}
-.book-head h2{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:26px;margin:0 0 4px;line-height:1.15}
-.book-head .author{color:var(--muted);font-size:14px;margin:0 0 10px}
-.badges{display:flex;flex-wrap:wrap;gap:8px}
-.badge{font-size:12px;font-weight:700;background:#efe3cb;color:#7a5f43;border-radius:999px;padding:6px 13px}
-.badge.ok{background:#dce8d2;color:#4a6b3f}
-details.toc{margin:6px 0 4px;border-top:1px solid #e8dcc4;padding-top:12px}
-details.toc summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--pill);list-style:none}
-details.toc summary::-webkit-details-marker{display:none}
-details.toc ol{margin:10px 0 4px;padding-left:22px;font-size:14px;line-height:1.9;color:var(--ink)}
-.preview{margin-top:14px;border-top:1px solid #e8dcc4;padding-top:14px}
-.preview h4{margin:0 0 10px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
-.preview .p-body{font-family:'Cormorant Garamond',serif;font-size:19px;line-height:1.65;max-height:300px;
-  overflow:hidden;position:relative;color:#2f241d}
-.preview .p-body:after{content:"";position:absolute;left:0;right:0;bottom:0;height:90px;
-  background:linear-gradient(transparent,var(--paper))}
-.preview .p-body img{max-width:100%;border-radius:10px}
-.actions{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap}
-.err{background:#fdeceb;border:1.5px solid #e08a7d;color:#8a2f24;border-radius:16px;padding:16px 18px;
-  font-size:14px;line-height:1.5;margin-bottom:18px}
-.foot{text-align:center;color:rgba(255,255,255,.7);font-size:12px;margin-top:30px;letter-spacing:.08em}
+/* шапка */
+.top{display:flex;align-items:center;justify-content:space-between;padding:26px 0 6px}
+.top h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:36px;margin:0;letter-spacing:-.01em}
+.add-btn{width:40px;height:40px;border-radius:50%;border:none;background:var(--ink);color:#fff;
+  font-size:24px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.add-btn:active{transform:scale(.92)}
+
+/* текущая книга */
+.now-card{display:flex;gap:18px;padding:18px 0 8px;align-items:center}
+.now-card .cover{width:118px;border-radius:8px;box-shadow:0 10px 26px rgba(0,0,0,.22)}
+.now-info{flex:1;min-width:0}
+.now-info .t{font-size:19px;font-weight:800;margin:0 0 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.now-info .a{font-size:14px;color:var(--muted);margin:0 0 12px}
+.pbar{height:4px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:8px}
+.pbar i{display:block;height:100%;background:var(--ink);border-radius:99px}
+.pct{font-size:13px;color:var(--muted);font-weight:600}
+.read-btn{margin-top:12px;border:none;background:var(--ink);color:#fff;font-family:inherit;font-weight:700;
+  font-size:14px;padding:11px 26px;border-radius:999px;cursor:pointer}
+.read-btn:active{transform:scale(.96)}
+
+/* секция */
+.sec{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);
+  margin:26px 0 14px}
+
+/* недавние */
+.recent{display:flex;gap:16px;overflow-x:auto;padding:2px 20px 8px;margin:0 -20px;scrollbar-width:none}
+.recent::-webkit-scrollbar{display:none}
+.rec{flex:0 0 104px;cursor:pointer}
+.rec .cover{width:104px;height:150px;object-fit:cover;border-radius:6px;box-shadow:0 6px 16px rgba(0,0,0,.18);background:var(--bg2)}
+.rec .rt{font-size:12px;font-weight:700;margin:8px 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rec .rp{font-size:11px;color:var(--muted);font-weight:600}
+
+/* библиотека */
+.lib-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 14px;padding-top:6px}
+.book{cursor:pointer}
+.book .cover{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:6px;box-shadow:0 6px 16px rgba(0,0,0,.16);background:var(--bg2)}
+.book .bt{font-size:12.5px;font-weight:700;margin:8px 0 2px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.book .ba{font-size:11.5px;color:var(--muted)}
+
+.cover-ph{display:flex;align-items:center;justify-content:center;background:linear-gradient(150deg,#d99a7c,#8a5f4d);
+  color:#fff;font-family:'Cormorant Garamond',serif;font-style:italic;text-align:center;padding:10px;font-size:15px}
+.rec .cover-ph,.book .cover-ph,.now-card .cover-ph{background:linear-gradient(150deg,#d99a7c,#8a5f4d)}
+
+/* пусто */
+.empty{text-align:center;padding:70px 20px;color:var(--muted)}
+.empty .big{font-size:52px;margin-bottom:12px}
+.empty p{font-size:15px;line-height:1.55;margin:0 0 20px}
+
+/* таб-бар */
+.tabbar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.88);backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);border-top:1px solid var(--line);z-index:40;
+  padding-bottom:env(safe-area-inset-bottom)}
+.tabs{max-width:560px;margin:0 auto;display:flex}
+.tab{flex:1;border:none;background:none;cursor:pointer;padding:10px 0 12px;display:flex;flex-direction:column;
+  align-items:center;gap:3px;color:var(--muted);font-family:inherit;font-size:10.5px;font-weight:700}
+.tab svg{width:25px;height:25px}
+.tab.on{color:var(--ink)}
+
+/* детали книги */
+.detail{position:fixed;inset:0;background:var(--bg);z-index:50;overflow-y:auto;transform:translateY(100%);transition:transform .3s ease}
+.detail.open{transform:translateY(0)}
+.d-wrap{max-width:560px;margin:0 auto;padding:14px 20px 60px}
+.d-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.d-close{border:none;background:var(--bg2);width:36px;height:36px;border-radius:50%;font-size:16px;cursor:pointer;color:var(--ink)}
+.d-del{border:none;background:none;color:#d33;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.d-head{text-align:center;margin-bottom:8px}
+.d-head .cover{width:170px;border-radius:10px;box-shadow:0 14px 34px rgba(0,0,0,.25);margin-bottom:16px}
+.d-head h2{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:30px;margin:0 0 4px;line-height:1.15}
+.d-head .da{color:var(--muted);font-size:15px;margin:0 0 14px}
+.d-actions{display:flex;gap:10px;justify-content:center;margin:6px 0 8px}
+.d-toc{margin-top:18px;border-top:1px solid var(--line)}
+.d-toc .row{display:flex;justify-content:space-between;align-items:center;padding:13px 2px;border-bottom:1px solid var(--line);
+  font-size:15px;cursor:pointer}
+.d-toc .row span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-right:12px}
+.d-toc .row .n{color:var(--muted);font-size:13px;flex:0 0 auto}
+
+/* тост */
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
+  background:rgba(28,28,30,.92);color:#fff;font-size:14px;font-weight:600;padding:12px 22px;border-radius:999px;
+  opacity:0;transition:.25s;z-index:60;pointer-events:none;max-width:86vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="brand"><h1>Тишина</h1><p>ридер · шаг 1 — парсинг</p></div>
-  <div class="status" id="status"></div>
-
-  <div class="card" id="importCard">
-    <div class="drop" id="drop">
-      <div class="big">📚</div>
-      <h2>Открой книгу</h2>
-      <p>Перетащи файл сюда<br>или выбери на устройстве</p>
-      <button class="pill" id="pickBtn">Выбрать файл</button>
-      <div class="formats">.EPUB &nbsp;·&nbsp; .FB2 &nbsp;·&nbsp; .ZIP</div>
-    </div>
-    <input type="file" id="fileInput" accept=".epub,.fb2,.zip" class="hidden">
+  <div class="top">
+    <h1 id="pageTitle">Читаю сейчас</h1>
+    <button class="add-btn" id="addBtn" title="Добавить книгу">+</button>
   </div>
-
-  <div class="err hidden" id="errBox"></div>
-
-  <div class="card hidden" id="resultCard">
-    <div class="book-head">
-      <div id="coverWrap"></div>
-      <div>
-        <h2 id="bTitle"></h2>
-        <p class="author" id="bAuthor"></p>
-        <div class="badges" id="bBadges"></div>
-      </div>
-    </div>
-    <details class="toc" id="tocBox">
-      <summary id="tocSummary">Оглавление</summary>
-      <ol id="tocList"></ol>
-    </details>
-    <div class="preview">
-      <h4>Начало книги</h4>
-      <div class="p-body" id="previewBody"></div>
-    </div>
-    <div class="actions">
-      <button class="pill ghost" id="againBtn">Выбрать другую книгу</button>
-    </div>
-  </div>
-
-  <div class="foot">всё обрабатывается на устройстве · никуда не отправляется</div>
+  <div id="viewNow"></div>
+  <div id="viewLib" class="hidden"></div>
 </div>
 
-<script>
-const $=id=>document.getElementById(id);
-const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+<nav class="tabbar"><div class="tabs">
+  <button class="tab on" data-tab="now">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.5A2.5 2.5 0 0 1 4.5 3H20v15H4.5A2.5 2.5 0 0 0 2 20.5z"/><path d="M2 20.5A2.5 2.5 0 0 1 4.5 18H20"/></svg>
+    Сейчас
+  </button>
+  <button class="tab" data-tab="lib">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    Библиотека
+  </button>
+</div></nav>
 
-function setStatus(t){ $("status").textContent=t||""; }
-function showError(msg){
-  $("errBox").innerHTML="<b>Не получилось открыть книгу.</b><br>"+esc(msg);
-  $("errBox").classList.remove("hidden");
-  $("resultCard").classList.add("hidden");
-  setStatus("");
-}
-function showBook(b){
-  $("errBox").classList.add("hidden");
-  $("bTitle").textContent=b.title||"(без названия)";
-  $("bAuthor").textContent=(b.authors&&b.authors.length?b.authors.join(", "):"Автор неизвестен");
-  $("coverWrap").innerHTML=b.cover
-    ? `<img class="cover" src="${b.cover}" alt="обложка">`
-    : `<div class="cover-ph">${esc((b.title||"?").slice(0,24))}</div>`;
-  const fmt={epub:"EPUB",fb2:"FB2"}[b.format]||b.format.toUpperCase();
-  $("bBadges").innerHTML=
-    `<span class="badge ok">${fmt}</span>`+
-    `<span class="badge">глав: ${b.chapters.length}</span>`+
-    `<span class="badge">оглавление: ${b.toc.length}</span>`;
-  $("tocSummary").textContent=`Оглавление · ${b.toc.length}`;
-  $("tocList").innerHTML=b.toc.map(t=>`<li>${esc(t.label)}</li>`).join("");
-  $("previewBody").innerHTML=b.chapters[0]?b.chapters[0].html:"";
-  $("resultCard").classList.remove("hidden");
-  $("resultCard").scrollIntoView({behavior:"smooth",block:"start"});
-  setStatus("");
-}
+<div class="detail" id="detail"><div class="d-wrap">
+  <div class="d-top">
+    <button class="d-close" id="dClose">✕</button>
+    <button class="d-del" id="dDel">Удалить</button>
+  </div>
+  <div class="d-head">
+    <div id="dCover"></div>
+    <h2 id="dTitle"></h2>
+    <p class="da" id="dAuthor"></p>
+    <div class="d-actions">
+      <button class="read-btn" id="dRead">Читать</button>
+    </div>
+  </div>
+  <div class="d-toc" id="dToc"></div>
+</div></div>
 
-async function handleFile(file){
-  if(!file) return;
-  $("errBox").classList.add("hidden");
-  $("resultCard").classList.add("hidden");
-  try{
-    setStatus("Читаем файл…");
-    const book=await TishinaParser.parseBook(file,(done,total,msg)=>{
-      if(msg) setStatus(msg);
-      else if(total) setStatus(`Разбираем главы… ${done}/${total}`);
-    });
-    setStatus("Готово ✓");
-    setTimeout(()=>showBook(book),250);
-  }catch(e){
-    console.error(e);
-    showError(e&&e.message?e.message:"Неизвестная ошибка");
-  }
-}
+<div class="toast" id="toast"></div>
+<input type="file" id="fileInput" accept=".epub,.fb2,.zip" class="hidden">
 
-$("pickBtn").onclick=e=>{e.stopPropagation();$("fileInput").click();};
-$("drop").onclick=()=>$("fileInput").click();
-$("fileInput").onchange=e=>handleFile(e.target.files[0]);
-$("againBtn").onclick=()=>{ $("fileInput").value=""; $("fileInput").click(); };
-["dragover","dragenter"].forEach(ev=>$("drop").addEventListener(ev,e=>{e.preventDefault();$("drop").classList.add("over");}));
-["dragleave","drop"].forEach(ev=>$("drop").addEventListener(ev,e=>{e.preventDefault();$("drop").classList.remove("over");}));
-$("drop").addEventListener("drop",e=>{
-  const f=e.dataTransfer.files&&e.dataTransfer.files[0];
-  handleFile(f);
-});
-</script>
+<script src="app.js"></script>
 </body>
 </html>
