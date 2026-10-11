@@ -23,6 +23,31 @@ const mk = (id, title, prog, ago) => ({ id, title, authors: ["Автор " + id]
   await P.del("b2");
   ok((await P.all()).length === 2, "удаление работает");
   ok((await P.get("b2")) === undefined, "удалённый не находится");
+  // автоперепарсинг устаревшей книги
+  global.TishinaParser = { VERSION: 3,
+    parseBook: async () => ({ title: "Новое", authors: ["А"], cover: null,
+      toc: [{ label: "Г", chapter: 0 }], chapters: [{ label: "Г", html: "<p>x</p>" }],
+      notes: {}, annotation: "Новое описание" }) };
+  await P.put({ id: "old", title: "Старое", authors: ["А"], format: "fb2", fileName: "o.fb2",
+    cover: null, toc: [], chapters: [{ label: "С", html: "<p>старое</p>" }], notes: {},
+    progress: 0.4, lastRead: { ch: 0, page: 1 }, marks: [{ ch: 0, page: 0 }],
+    src: new Blob([new Uint8Array(8)]), parserV: 1,
+    addedAt: Date.now(), lastOpened: Date.now() });
+  const rp = await P.reparseIfStale(await P.get("old"));
+  ok(rp.parserV === 3 && rp.chapters[0].html === "<p>x</p>", "перепарсинг обновил главы");
+  ok(rp.annotation === "Новое описание", "перепарсинг обновил описание");
+  ok(rp.progress === 0.4 && rp.lastRead.page === 1 && rp.marks.length === 1, "прогресс и закладки целы");
+  // свежая книга не трогается
+  await P.put({ id: "fresh", title: "F", chapters: [{ label: "Г", html: "<p>y</p>" }],
+    parserV: 3, src: new Blob([new Uint8Array(8)]), // parseBook мока не вызовется: parserV свежий
+    addedAt: Date.now(), lastOpened: Date.now() });
+  const fr = await P.reparseIfStale(await P.get("fresh"));
+  ok(fr.chapters[0].html === "<p>y</p>", "свежая книга не перепарсивается");
+  // без исходника — тихо пропускаем
+  await P.put({ id: "nosrc", title: "N", chapters: [{ label: "Г", html: "<p>z</p>" }],
+    parserV: 1, addedAt: Date.now(), lastOpened: Date.now() });
+  const ns = await P.reparseIfStale(await P.get("nosrc"));
+  ok(ns.chapters[0].html === "<p>z</p>", "без исходника не падаем");
   console.log(`\nИтого: ${pass} ok, ${failed} failed`);
   process.exit(failed ? 1 : 0);
 })().catch(e => { console.error("CRASH:", e); process.exit(1); });

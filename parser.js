@@ -526,6 +526,7 @@ async function parseBook(input, onProgress) {
   fail("Неизвестный формат. Поддерживаются .epub, .fb2, .zip");
 }
 
-global.TishinaParser = { parseBook, parseEpub, parseFb2, parseZip, _helpers: { els, textOf, resolvePath, fb2Decode } };
+global.TishinaParser = { parseBook, parseEpub, parseFb2, parseZip, VERSION: 3,
+  _helpers: { els, textOf, resolvePath, fb2Decode } };
 
 })(typeof window !== "undefined" ? window : global);

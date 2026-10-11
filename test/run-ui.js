@@ -20,6 +20,8 @@ const ok = (c, n) => { c ? pass++ : failed++; console.log((c ? "  ✓ " : "  ✗
 const q = s => document.querySelector(s), qa = s => Array.from(document.querySelectorAll(s));
 (async () => {
   const now = Date.now();
+  ok(html.includes(".reader{--rbg:#ffffff;") && html.includes("--rbar:rgba(255,255,255,.94);--rbgimg:none;"),
+    "верх/низ белые (не красятся в фон)");
   const mk = (id, title, prog, ago, cover) => ({ id, title, authors: ["Автор " + id], format: "epub",
     fileName: "t.epub", cover: cover || null, toc: [{ label: "Глава 1", chapter: 0 }], chapters: [],
     annotation: "Аннотация " + id, progress: prog, addedAt: now - ago, lastOpened: now - ago });

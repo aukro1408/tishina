@@ -81,7 +81,8 @@ async function reload() { books = await Shelf.all(); render(); }
 /* ---------- детали ---------- */
 
 async function openDetail(id) {
-  const b = await Shelf.get(id);
+  const rep = Shelf.reparseIfStale || (async x => x);
+  const b = await rep(await Shelf.get(id));
   if (!b) return;
   detailId = id;
   const hb = $("dHeroBg");
@@ -119,13 +120,17 @@ async function importFile(file) {
   if (!file) return;
   toast("Открываем книгу…");
   try {
-    const parsed = await TishinaParser.parseBook(file);
+    const buf = await file.arrayBuffer();
+    const u8 = new Uint8Array(buf);
+    const parsed = await TishinaParser.parseBook({ name: file.name, data: u8 });
     const book = {
       id: Shelf.newId(),
       title: parsed.title, authors: parsed.authors, format: parsed.format,
       fileName: parsed.fileName, cover: parsed.cover,
       toc: parsed.toc, chapters: parsed.chapters,
       annotation: parsed.annotation || "",
+      src: new Blob([u8], { type: file.type || "" }),
+      parserV: TishinaParser.VERSION,
       progress: 0, addedAt: Date.now(), lastOpened: Date.now()
     };
     await Shelf.put(book);

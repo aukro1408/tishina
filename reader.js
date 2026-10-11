@@ -311,7 +311,8 @@ function renderDraw() {
 }
 
 async function open(id, chapter, pg) {
-  const b = await global.Shelf.get(id);
+  const rep = global.Shelf.reparseIfStale || (async x => x);
+  const b = await rep(await global.Shelf.get(id));
   if (!b || !b.chapters.length) return;
   book = b;
   chLens = b.chapters.map(c => textLen(c.html));

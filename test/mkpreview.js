@@ -33,7 +33,7 @@ window.Shelf = {
   del: async (id) => {}, touch: async () => {}, newId: () => "x"
 };
 window.__toast = () => {}; window.__shelfReload = () => {};
-${sepia ? 'localStorage.setItem("tishina.read", JSON.stringify({theme:"sepia",fontSize:19,font:"serif"}));' : ""}
+
 </script><style>.reader{transition:none!important}.r-top,.r-bottom{transition:none!important}</style>`;
 html = html.replace(/<script src="store\.js[^"]*"><\/script>/, fake);
 const openScript = `<script>
