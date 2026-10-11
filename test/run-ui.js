@@ -30,15 +30,13 @@ const q = s => document.querySelector(s), qa = s => Array.from(document.querySel
   await Shelf.put(mk("b3", "Третья", 0, 3000));
   require("../app.js"); // сам делает reload() и рендер
   await new Promise(r => setTimeout(r, 300));
-  ok(q("#pageTitle").textContent === "Читаю сейчас", "заголовок вкладки");
-  ok(q("#viewNow").textContent.includes("Первая книга"), "текущая книга показана");
-  ok(q("#viewNow").textContent.includes("43%"), "прогресс 43%");
-  ok(qa(".rec").length === 2, "недавних: 2 (нашёл " + qa(".rec").length + ")");
-  ok(qa(".rec .cover-ph").length === 2, "плейсхолдеры обложек");
-  ok(q("#viewNow img.cover") && q("#viewNow img.cover").src.startsWith("data:image"), "обложка-картинка у текущей");
-  // вкладка Библиотека
-  q('[data-tab="lib"]').click();
-  ok(q("#pageTitle").textContent === "Библиотека", "переключение вкладки");
+  ok(q("#pageTitle").textContent === "Полка", "заголовок полки");
+  ok(q("#viewShelf").textContent.includes("Первая книга"), "текущая книга показана");
+  ok(q("#viewShelf").textContent.includes("43%"), "прогресс 43%");
+  ok(qa(".book").length === 3, "книг на полке: 3 (нашёл " + qa(".book").length + ")");
+  ok(qa(".book .cover-ph").length === 2, "плейсхолдеры обложек");
+  ok(q("#viewShelf img.cover") && q("#viewShelf img.cover").src.startsWith("data:image"), "обложка-картинка у текущей");
+  // полка: все книги в сетке
   ok(qa(".lib-grid .book").length === 3, "в сетке 3 книги");
   // детали b1 (прогресс 43%)
   qa(".lib-grid .book")[0].click();

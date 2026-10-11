@@ -5,7 +5,6 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 let books = [];
-let tab = "now";
 let detailId = null;
 let toastTimer = null;
 
@@ -24,10 +23,10 @@ function coverHTML(b, cls) {
 }
 function pct(b) { return Math.round((b.progress || 0) * 100); }
 
-/* ---------- рендер ---------- */
+/* ---------- рендер: одна полка ---------- */
 
-function renderNow() {
-  const v = $("viewNow");
+function renderShelf() {
+  const v = $("viewShelf");
   if (!books.length) {
     v.innerHTML = `<div class="empty"><div class="big">📚</div>
       <p>Пока пусто.<br>Добавь первую книгу —<br>epub, fb2 или zip.</p>
@@ -35,55 +34,43 @@ function renderNow() {
     return;
   }
   const cur = books[0];
-  const rest = books.slice(1, 7);
-  v.innerHTML = `
-    <div class="now-card" data-open="${cur.id}">
-      ${coverHTML(cur)}
-      <div class="now-info">
-        <p class="t">${esc(cur.title)}</p>
-        <p class="a">${esc((cur.authors || []).join(", ") || "Автор неизвестен")}</p>
-        <div class="pbar"><i style="width:${pct(cur)}%"></i></div>
-        <div class="pct">${pct(cur)}%</div>
-        <button class="read-btn" data-read="${cur.id}">Читать</button>
-      </div>
-    </div>
-    ${rest.length ? `<div class="sec">Недавние</div><div class="recent">` +
-      rest.map(b => `<div class="rec" data-open="${b.id}">
-        ${coverHTML(b)}
-        <div class="rt">${esc(b.title)}</div><div class="rp">${pct(b)}%</div>
-      </div>`).join("") + `</div>` : ""}`;
-}
-
-function renderLib() {
-  const v = $("viewLib");
-  if (!books.length) {
-    v.innerHTML = `<div class="empty"><div class="big">📚</div><p>Библиотека пуста.</p></div>`;
-    return;
-  }
   const now = Date.now();
-  v.innerHTML = `<div class="lib-grid">` + books.map(b => {
+  const bookCard = b => {
     const prog = b.progress || 0;
     const isNew = !prog && (now - (b.addedAt || 0)) < 7 * 24 * 3600 * 1000;
-    const pct = prog > 0 ? Math.round(prog * 100) + "%" : "";
+    const pc = prog > 0 ? Math.round(prog * 100) + "%" : "";
     return `
     <div class="book" data-open="${b.id}">
       <div class="cover-wrap">${coverHTML(b)}</div>
       <div class="bt">${esc(b.title)}</div>
       <div class="ba">${esc((b.authors || []).join(", ") || "Автор неизвестен")}</div>
       <div class="bmeta">
-        ${isNew ? `<span class="bnew">NEW</span>` : (pct ? `<span class="bprog">${pct}</span>` : `<span></span>`)}
+        ${isNew ? `<span class="bnew">NEW</span>` : (pc ? `<span class="bprog">${pc}</span>` : `<span></span>`)}
         <button class="bdots" data-menu="${b.id}" title="Меню">•••</button>
       </div>
     </div>`;
-  }).join("") + `</div>`;
+  };
+  v.innerHTML = `
+    <div class="hero-card" data-open="${cur.id}">
+      <div class="hero-cover">${coverHTML(cur)}</div>
+      <div class="hero-info">
+        <div class="hero-label">Читаю сейчас</div>
+        <div class="hero-title">${esc(cur.title)}</div>
+        <div class="hero-author">${esc((cur.authors || []).join(", ") || "Автор неизвестен")}</div>
+        <div class="pbar"><i style="width:${pct(cur)}%"></i></div>
+        <div class="hero-foot">
+          <span class="hero-pct">${pct(cur)}%</span>
+          <button class="read-btn hero-btn" data-read="${cur.id}">${pct(cur) > 0 ? "Продолжить" : "Читать"}</button>
+        </div>
+      </div>
+    </div>
+    <div class="sec">Все книги</div>
+    <div class="lib-grid">${books.map(bookCard).join("")}</div>`;
 }
 
 function render() {
-  $("pageTitle").textContent = tab === "now" ? "Читаю сейчас" : "Библиотека";
-  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.tab === tab));
-  $("viewNow").classList.toggle("hidden", tab !== "now");
-  $("viewLib").classList.toggle("hidden", tab !== "lib");
-  renderNow(); renderLib();
+  $("pageTitle").textContent = "Полка";
+  renderShelf();
 }
 
 async function reload() { books = await Shelf.all(); render(); }
@@ -159,8 +146,6 @@ async function importFile(file) {
 document.addEventListener("click", e => {
   const add = e.target.closest("[data-add]");
   if (add) { $("fileInput").click(); return; }
-  const t = e.target.closest(".tab");
-  if (t) { tab = t.dataset.tab; render(); window.scrollTo(0, 0); return; }
   const read = e.target.closest("[data-read]");
   if (read) { e.stopPropagation(); Reader.open(read.dataset.read); return; }
   const menu = e.target.closest("[data-menu]");
@@ -187,7 +172,5 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") closeDetail(
 window.__toast = toast;
 window.__shelfReload = reload;
 
-const qTab = new URLSearchParams(location.search).get("tab");
-if (qTab === "lib") tab = "lib";
 reload();
 })();
