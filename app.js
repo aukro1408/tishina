@@ -60,7 +60,17 @@ function renderShelf() {
         <div class="pbar"><i style="width:${pct(cur)}%"></i></div>
         <div class="hero-foot">
           <span class="hero-pct">${pct(cur)}%</span>
-          <button class="read-btn hero-btn" data-read="${cur.id}">${pct(cur) > 0 ? "Продолжить" : "Читать"}</button>
+          <button class="read-btn hero-btn liquid-btn" data-read="${cur.id}">
+            <div class="liquid">
+              <span class="blob b1"></span><span class="blob b2"></span>
+              <span class="blob b3"></span><span class="blob b4"></span>
+              <span class="blob touch"></span>
+            </div>
+            <span class="frost"></span>
+            <span class="edge"></span>
+            <span class="grain"></span>
+            <span class="label">${pct(cur) > 0 ? "Продолжить" : "Читать"}</span>
+          </button>
         </div>
       </div>
     </div>
@@ -201,33 +211,38 @@ document.addEventListener("click", e => {
 });
 $("dClose").onclick = closeDetail;
 $("dMenu").onclick = () => { if (detailId) openBookMenu(detailId); };
-/* жидкая кнопка */
+/* жидкие кнопки — касание следует за пальцем */
 (() => {
-  const btn = $("dRead"), touch = $("dTouch");
-  let tx = 0, ty = 0, cx = 0, cy = 0, raf = null;
+  let tx = 0, ty = 0, cx = 0, cy = 0, raf = null, cur = null;
   const loop = () => {
+    if (!cur) return;
     cx += (tx - cx) * .12; cy += (ty - cy) * .12;
-    touch.style.left = cx + "px"; touch.style.top = cy + "px";
+    const t = cur.querySelector(".touch");
+    if (t) { t.style.left = cx + "px"; t.style.top = cy + "px"; }
     raf = requestAnimationFrame(loop);
   };
   const setPos = (e, jump) => {
-    const r = btn.getBoundingClientRect();
+    const r = cur.getBoundingClientRect();
     tx = e.clientX - r.left; ty = e.clientY - r.top;
     if (jump) { cx = r.width / 2; cy = r.height / 2; }
   };
-  btn.addEventListener("pointerdown", e => {
+  document.addEventListener("pointerdown", e => {
+    const btn = e.target.closest(".liquid-btn");
+    if (!btn) return;
+    cur = btn;
     setPos(e, true); btn.classList.add("touching");
     if (!raf) loop();
     if (navigator.vibrate) navigator.vibrate(12);
   });
-  btn.addEventListener("pointermove", e => setPos(e, false));
+  document.addEventListener("pointermove", e => { if (cur) setPos(e, false); });
   const end = () => {
-    btn.classList.remove("touching");
+    if (!cur) return;
+    cur.classList.remove("touching");
+    const b = cur; cur = null;
     setTimeout(() => { cancelAnimationFrame(raf); raf = null; }, 450);
   };
-  btn.addEventListener("pointerup", end);
-  btn.addEventListener("pointerleave", end);
-  btn.addEventListener("pointercancel", end);
+  document.addEventListener("pointerup", end);
+  document.addEventListener("pointercancel", end);
 })();
 $("dRead").addEventListener("click", () => { const id = detailId; closeDetail(); Reader.open(id); });
 $("dDel").onclick = async () => {
