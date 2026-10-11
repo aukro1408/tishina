@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тест сноски</title>
+<style>
+body{font-family:Georgia,serif;font-size:20px;padding:40px 20px;line-height:1.7}
+a.fn{color:#2f7cf6;text-decoration:none;position:relative;
+  font-size:.75em;vertical-align:super;line-height:1;cursor:pointer}
+a.fn::after{content:"";position:absolute;top:-16px;bottom:-16px;left:-14px;right:-14px}
+#log{margin-top:30px;padding:15px;background:#f0f0f0;border-radius:10px;font-size:14px;font-family:monospace;white-space:pre-wrap}
+</style></head><body>
+<p>Тестовая сноска: Словарь Уэбстера<a class="fn" data-fn="n_46">[46]</a> конец.</p>
+<p>Тапни по синей [46]. Ниже появится, что браузер думает о тапе.</p>
+<div id="log">Жду тап...</div>
+<script>
+const log = document.getElementById("log");
+document.body.addEventListener("click", e => {
+  const t = e.target;
+  const fn = t.closest ? t.closest("a.fn") : null;
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  log.textContent =
+    "e.target: " + t.tagName + "." + t.className + "\n" +
+    "closest a.fn: " + (fn ? "НАЙДЕН data-fn=" + fn.dataset.fn : "НЕТ") + "\n" +
+    "elementFromPoint: " + (el ? el.tagName + "." + el.className : "null") + "\n" +
+    "coords: " + Math.round(e.clientX) + "," + Math.round(e.clientY);
+}, true);
+</script></body></html>
