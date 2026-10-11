@@ -329,6 +329,18 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") closeDetail(
 window.__toast = toast;
 window.__shelfReload = reload;
 
+// параллакс шапки главной
+(function(){
+  var top = document.querySelector(".top");
+  if (!top) return;
+  var reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
+  if (reduce) return;
+  addEventListener("scroll", function(){
+    var y = Math.max(0, scrollY);
+    top.style.backgroundPosition = "center " + (y * .28) + "px";
+  }, {passive:true});
+})();
+
 reload().then(() => {
   if (localStorage.getItem("tishina.goto") === "settings") {
     localStorage.removeItem("tishina.goto");
