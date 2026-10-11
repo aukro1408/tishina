@@ -7,13 +7,37 @@ const GAP = 48; // зазор между страницами-колонками
 let book = null, chIdx = 0, page = 0, pages = 1;
 let opened = false, saveTimer = null, resizeTimer = null;
 let tx = null; // x начала тача
+let chLens = [], totalLen = 0;
+
+/* ---------- настройки чтения ---------- */
+const SET_KEY = "tishina.read";
+let set = { fontSize: 18.5, font: "serif", theme: "day" };
+try { Object.assign(set, JSON.parse(localStorage.getItem(SET_KEY) || "{}")); } catch (e) {}
+function saveSet() { try { localStorage.setItem(SET_KEY, JSON.stringify(set)); } catch (e) {} }
+function applySettings() {
+  const r = $("reader");
+  r.style.setProperty("--rfs", set.fontSize + "px");
+  r.classList.toggle("ff-sans", set.font === "sans");
+  r.classList.toggle("th-sepia", set.theme === "sepia");
+  r.classList.toggle("th-night", set.theme === "night");
+  syncSetUI();
+  if (opened) layout();
+}
+function textLen(html) {
+  const d = document.createElement("div");
+  d.innerHTML = html || "";
+  return (d.textContent || "").replace(/\s+/g, " ").trim().length;
+}
 
 const $ = id => document.getElementById(id);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 function bookProgress() {
-  if (!book || !book.chapters.length) return 0;
-  return (chIdx + (page + 1) / pages) / book.chapters.length;
+  if (!book || !book.chapters.length || !totalLen) return 0;
+  let done = 0;
+  for (let i = 0; i < chIdx; i++) done += chLens[i];
+  done += (chLens[chIdx] || 0) * ((page + 1) / pages);
+  return Math.min(1, done / totalLen);
 }
 
 /* ---------- раскладка ---------- */
@@ -94,6 +118,7 @@ function setChapter() {
   const ch = book.chapters[chIdx];
   $("rPages").innerHTML =
     `<div class="r-chapter-label">${escapeHtml(ch.label || "")}</div>` + (ch.html || "");
+  $("rPages").setAttribute("lang", book.lang || "ru");
   $("rPages").scrollLeft = 0;
   layout();
   showChrome();
@@ -113,18 +138,32 @@ function saveSoon() {
   }, 600);
 }
 
-/* ---------- открыть / закрыть ---------- */
+/* ---------- шторка настроек ---------- */
+
+function syncSetUI() {
+  document.querySelectorAll("#fontSeg button").forEach(b =>
+    b.classList.toggle("on", b.dataset.font === set.font));
+  document.querySelectorAll("#themeSeg button").forEach(b =>
+    b.classList.toggle("on", b.dataset.theme === set.theme));
+  $("fsVal").textContent = Math.round(set.fontSize);
+}
+function openSet() { $("rSet").classList.add("open"); }
+function closeSet() { $("rSet").classList.remove("open"); }
+function toggleSet() { $("rSet").classList.toggle("open"); }
 
 async function open(id, chapter, pg) {
   const b = await global.Shelf.get(id);
   if (!b || !b.chapters.length) return;
   book = b;
+  chLens = b.chapters.map(c => textLen(c.html));
+  totalLen = chLens.reduce((a, x) => a + x, 0);
   const lr = b.lastRead || {};
   chIdx = clamp(chapter != null ? chapter : (lr.ch || 0), 0, b.chapters.length - 1);
   page = 0;
   opened = true;
   $("reader").classList.add("open");
   document.body.style.overflow = "hidden";
+  applySettings();
   showChrome();
   setChapter();
   if (pg != null) go(pg);
@@ -148,6 +187,22 @@ async function close() {
 function bind() {
   if (bind.done) return; bind.done = true;
   $("rBack").addEventListener("click", e => { e.stopPropagation(); close(); });
+  $("rAa").addEventListener("click", e => { e.stopPropagation(); toggleSet(); });
+  $("rSet").addEventListener("click", e => { if (e.target === $("rSet")) closeSet(); });
+  $("fsMinus").addEventListener("click", () => {
+    set.fontSize = Math.max(14, Math.round((set.fontSize - 1) * 10) / 10); saveSet(); applySettings();
+  });
+  $("fsPlus").addEventListener("click", () => {
+    set.fontSize = Math.min(26, Math.round((set.fontSize + 1) * 10) / 10); saveSet(); applySettings();
+  });
+  $("fontSeg").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    set.font = b.dataset.font; saveSet(); applySettings();
+  });
+  $("themeSeg").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    set.theme = b.dataset.theme; saveSet(); applySettings();
+  });
 
   const content = $("rContent");
   content.addEventListener("click", e => {
@@ -179,7 +234,8 @@ function bind() {
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (opened) layout(); });
 }
 
-const Reader = { open, close, next, prev, go, layout,
+const Reader = { open, close, next, prev, go, layout, applySettings,
+  _settings: () => ({ ...set }),
   _state: () => ({ book: book && book.id, chIdx, page, pages, progress: bookProgress() }) };
 global.Reader = Reader;
 bind();

@@ -9,6 +9,7 @@ const { window } = dom;
 global.window = window;
 global.document = window.document;
 global.location = window.location;
+global.localStorage = window.localStorage;
 window.scrollTo = () => {};
 window.HTMLElement.prototype.scrollIntoView = () => {};
 global.__toast = () => {};
@@ -58,6 +59,27 @@ const st = () => Reader._state();
   const saved = await Shelf.get("b1");
   ok(saved.lastRead && saved.lastRead.ch === 2 && saved.lastRead.page === 0, "место сохранено при закрытии");
   ok(!document.getElementById("reader").classList.contains("open"), "ридер закрыт");
+
+  // настройки
+  await Reader.open("b1");
+  ok(Math.abs(Reader._settings().fontSize - 18.5) < 1e-9, "дефолтный размер 18.5");
+  document.getElementById("fsPlus").click();
+  ok(Math.abs(Reader._settings().fontSize - 19.5) < 1e-9, "размер +1");
+  ok(document.getElementById("reader").style.getPropertyValue("--rfs") === "19.5px", "--rfs применён");
+  document.getElementById("fsMinus").click(); document.getElementById("fsMinus").click();
+  ok(Math.abs(Reader._settings().fontSize - 17.5) < 1e-9, "размер −2");
+  document.querySelector('#themeSeg [data-theme="night"]').click();
+  ok(document.getElementById("reader").classList.contains("th-night"), "ночная тема");
+  ok(Reader._settings().theme === "night", "тема в настройках");
+  document.querySelector('#fontSeg [data-font="sans"]').click();
+  ok(document.getElementById("reader").classList.contains("ff-sans"), "sans-шрифт");
+  const stored = JSON.parse(window.localStorage.getItem("tishina.read"));
+  ok(stored && stored.theme === "night" && Math.abs(stored.fontSize - 17.5) < 1e-9, "настройки в localStorage");
+  document.getElementById("rAa").click();
+  ok(document.getElementById("rSet").classList.contains("open"), "шторка открылась");
+  document.getElementById("rSet").click();
+  await new Promise(r => setTimeout(r, 50));
+  ok(!document.getElementById("rSet").classList.contains("open"), "шторка закрылась по тапу вне");
 
   console.log(`\nИтого: ${pass} ok, ${failed} failed`);
   process.exit(failed ? 1 : 0);

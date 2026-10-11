@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=5"></script>
-<script src="store.js?v=5"></script>
+<script src="parser.js?v=6"></script>
+<script src="store.js?v=6"></script>
 <style>
 :root{
   --ink:#1c1c1e; --muted:#8e8e93; --line:#e9e9ee; --bg:#ffffff; --bg2:#f6f6f8;
@@ -105,37 +105,64 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 .hidden{display:none!important}
 
 /* ридер */
-.reader{position:fixed;inset:0;background:#fff;z-index:70;display:flex;flex-direction:column;
+.reader{--rbg:#ffffff;--rink:#1c1c1e;--rmuted:#8e8e93;--rline:#e9e9ee;--rbar:rgba(255,255,255,.94);
+  position:fixed;inset:0;background:var(--rbg);color:var(--rink);z-index:70;display:flex;flex-direction:column;
   transform:translateY(102%);transition:transform .3s ease}
+.reader.th-sepia{--rbg:#f3e9d2;--rink:#43382b;--rmuted:#8a7a5f;--rline:#e0d2b2;--rbar:rgba(243,233,210,.94)}
+.reader.th-night{--rbg:#17171a;--rink:#e8e3d8;--rmuted:#98989d;--rline:#2c2c31;--rbar:rgba(23,23,26,.94)}
 .reader.open{transform:none}
 .r-top{position:absolute;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;gap:12px;
   padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top));
-  background:rgba(255,255,255,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--line);
+  background:var(--rbar);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--rline);
   transition:transform .28s ease,opacity .28s ease}
 .r-top.gone{transform:translateY(-105%);opacity:0;pointer-events:none}
-.r-back{border:none;background:var(--bg2);width:38px;height:38px;border-radius:50%;font-size:17px;cursor:pointer;color:var(--ink);flex:0 0 auto}
+.r-back{border:none;background:var(--rline);width:38px;height:38px;border-radius:50%;font-size:17px;cursor:pointer;color:var(--rink);flex:0 0 auto}
 .r-title{flex:1;min-width:0;font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.r-pct{font-size:13px;color:var(--muted);font-weight:700;flex:0 0 auto}
+.r-aa{border:none;background:none;font-size:21px;font-weight:600;cursor:pointer;color:var(--rink);padding:6px 8px;flex:0 0 auto;font-family:inherit}
+.r-pct{font-size:13px;color:var(--rmuted);font-weight:700;flex:0 0 auto}
 .r-content{flex:1;overflow:hidden;position:relative;cursor:pointer;
   padding:calc(78px + env(safe-area-inset-top)) 24px calc(96px + env(safe-area-inset-bottom))}
-.r-pages{height:100%;column-fill:auto;-webkit-column-fill:auto;overflow:hidden}
-.r-pages p{font-family:Georgia,'Times New Roman',serif;font-size:18.5px;line-height:1.68;margin:0 0 1em;color:#1c1c1e}
-.r-pages h1,.r-pages h2,.r-pages h3{font-family:'Cormorant Garamond',serif;font-weight:600;break-after:avoid;margin:0 0 .7em;line-height:1.25}
+.r-pages{height:100%;column-fill:auto;-webkit-column-fill:auto;overflow:hidden;font-size:var(--rfs,18.5px)}
+.r-pages p{font-family:Georgia,'Times New Roman',serif;font-size:1em;line-height:1.68;margin:0 0 1em;color:var(--rink);
+  text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.reader.ff-sans .r-pages p{font-family:-apple-system,'Manrope',system-ui,sans-serif}
+.r-pages h1,.r-pages h2,.r-pages h3{font-family:'Cormorant Garamond',serif;font-weight:600;break-after:avoid;margin:0 0 .7em;line-height:1.25;color:var(--rink);font-size:1.4em}
 .r-pages img{max-width:100%;height:auto;break-inside:avoid;border-radius:8px}
-.r-pages blockquote,.r-pages figure{break-inside:avoid;margin:0 0 1em;padding-left:14px;border-left:3px solid var(--line);
-  font-family:Georgia,serif;font-style:italic}
-.r-chapter-label{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:27px;
-  margin:0 0 18px;break-after:avoid;line-height:1.2}
+.r-pages blockquote,.r-pages figure{break-inside:avoid;margin:0 0 1em;padding-left:14px;border-left:3px solid var(--rline);
+  font-family:Georgia,serif;font-style:italic;color:var(--rink)}
+.r-chapter-label{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:1.5em;
+  margin:0 0 18px;break-after:avoid;line-height:1.2;color:var(--rink);text-align:left}
 .r-bottom{position:absolute;bottom:0;left:0;right:0;z-index:5;
   padding:12px 22px calc(18px + env(safe-area-inset-bottom));
-  border-top:1px solid var(--line);background:rgba(255,255,255,.94);
+  border-top:1px solid var(--rline);background:var(--rbar);
   backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   transition:transform .28s ease,opacity .28s ease}
 .r-bottom.gone{transform:translateY(105%);opacity:0;pointer-events:none}
-.r-bottom .row{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;color:var(--muted);
+.r-bottom .row{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;color:var(--rmuted);
   font-weight:600;margin-bottom:9px}
 .r-bottom .row span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* шторка настроек */
+.r-set{position:absolute;inset:0;z-index:8;display:flex;align-items:flex-end;justify-content:center;
+  background:rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .25s}
+.r-set.open{opacity:1;pointer-events:auto}
+.r-set-card{width:100%;max-width:560px;background:var(--rbar);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  border-radius:22px 22px 0 0;padding:8px 22px calc(24px + env(safe-area-inset-bottom));
+  transform:translateY(103%);transition:transform .28s ease;color:var(--rink)}
+.r-set.open .r-set-card{transform:none}
+.r-set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;
+  border-bottom:1px solid var(--rline);font-weight:700;font-size:15px}
+.r-set-row:last-child{border-bottom:none}
+.seg{display:flex;background:rgba(120,120,128,.16);border-radius:12px;padding:3px;gap:2px}
+.seg button{border:none;background:none;font-family:inherit;font-weight:700;font-size:13.5px;padding:8px 13px;
+  border-radius:9px;cursor:pointer;color:var(--rink)}
+.seg button.on{background:var(--rbg);box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.stepper{display:flex;align-items:center;gap:12px}
+.stepper button{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--rline);background:var(--rbg);
+  color:var(--rink);font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}
+.stepper button:active{transform:scale(.93)}
+#fsVal{min-width:30px;text-align:center;font-size:16px}
 </style>
 </head>
 <body>
@@ -182,6 +209,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   <div class="r-top" id="rTop">
     <button class="r-back" id="rBack">←</button>
     <div class="r-title" id="rTitle"></div>
+    <button class="r-aa" id="rAa">Aa</button>
     <div class="r-pct" id="rPct"></div>
   </div>
   <div class="r-content" id="rContent"><div class="r-pages" id="rPages"></div></div>
@@ -189,9 +217,22 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
     <div class="row"><span id="rCh"></span><span id="rPageInfo"></span></div>
     <div class="pbar"><i id="rBar"></i></div>
   </div>
+  <div class="r-set" id="rSet">
+    <div class="r-set-card">
+      <div class="r-set-row"><span>Размер шрифта</span>
+        <div class="stepper"><button id="fsMinus">A−</button><span id="fsVal">19</span><button id="fsPlus">A+</button></div>
+      </div>
+      <div class="r-set-row"><span>Шрифт</span>
+        <div class="seg" id="fontSeg"><button data-font="serif" class="on">Serif</button><button data-font="sans">Sans</button></div>
+      </div>
+      <div class="r-set-row"><span>Тема</span>
+        <div class="seg" id="themeSeg"><button data-theme="day" class="on">День</button><button data-theme="sepia">Сепия</button><button data-theme="night">Ночь</button></div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<script src="reader.js?v=5"></script>
-<script src="app.js?v=5"></script>
+<script src="reader.js?v=6"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>
