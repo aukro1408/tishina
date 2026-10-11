@@ -175,8 +175,30 @@ document.addEventListener("click", e => {
 $("addBtn").onclick = () => $("fileInput").click();
 $("fileInput").onchange = e => { importFile(e.target.files[0]); e.target.value = ""; };
 /* навбар */
-$("navHome").onclick = () => { window.scrollTo({ top: 0, behavior: "smooth" }); };
-$("navSet").onclick = () => { if (window.Reader) window.Reader.openSettings(); };
+function showView(name) {
+  const isSet = name === "settings";
+  $("viewShelf").hidden = isSet;
+  document.querySelector(".top").style.display = isSet ? "none" : "";
+  $("viewSettings").hidden = !isSet;
+  $("navHome").classList.toggle("on", !isSet);
+  $("navSet").classList.toggle("on", isSet);
+  window.scrollTo(0, 0);
+}
+$("navHome").onclick = () => {
+  if (window.Reader) { try { window.Reader.close(); } catch(e){} }
+  if (typeof closeDetail === "function") closeDetail();
+  showView("shelf");
+};
+$("navSet").onclick = () => {
+  if (window.Reader) { try { window.Reader.close(); } catch(e){} }
+  if (typeof closeDetail === "function") closeDetail();
+  showView("settings");
+};
+/* фейковые переключатели настроек */
+document.addEventListener("click", e => {
+  const sw = e.target.closest(".switch");
+  if (sw) sw.classList.toggle("on");
+});
 $("dClose").onclick = closeDetail;
 $("dGear").onclick = () => { if (window.Reader) window.Reader.openSettings(); };
 $("dRead").onclick = () => { const id = detailId; closeDetail(); Reader.open(id); };
