@@ -200,7 +200,7 @@ document.addEventListener("click", e => {
   if (sw) sw.classList.toggle("on");
 });
 $("dClose").onclick = closeDetail;
-$("dGear").onclick = () => { if (window.Reader) window.Reader.openSettings(); };
+$("dMenu").onclick = () => { if (detailId) openBookMenu(detailId); };
 $("dRead").onclick = () => { const id = detailId; closeDetail(); Reader.open(id); };
 $("dDel").onclick = async () => {
   if (!detailId) return;
