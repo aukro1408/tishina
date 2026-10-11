@@ -20,7 +20,7 @@ function bookProgress() {
 
 function dims() {
   const el = $("rContent");
-  const cs = getComputedStyle(el);
+  const cs = global.getComputedStyle(el);
   const w = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
   const h = el.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
   return { w: Math.max(50, w), h: Math.max(50, h) };
@@ -61,12 +61,12 @@ function updateChrome() {
   $("rBar").style.width = (bookProgress() * 100) + "%";
 }
 function toggleChrome() {
-  $("rTop").classList.toggle("hidden");
-  $("rBottom").classList.toggle("hidden");
+  $("rTop").classList.toggle("gone");
+  $("rBottom").classList.toggle("gone");
 }
 function showChrome() {
-  $("rTop").classList.remove("hidden");
-  $("rBottom").classList.remove("hidden");
+  $("rTop").classList.remove("gone");
+  $("rBottom").classList.remove("gone");
 }
 
 /* ---------- навигация ---------- */

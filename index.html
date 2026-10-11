@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=4"></script>
-<script src="store.js?v=4"></script>
+<script src="parser.js?v=5"></script>
+<script src="store.js?v=5"></script>
 <style>
 :root{
   --ink:#1c1c1e; --muted:#8e8e93; --line:#e9e9ee; --bg:#ffffff; --bg2:#f6f6f8;
@@ -108,12 +108,17 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 .reader{position:fixed;inset:0;background:#fff;z-index:70;display:flex;flex-direction:column;
   transform:translateY(102%);transition:transform .3s ease}
 .reader.open{transform:none}
-.r-top{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);
-  padding-top:calc(12px + env(safe-area-inset-top))}
+.r-top{position:absolute;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;gap:12px;
+  padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top));
+  background:rgba(255,255,255,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+  transition:transform .28s ease,opacity .28s ease}
+.r-top.gone{transform:translateY(-105%);opacity:0;pointer-events:none}
 .r-back{border:none;background:var(--bg2);width:38px;height:38px;border-radius:50%;font-size:17px;cursor:pointer;color:var(--ink);flex:0 0 auto}
 .r-title{flex:1;min-width:0;font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .r-pct{font-size:13px;color:var(--muted);font-weight:700;flex:0 0 auto}
-.r-content{flex:1;overflow:hidden;position:relative;padding:20px 24px;cursor:pointer}
+.r-content{flex:1;overflow:hidden;position:relative;cursor:pointer;
+  padding:calc(78px + env(safe-area-inset-top)) 24px calc(96px + env(safe-area-inset-bottom))}
 .r-pages{height:100%;column-fill:auto;-webkit-column-fill:auto;overflow:hidden}
 .r-pages p{font-family:Georgia,'Times New Roman',serif;font-size:18.5px;line-height:1.68;margin:0 0 1em;color:#1c1c1e}
 .r-pages h1,.r-pages h2,.r-pages h3{font-family:'Cormorant Garamond',serif;font-weight:600;break-after:avoid;margin:0 0 .7em;line-height:1.25}
@@ -122,7 +127,12 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   font-family:Georgia,serif;font-style:italic}
 .r-chapter-label{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:27px;
   margin:0 0 18px;break-after:avoid;line-height:1.2}
-.r-bottom{padding:12px 22px calc(18px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#fff}
+.r-bottom{position:absolute;bottom:0;left:0;right:0;z-index:5;
+  padding:12px 22px calc(18px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--line);background:rgba(255,255,255,.94);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  transition:transform .28s ease,opacity .28s ease}
+.r-bottom.gone{transform:translateY(105%);opacity:0;pointer-events:none}
 .r-bottom .row{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;color:var(--muted);
   font-weight:600;margin-bottom:9px}
 .r-bottom .row span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -181,7 +191,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   </div>
 </div>
 
-<script src="reader.js?v=4"></script>
-<script src="app.js?v=4"></script>
+<script src="reader.js?v=5"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>
