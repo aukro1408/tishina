@@ -431,37 +431,19 @@ function bind() {
   });
 
   const content = $("rContent");
-  // ВРЕМЕННЫЙ ДЕБАГ: показывает состояние при тапе
-  function dbg(msg) {
-    let d = document.getElementById("fndbg");
-    if (!d) {
-      d = document.createElement("div");
-      d.id = "fndbg";
-      d.style.cssText = "position:fixed;left:8px;top:8px;z-index:99999;background:#000;color:#0f0;font:10px monospace;padding:6px;border-radius:6px;max-width:90%;white-space:pre-wrap";
-      document.body.appendChild(d);
-    }
-    d.textContent = msg;
-  }
   content.addEventListener("click", e => {
     // сноска — попап вместо листания.
     // 1) прямое попадание; 2) сноска в том же абзаце (без координат — для хромов с битым хит-тестом);
     // 3) ближайшая по координатам.
     let fn = e.target.closest ? e.target.closest("a.fn") : null;
-    let how = "direct";
     if (!fn && e.target.closest) {
       const p = e.target.closest("p, li, blockquote");
       if (p) {
         const links = p.querySelectorAll("a.fn");
-        if (links.length === 1) { fn = links[0]; how = "para"; }
+        if (links.length === 1) fn = links[0];
       }
     }
-    if (!fn) { fn = nearestFn(e.clientX, e.clientY); how = "near"; }
-    const notesN = book && book.notes ? Object.keys(book.notes).length : -1;
-    const key = fn ? fn.dataset.fn : "-";
-    const hasNote = fn && book && book.notes && book.notes[fn.dataset.fn] ? "Y" : "N";
-    dbg("target=" + (e.target.tagName || "?") + "." + (e.target.className || "") +
-        "\nfn=" + (fn ? "Y(" + how + ")" : "N") + " key=" + key +
-        "\nnotes=" + notesN + " hasNote=" + hasNote);
+    if (!fn) fn = nearestFn(e.clientX, e.clientY);
     if (fn && book && book.notes && book.notes[fn.dataset.fn]) {
       e.stopPropagation();
       showNote(book.notes[fn.dataset.fn]);
