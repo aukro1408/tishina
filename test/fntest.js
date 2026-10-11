@@ -43,5 +43,16 @@ const Reader = window.Reader;
   await new Promise(r => setTimeout(r, 100));
   console.log("попап открыт:", document.getElementById("rNote").classList.contains("open"));
   console.log("текст попапа:", document.getElementById("rNoteText").textContent);
+  // тап рядом со сноской (мимо на ~15px) — nearestFn должен найти ссылку
+  document.getElementById("rNoteX").dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  const span = document.createElement("span");
+  span.textContent = "мимо";
+  document.getElementById("rPages").appendChild(span);
+  document.elementFromPoint = (x, y) => (Math.hypot(x - 200, y - 400) < 30 ? a : span);
+  span.dispatchEvent(new window.MouseEvent("click", { bubbles: true, clientX: 212, clientY: 408 }));
+  await new Promise(r => setTimeout(r, 100));
+  const nearOk = document.getElementById("rNote").classList.contains("open");
+  console.log("попап открыт при тапе рядом:", nearOk);
+  if (!nearOk) process.exit(1);
   process.exit(0);
 })().catch(e => { console.error("CRASH:", e); process.exit(1); });

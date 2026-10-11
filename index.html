@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=15"></script>
-<script src="store.js?v=15"></script>
+<script src="parser.js?v=16"></script>
+<script src="store.js?v=16"></script>
 <style>
 @font-face{font-family:'Tishina Times';src:url('fonts/times.ttf') format('truetype');font-display:swap}
 :root{
@@ -142,12 +142,12 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 .reader[data-bg="sand"]{--rbg:#dcc2a1;--rink:#33291c;--rmuted:#77644c;--rline:#c6a67f;--rbgimg:url('bg/sand.png')}
 .reader[data-bg="night"]{--rbg:#17171a;--rink:#e8e3d8;--rmuted:#98989d;--rline:#2c2c31;--rbgimg:none}
 .reader.open{transform:none}
-.r-top{position:absolute;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;gap:12px;
-  padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top));
-  background:var(--rbar);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--rline);
+.r-top{position:absolute;top:calc(10px + env(safe-area-inset-top));left:12px;right:12px;z-index:5;
+  display:flex;align-items:center;gap:12px;padding:10px 14px;
+  background:rgba(255,255,255,.97);border-radius:22px;
+  box-shadow:0 10px 30px rgba(0,0,0,.18);
   transition:transform .28s ease,opacity .28s ease}
-.r-top.gone{transform:translateY(-105%);opacity:0;pointer-events:none}
+.r-top.gone{transform:translateY(-140%);opacity:0;pointer-events:none}
 .r-back{border:none;background:#ececf0;width:38px;height:38px;border-radius:50%;font-size:17px;cursor:pointer;color:#1c1c1e;flex:0 0 auto}
 /* верх/низ всегда белые — текст в них тоже фиксированный тёмный */
 .r-top,.r-bottom{--rink:#1c1c1e;--rmuted:#8e8e93;--rline:#e9e9ee}
@@ -166,18 +166,18 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 .r-pages h3{font-family:'Cormorant Garamond',serif;font-weight:600;break-after:avoid;margin:0 0 .7em;line-height:1.3;
   color:var(--rink);font-size:1.25em;text-align:center}
 .r-pages a.fn{color:#2f7cf6;text-decoration:none;
-  font-size:.75em;vertical-align:super;line-height:1;cursor:pointer}
+  font-size:.75em;vertical-align:super;line-height:1;cursor:pointer;
+  padding:12px 8px;margin:-12px -8px}
 .r-pages img{max-width:100%;height:auto;break-inside:avoid;border-radius:8px}
 .r-pages blockquote,.r-pages figure{break-inside:avoid;margin:0 0 1em;padding-left:14px;border-left:3px solid var(--rline);
   font-family:Georgia,serif;font-style:italic;color:var(--rink)}
 .r-chapter-label{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:1.5em;
   margin:0 0 18px;break-after:avoid;line-height:1.2;color:var(--rink);text-align:left}
-.r-bottom{position:absolute;bottom:0;left:0;right:0;z-index:5;
-  padding:12px 22px calc(18px + env(safe-area-inset-bottom));
-  border-top:1px solid var(--rline);background:var(--rbar);
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+.r-bottom{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));left:12px;right:12px;z-index:5;
+  padding:14px 18px 16px;background:rgba(255,255,255,.97);border-radius:22px;
+  box-shadow:0 10px 30px rgba(0,0,0,.18);
   transition:transform .28s ease,opacity .28s ease}
-.r-bottom.gone{transform:translateY(105%);opacity:0;pointer-events:none}
+.r-bottom.gone{transform:translateY(140%);opacity:0;pointer-events:none}
 .r-bottom .row{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;color:var(--rmuted);
   font-weight:600;margin-bottom:9px}
 .r-bottom .row span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -412,7 +412,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       </div>
     </div>
   </div>
-<script src="reader.js?v=15"></script>
-<script src="app.js?v=15"></script>
+<script src="reader.js?v=16"></script>
+<script src="app.js?v=16"></script>
 </body>
 </html>

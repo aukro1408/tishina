@@ -226,6 +226,17 @@ function showNote(text) {
   $("rNote").classList.add("open");
 }
 function closeNote() { $("rNote").classList.remove("open"); }
+// ближайшая сноска в радиусе ~24px от точки тапа — палец редко попадает точно в мелкий индекс
+function nearestFn(x, y) {
+  const at = (px, py) => {
+    if (typeof document.elementFromPoint !== "function") return null;
+    const el = document.elementFromPoint(px, py);
+    return el && el.closest ? el.closest("a.fn") : null;
+  };
+  return at(x, y)
+    || at(x - 22, y) || at(x + 22, y) || at(x, y - 22) || at(x, y + 22)
+    || at(x - 15, y - 15) || at(x + 15, y - 15) || at(x - 15, y + 15) || at(x + 15, y + 15);
+}
 
 /* ---------- шторка глав / закладок ---------- */
 let drawTab = "ch";
@@ -401,7 +412,8 @@ function bind() {
   const content = $("rContent");
   content.addEventListener("click", e => {
     // сноска — попап вместо листания
-    const fn = e.target.closest("a.fn");
+    const fn0 = e.target.closest("a.fn");
+    const fn = fn0 || nearestFn(e.clientX, e.clientY);
     if (fn && book && book.notes && book.notes[fn.dataset.fn]) {
       e.stopPropagation();
       showNote(book.notes[fn.dataset.fn]);
