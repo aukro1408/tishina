@@ -106,7 +106,7 @@ async function openDetail(id) {
   $("dTitle").textContent = b.title || "(без названия)";
   $("dAuthor").textContent = (b.authors || []).join(", ") || "Автор неизвестен";
   const started = !!(b.lastRead || (b.progress || 0) > 0);
-  $("dRead").textContent = started ? "Продолжить чтение" : "Читать";
+  $("dReadLabel").textContent = started ? "Продолжить чтение" : "Читать";
   const p = pct(b);
   $("dProg").hidden = !(p > 0);
   $("dPct").textContent = p + "%";
@@ -201,7 +201,35 @@ document.addEventListener("click", e => {
 });
 $("dClose").onclick = closeDetail;
 $("dMenu").onclick = () => { if (detailId) openBookMenu(detailId); };
-$("dRead").onclick = () => { const id = detailId; closeDetail(); Reader.open(id); };
+/* жидкая кнопка */
+(() => {
+  const btn = $("dRead"), touch = $("dTouch");
+  let tx = 0, ty = 0, cx = 0, cy = 0, raf = null;
+  const loop = () => {
+    cx += (tx - cx) * .12; cy += (ty - cy) * .12;
+    touch.style.left = cx + "px"; touch.style.top = cy + "px";
+    raf = requestAnimationFrame(loop);
+  };
+  const setPos = (e, jump) => {
+    const r = btn.getBoundingClientRect();
+    tx = e.clientX - r.left; ty = e.clientY - r.top;
+    if (jump) { cx = r.width / 2; cy = r.height / 2; }
+  };
+  btn.addEventListener("pointerdown", e => {
+    setPos(e, true); btn.classList.add("touching");
+    if (!raf) loop();
+    if (navigator.vibrate) navigator.vibrate(12);
+  });
+  btn.addEventListener("pointermove", e => setPos(e, false));
+  const end = () => {
+    btn.classList.remove("touching");
+    setTimeout(() => { cancelAnimationFrame(raf); raf = null; }, 450);
+  };
+  btn.addEventListener("pointerup", end);
+  btn.addEventListener("pointerleave", end);
+  btn.addEventListener("pointercancel", end);
+})();
+$("dRead").addEventListener("click", () => { const id = detailId; closeDetail(); Reader.open(id); });
 $("dDel").onclick = async () => {
   if (!detailId) return;
   if (!confirm("Удалить книгу с полки?")) return;
