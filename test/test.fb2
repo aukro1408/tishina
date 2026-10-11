@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:l="http://www.w3.org/1999/xlink">
+<description><title-info>
+<genre>test</genre>
+<author><first-name>Пётр</first-name><last-name>Тестовый</last-name></author>
+<book-title>Тестовая FB2-книга</book-title>
+<lang>ru</lang>
+<coverpage><image l:href="#cover.png"/></coverpage>
+</title-info></description>
+<body>
+<section><title><p>Глава первая</p></title>
+<p>Первый абзац в кодировке windows-1251. Ёлки-палки, проверка.</p>
+<p>Второй абзац с <emphasis>курсивом</emphasis> и <strong>жирным</strong>.</p>
+<empty-line/>
+<image l:href="#cover.png"/>
+</section>
+<section><title><p>Глава вторая</p></title>
+<p>Текст второй главы. Всё должно распарситься.</p>
+</section>
+</body>
+<binary id="cover.png" content-type="image/png">iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==</binary>
+</FictionBook>

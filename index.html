@@ -3,382 +3,170 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Тишина — спокойное чтение</title>
+<title>Тишина — ридер</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="parser.js"></script>
 <style>
 :root{
   --bg1:#d9735f; --bg2:#b4503f;
-  --paper:#f8f1e4; --paper2:#f3e9d6;
-  --ink:#3a2b23; --muted:#93806f;
-  --pill:#c65b4e; --pill-ink:#fff;
-  --shadow:0 14px 34px rgba(70,25,12,.28);
+  --paper:#f8f1e4; --ink:#3a2b23; --muted:#93806f;
+  --pill:#c65b4e; --shadow:0 14px 34px rgba(70,25,12,.28);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
-body{
-  font-family:'Manrope',system-ui,sans-serif;color:var(--ink);
-  background:linear-gradient(165deg,var(--bg1) 0%,var(--bg2) 100%);
-  background-attachment:fixed;min-height:100vh;
-}
+body{font-family:'Manrope',system-ui,sans-serif;color:var(--ink);
+  background:linear-gradient(165deg,var(--bg1),var(--bg2));background-attachment:fixed;min-height:100vh}
 .wrap{max-width:560px;margin:0 auto;padding:30px 18px 70px}
-
-/* шапка */
 .brand{text-align:center;color:#fff;margin-bottom:22px}
-.brand h1{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:52px;margin:0;letter-spacing:.01em}
+.brand h1{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:46px;margin:0}
 .brand p{margin:6px 0 0;font-size:11px;letter-spacing:.32em;text-transform:uppercase;opacity:.88}
-
-/* история дня */
-.daily{background:var(--paper);border-radius:26px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:22px;display:flex;min-height:150px;cursor:pointer}
-.daily .d-art{flex:0 0 42%}
-.daily .d-art svg{display:block;width:100%;height:100%}
-.daily .d-body{padding:18px 18px 16px;display:flex;flex-direction:column;justify-content:center}
-.daily .d-tag{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--pill);font-weight:700;margin-bottom:6px}
-.daily h2{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:27px;margin:0 0 4px;line-height:1.08}
-.daily .d-ex{font-size:13px;color:var(--muted);line-height:1.5;margin:0}
-
-/* чипы настроений */
-.chips{display:flex;gap:9px;overflow-x:auto;padding:2px 2px 14px;scrollbar-width:none}
-.chips::-webkit-scrollbar{display:none}
-.chip{flex:0 0 auto;border:1.5px solid rgba(255,255,255,.65);background:rgba(255,255,255,.14);color:#fff;
-  border-radius:999px;padding:9px 17px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s}
-.chip.on{background:#fff;color:var(--pill);border-color:#fff}
-
-/* сетка карточек */
-.grid{display:grid;grid-template-columns:1fr;gap:18px}
-@media(min-width:480px){.grid{grid-template-columns:1fr 1fr}}
-.card{background:var(--paper);border-radius:26px;box-shadow:var(--shadow);padding:22px 20px 20px;
-  display:flex;flex-direction:column;position:relative;cursor:pointer;transition:transform .18s}
-.card:active{transform:scale(.985)}
-.card .fav{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;
-  background:rgba(255,255,255,.75);font-size:17px;line-height:1;color:#b06a5e;display:flex;align-items:center;justify-content:center;z-index:2}
-.card .fav.liked{background:var(--pill);color:#fff}
-.kicker{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--muted);font-weight:700}
-.card h3{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:31px;margin:8px 0 6px;line-height:1.12}
-.ex{font-size:13.5px;color:var(--muted);line-height:1.55;margin:0 0 4px;flex:0 0 auto}
-.art{border-radius:18px;overflow:hidden;margin:14px 0 16px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
-.art svg{display:block;width:100%;height:auto}
-.pill{align-self:center;border:none;cursor:pointer;background:var(--pill);color:var(--pill-ink);
-  font-family:inherit;font-weight:700;font-size:14px;letter-spacing:.06em;padding:13px 34px;border-radius:999px;
-  box-shadow:0 6px 16px rgba(198,91,78,.4);transition:.2s;margin-top:auto}
+.card{background:var(--paper);border-radius:26px;box-shadow:var(--shadow);padding:26px 22px;margin-bottom:18px}
+.drop{border:2px dashed #d8c6ae;border-radius:20px;padding:44px 20px;text-align:center;cursor:pointer;transition:.2s;background:#fdf9f0}
+.drop.over{border-color:var(--pill);background:#fff;transform:scale(1.01)}
+.drop .big{font-size:44px;margin-bottom:10px}
+.drop h2{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:30px;margin:0 0 6px}
+.drop p{color:var(--muted);font-size:14px;margin:0 0 18px;line-height:1.5}
+.pill{border:none;cursor:pointer;background:var(--pill);color:#fff;font-family:inherit;font-weight:700;
+  font-size:15px;padding:14px 38px;border-radius:999px;box-shadow:0 6px 16px rgba(198,91,78,.4)}
 .pill:active{transform:scale(.96)}
-.meta{display:flex;gap:10px;margin-top:10px;font-size:11.5px;color:var(--muted)}
-.meta span{display:flex;align-items:center;gap:5px}
+.pill.ghost{background:none;border:1.5px solid var(--pill);color:var(--pill);box-shadow:none}
+.formats{margin-top:16px;font-size:12px;color:var(--muted);letter-spacing:.06em}
+.status{text-align:center;color:#fff;font-size:14px;min-height:22px;margin-bottom:12px;font-weight:600}
+.hidden{display:none!important}
 
-/* экран чтения */
-.reader{position:fixed;inset:0;background:var(--paper);z-index:50;overflow-y:auto;transform:translateY(100%);transition:transform .32s ease}
-.reader.open{transform:translateY(0)}
-.reader .r-wrap{max-width:560px;margin:0 auto;padding:0 0 60px}
-.r-top{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;
-  padding:14px 18px;background:rgba(248,241,228,.92);backdrop-filter:blur(8px);z-index:5}
-.r-back{border:none;background:none;font-size:15px;font-weight:700;color:var(--ink);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px}
-.r-fav{border:none;background:none;font-size:22px;cursor:pointer;color:#b06a5e}
-.r-fav.liked{color:var(--pill)}
-.r-hero{margin:6px 18px 0;border-radius:22px;overflow:hidden}
-.r-hero svg{display:block;width:100%}
-.r-body{padding:24px 26px 0}
-.r-body .kicker{margin-bottom:8px;display:block}
-.r-body h2{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:40px;margin:0 0 6px;line-height:1.1}
-.r-sub{color:var(--muted);font-size:13px;margin:0 0 20px}
-.r-body p{font-family:'Cormorant Garamond',serif;font-size:21px;line-height:1.72;margin:0 0 1.2em;color:#2f241d}
-.r-foot{display:flex;gap:12px;justify-content:center;padding:26px}
-.r-next{background:none;border:1.5px solid var(--pill);color:var(--pill);font-family:inherit;font-weight:700;
-  font-size:14px;padding:13px 28px;border-radius:999px;cursor:pointer}
-
-.empty{text-align:center;color:#fff;opacity:.85;padding:40px 10px;font-size:15px}
-.foot{text-align:center;color:rgba(255,255,255,.7);font-size:12px;margin-top:34px;letter-spacing:.08em}
+/* результат */
+.book-head{display:flex;gap:16px;align-items:flex-start;margin-bottom:16px}
+.cover{width:96px;min-height:130px;border-radius:10px;object-fit:cover;background:#e8dcc4;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.cover-ph{width:96px;height:130px;border-radius:10px;background:linear-gradient(150deg,#c98a6d,#8a5f4d);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Cormorant Garamond',serif;
+  font-style:italic;font-size:15px;text-align:center;padding:8px}
+.book-head h2{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:26px;margin:0 0 4px;line-height:1.15}
+.book-head .author{color:var(--muted);font-size:14px;margin:0 0 10px}
+.badges{display:flex;flex-wrap:wrap;gap:8px}
+.badge{font-size:12px;font-weight:700;background:#efe3cb;color:#7a5f43;border-radius:999px;padding:6px 13px}
+.badge.ok{background:#dce8d2;color:#4a6b3f}
+details.toc{margin:6px 0 4px;border-top:1px solid #e8dcc4;padding-top:12px}
+details.toc summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--pill);list-style:none}
+details.toc summary::-webkit-details-marker{display:none}
+details.toc ol{margin:10px 0 4px;padding-left:22px;font-size:14px;line-height:1.9;color:var(--ink)}
+.preview{margin-top:14px;border-top:1px solid #e8dcc4;padding-top:14px}
+.preview h4{margin:0 0 10px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.preview .p-body{font-family:'Cormorant Garamond',serif;font-size:19px;line-height:1.65;max-height:300px;
+  overflow:hidden;position:relative;color:#2f241d}
+.preview .p-body:after{content:"";position:absolute;left:0;right:0;bottom:0;height:90px;
+  background:linear-gradient(transparent,var(--paper))}
+.preview .p-body img{max-width:100%;border-radius:10px}
+.actions{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.err{background:#fdeceb;border:1.5px solid #e08a7d;color:#8a2f24;border-radius:16px;padding:16px 18px;
+  font-size:14px;line-height:1.5;margin-bottom:18px}
+.foot{text-align:center;color:rgba(255,255,255,.7);font-size:12px;margin-top:30px;letter-spacing:.08em}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="brand">
-    <h1>Тишина</h1>
-    <p>спокойное чтение</p>
-  </div>
-  <div id="daily"></div>
-  <div class="chips" id="chips"></div>
-  <div class="grid" id="grid"></div>
-  <div class="foot">читай медленно · дыши глубоко</div>
-</div>
+  <div class="brand"><h1>Тишина</h1><p>ридер · шаг 1 — парсинг</p></div>
+  <div class="status" id="status"></div>
 
-<div class="reader" id="reader">
-  <div class="r-wrap">
-    <div class="r-top">
-      <button class="r-back" id="rBack">← Назад</button>
-      <button class="r-fav" id="rFav">♡</button>
+  <div class="card" id="importCard">
+    <div class="drop" id="drop">
+      <div class="big">📚</div>
+      <h2>Открой книгу</h2>
+      <p>Перетащи файл сюда<br>или выбери на устройстве</p>
+      <button class="pill" id="pickBtn">Выбрать файл</button>
+      <div class="formats">.EPUB &nbsp;·&nbsp; .FB2 &nbsp;·&nbsp; .ZIP</div>
     </div>
-    <div class="r-hero" id="rHero"></div>
-    <div class="r-body" id="rBody"></div>
-    <div class="r-foot"><button class="r-next" id="rNext">Следующая история →</button></div>
+    <input type="file" id="fileInput" accept=".epub,.fb2,.zip" class="hidden">
   </div>
+
+  <div class="err hidden" id="errBox"></div>
+
+  <div class="card hidden" id="resultCard">
+    <div class="book-head">
+      <div id="coverWrap"></div>
+      <div>
+        <h2 id="bTitle"></h2>
+        <p class="author" id="bAuthor"></p>
+        <div class="badges" id="bBadges"></div>
+      </div>
+    </div>
+    <details class="toc" id="tocBox">
+      <summary id="tocSummary">Оглавление</summary>
+      <ol id="tocList"></ol>
+    </details>
+    <div class="preview">
+      <h4>Начало книги</h4>
+      <div class="p-body" id="previewBody"></div>
+    </div>
+    <div class="actions">
+      <button class="pill ghost" id="againBtn">Выбрать другую книгу</button>
+    </div>
+  </div>
+
+  <div class="foot">всё обрабатывается на устройстве · никуда не отправляется</div>
 </div>
 
 <script>
-/* ============ ТЕКСТЫ ============ */
-const STORIES = [
-{
-  id:"lake-house", type:"Мини-история", title:"Домик у озера",
-  ex:"Утром туман поднимается над водой так медленно, будто ему совсем некуда спешить.",
-  moods:["calm"], theme:"lake",
-  body:[
-  "Домик стоит у самого озера — маленький, с крыльцом, которое скрипит только по утрам. Хозяин просыпается рано, но не потому что надо. Просто в это время озеро самое красивое.",
-  "Он выходит на крыльцо с кружкой тёплого чая и смотрит, как туман поднимается над водой. Туман никуда не спешит. Он тянется вверх медленно, лениво, будто у него впереди целый день — а у него и правда впереди целый день.",
-  "Где-то далеко кричит птица. Не тревожно — так, для порядка. Вода у берега тихо шлепает о камни: шлёп… шлёп… шлёп. Ритм, который невозможно слушать и при этом думать о делах.",
-  "Хозяин допивает чай, ставит кружку на перила и идёт кормить уток. Утки его знают. Они подплывают не спеша, с достоинством, как старые друзья на встречу, о которой договорились сто лет назад.",
-  "Днём он чинит забор, читает книгу, варит суп. Вечером солнце садится прямо в озеро, и вода становится розовой. Он сидит на крыльце и думает о том, что счастье — это когда тебе не нужно никуда.",
-  "А ночью озеро совсем тихое. Только иногда плеснёт рыба — и снова тишина. Такая тишина, в которой слышно, как ты сам дышишь. И это, оказывается, очень приятный звук."
-  ]
-},
-{
-  id:"lighthouse", type:"Мини-история", title:"Сторож маяка",
-  ex:"Каждый вечер он поднимается по винтовой лестнице и зажигает свет — для кораблей, которых, может быть, и нет.",
-  moods:["sleep"], theme:"sunset",
-  body:[
-  "Маяк стоит на скале уже сто лет. Его сторож — человек немногословный, с бородой, в которой застрял морской ветер. Каждый вечер, когда солнце начинает клониться к воде, он поднимается по винтовой лестнице — сто двенадцать ступенек, он считал.",
-  "Наверху — фонарь. Сторож протирает стекло, проверяет лампу и зажигает свет. Луч медленно поворачивается и уходит в темноту: раз… два… три… Он светит для кораблей, которых, может быть, сегодня нет. Но это неважно. Свет зажигают не для тех, кто есть, а для тех, кто может заблудиться.",
-  "Потом он спускается, заваривает крепкий чай и садится у окна. Море внизу шумит — всегда одинаково, всегда по-разному. Волны приходят и уходят, приходят и уходят. Это самый древний ритм на свете, старше любых часов.",
-  "Иногда он думает о людях на кораблях. Кто-то стоит на палубе, смотрит в темноту и вдруг видит далёкий свет. «Маяк», — говорит он кому-то рядом. И обоим сразу становится спокойнее.",
-  "Сторож допивает чай, гасит лампу в своей комнате и ложится спать. Луч продолжает поворачиваться над ночным морем: раз… два… три… Спите спокойно. Здесь кто-то не спит за вас."
-  ]
-},
-{
-  id:"rain-letter", type:"Письмо", title:"Письмо о дожде",
-  ex:"Дождь стучит по крыше, и вдруг понимаешь: никуда не надо. Можно просто сидеть и слушать.",
-  moods:["calm"], theme:"meadow",
-  body:[
-  "Здравствуй. Пишу тебе, потому что за окном дождь, и мне захотелось с кем-то этим поделиться.",
-  "Он начался тихо, почти неслышно — будто кто-то перебирал крупу. А потом разошёлся, и теперь стучит по крыше ровно и уверенно, как человек, который знает своё дело.",
-  "Знаешь, что самое хорошее в дожде? Он отменяет все планы. Никуда не надо. Можно сидеть у окна с тёплой кружкой и просто смотреть, как капли бегут по стеклу наперегонки. У каждой капли свой путь, и ни одна не торопится.",
-  "Трава после дождя пахнет так, что хочется выйти босиком. Земля становится мягкой и тёмной, листья — блестящими, будто их только что помыли. Весь мир как будто умылся и стал новее.",
-  "А ещё дождь — лучший собеседник. Он не перебивает. Он просто шумит себе, а ты под этот шум думаешь о чём-то важном. Или ни о чём. И то, и другое — правильно.",
-  "Когда дождь кончится, выглянет солнце, и всё заблестит. Но пока он идёт — давай просто посидим. Никуда не надо. Слушай."
-  ]
-},
-{
-  id:"night-train", type:"Мини-история", title:"Ночной поезд",
-  ex:"За окном мелькают огни полустанков, колёса стучат колыбельную, а весь мир остался где-то позади.",
-  moods:["sleep"], theme:"night",
-  body:[
-  "Ночной поезд идёт через темноту мягко и уверенно. Колёса стучат: ту-дук… ту-дук… ту-дук. Это самая лучшая колыбельная на свете — её придумали не люди, а сама дорога.",
-  "В купе тепло и пахнет чаем. Проводница разносит стаканы в подстаканниках, и чай в них качается в такт движению. За окном — темнота, а в темноте иногда вспыхивают огни: полустанок, одинокий дом, далёкий город.",
-  "Ты лежишь на верхней полке, укрывшись одеялом, и смотришь в окно. Мелькают деревья — чёрные силуэты на чёрном небе. Мелькают звёзды между ними. Весь твой обычный мир — дела, звонки, списки — остался где-то там, позади, за сотни километров.",
-  "А здесь есть только этот стук, это покачивание и это окно в темноту. Не нужно ни о чём думать. Поезд сам знает, куда ехать. Машинист не спит — он ведёт состав сквозь ночь, и ты можешь просто довериться.",
-  "Ту-дук… ту-дук… Глаза сами закрываются. Где-то впереди — утро, новый город, перрон. Но это будет потом. А сейчас — только ночь, только стук колёс и тёплое одеяло. Спи."
-  ]
-},
-{
-  id:"gardener", type:"Притча", title:"Садовник",
-  ex:"Он сажал деревья, под которыми никогда не будет сидеть. «Зато будет сидеть кто-то другой», — говорил он.",
-  moods:["inspire"], theme:"forest",
-  body:[
-  "Жил-был садовник. Каждую весну он сажал деревья — яблони, груши, дубы. Соседи посмеивались: «Тебе уже немало лет. Эти дубы вырастут, когда тебя не станет. Зачем ты тратишь силы?»",
-  "Садовник улыбался и продолжал копать. «Я ем яблоки с деревьев, которые сажал не я, — говорил он. — Мой дед сажал, его дед сажал. Я просто возвращаю долг».",
-  "Проходили годы. Саженцы превращались в молодые деревца, деревца — в деревья. Весной сад утопал в цвету, осенью ветви гнулись под плодами. Дети со всей округи прибегали сюда играть в тени.",
-  "Однажды сосед, тот самый, что смеялся, пришёл к садовнику и сел рядом на скамейку. Было тихо, пахло яблоками. «Знаешь, — сказал сосед, — я всю жизнь строил дом. Большой, крепкий. А ты строил вот это». Он обвёл рукой сад.",
-  "«Дом — это стены, — ответил садовник. — А сад — это время. Стены защищают от ветра. А деревья учат не спешить».",
-  "Садовника давно нет. А сад стоит. Каждую весну он цветёт, каждую осень дарит яблоки. И каждый, кто сидит в его тени, того не зная, возвращает старый долг."
-  ]
-},
-{
-  id:"morning-fog", type:"Заметка", title:"Утренний туман",
-  ex:"Выйди рано утром, когда туман ещё не решил, уходить ему или остаться. Мир в это время — самый мягкий.",
-  moods:["inspire"], theme:"peaks",
-  body:[
-  "Выйди из дома рано — так рано, чтобы туман ещё не решил, уходить ему или остаться. В это время мир самый мягкий: все резкие края сглажены, все звуки приглушены, будто кто-то убавил громкость.",
-  "Дорога уходит в белое никуда. Знакомые дома стоят в тумане как декорации — вроде те же, а вроде и нет. Каждый шаг открывает что-то новое: вот куст, вот забор, вот кошка, которая тоже вышла посмотреть на туман.",
-  "Иди медленно. Туман не любит спешки. Слушай, как под ногами шуршит гравий, как где-то далеко просыпается птица — одна, потом вторая. Скоро их будет целый хор, но пока поют только самые ранние, самые нетерпеливые.",
-  "А потом — всегда внезапно — туман начинает редеть. Сначала проступают ближние деревья, потом дальние, потом — солнце. Оно поднимается над холмами, и весь мир вспыхивает: каждая капля росы становится маленьким солнцем.",
-  "И ты стоишь посреди этого сияния и понимаешь простую вещь: каждое утро мир начинается заново. Каждое утро — чистый лист. Туман уходит, а ты остаёшься — обновлённый, как после хорошего сна.",
-  "Возвращайся домой. День только начинается, и он — твой."
-  ]
-}
-];
-const MOODS = [
-  {id:"all", label:"Все"},
-  {id:"calm", label:"Успокоиться"},
-  {id:"sleep", label:"Уснуть"},
-  {id:"inspire", label:"Вдохновиться"},
-  {id:"fav", label:"♥ Избранное"}
-];
-
-/* ============ ИЛЛЮСТРАЦИИ (плоские сцены в духе референса) ============ */
-function bird(x,y,s,c){
-  c=c||"#6b554b";
-  return `<path d="M${x},${y} q${s},${-s} ${s*2},0 q${s},${-s} ${s*2},0" stroke="${c}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
-}
-function pine(x,y,s,c){
-  return `<path d="M${x-s/2},${y} L${x},${y-s} L${x+s/2},${y} Z" fill="${c}"/><rect x="${x-1.5}" y="${y}" width="3" height="${s*0.28}" fill="${c}"/>`;
-}
-function stars(n,seed){
-  let s="";
-  for(let i=0;i<n;i++){
-    const x=(seed*97+i*53)%300, y=(seed*31+i*37)%110;
-    s+=`<circle cx="${x}" cy="${y}" r="${1+(i%3)*0.5}" fill="#fff" opacity="${0.35+(i%4)*0.15}"/>`;
-  }
-  return s;
-}
-const SCENES = {
-lake(){return `<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice">
-<defs><linearGradient id="lsk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9e6c9"/><stop offset="1" stop-color="#f0bd8d"/></linearGradient></defs>
-<rect width="300" height="200" fill="url(#lsk)"/>
-<circle cx="150" cy="86" r="36" fill="#fdf3dd"/><circle cx="150" cy="86" r="48" fill="#fdf3dd" opacity="0.25"/>
-${bird(60,52,6)}${bird(84,44,5)}${bird(220,60,6)}${bird(244,48,5)}
-<path d="M0,120 Q60,96 120,112 T300,104 L300,200 L0,200 Z" fill="#a3a079"/>
-<path d="M0,136 Q80,116 160,130 T300,124 L300,200 L0,200 Z" fill="#7d8b66"/>
-<rect y="140" width="300" height="60" fill="#9db8a4"/>
-<ellipse cx="150" cy="152" rx="40" ry="6" fill="#fdf3dd" opacity="0.5"/>
-<path d="M0,150 Q100,142 200,150 T300,146 L300,200 L0,200 Z" fill="#8aa392" opacity="0.7"/>
-<path d="M0,168 Q90,158 180,166 T300,162 L300,200 L0,200 Z" fill="#5c6b52"/>
-${pine(36,178,34,"#3c5245")}${pine(62,182,26,"#3c5245")}${pine(258,180,30,"#3c5245")}${pine(280,184,24,"#465c4e")}
-</svg>`;},
-sunset(){return `<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice">
-<defs><linearGradient id="ssk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6c39a"/><stop offset="1" stop-color="#e08a6d"/></linearGradient></defs>
-<rect width="300" height="200" fill="url(#ssk)"/>
-<circle cx="150" cy="128" r="42" fill="#fbeed3"/><circle cx="150" cy="128" r="58" fill="#fbeed3" opacity="0.22"/>
-${bird(70,60,6)}${bird(96,50,5)}${bird(210,66,6,"#7a4a3e")}${bird(236,54,5,"#7a4a3e")}
-<path d="M0,140 Q70,112 150,128 T300,120 L300,200 L0,200 Z" fill="#9a5f4e"/>
-<path d="M0,158 Q90,138 190,152 T300,146 L300,200 L0,200 Z" fill="#6e4238"/>
-<path d="M0,178 Q100,164 200,174 T300,170 L300,200 L0,200 Z" fill="#4e2f2a"/>
-<rect x="238" y="96" width="10" height="52" fill="#4e2f2a"/>
-<path d="M243,78 L228,100 L258,100 Z" fill="#4e2f2a"/>
-<circle cx="243" cy="92" r="9" fill="#fbeed3" opacity="0.95"/>
-</svg>`;},
-meadow(){return `<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice">
-<defs><linearGradient id="msk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9efda"/><stop offset="1" stop-color="#f2dcae"/></linearGradient></defs>
-<rect width="300" height="200" fill="url(#msk)"/>
-<circle cx="230" cy="52" r="26" fill="#fdf6e0"/><circle cx="230" cy="52" r="38" fill="#fdf6e0" opacity="0.3"/>
-${bird(60,54,6)}${bird(86,46,5)}${bird(150,66,5)}
-<path d="M0,120 Q80,100 170,114 T300,108 L300,200 L0,200 Z" fill="#b3b57f"/>
-<path d="M0,142 Q90,124 190,138 T300,132 L300,200 L0,200 Z" fill="#8b9463"/>
-<path d="M0,166 Q100,152 200,162 T300,158 L300,200 L0,200 Z" fill="#6f7f52"/>
-<circle cx="60" cy="170" r="4" fill="#e8907a"/><circle cx="120" cy="180" r="4" fill="#f3e3cf"/><circle cx="200" cy="172" r="4" fill="#e8907a"/><circle cx="250" cy="182" r="4" fill="#f3e3cf"/><circle cx="90" cy="160" r="3.4" fill="#f3e3cf"/>
-${pine(270,160,30,"#4a5f43")}
-</svg>`;},
-night(){return `<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice">
-<defs><linearGradient id="nsk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c3850"/><stop offset="1" stop-color="#71839a"/></linearGradient></defs>
-<rect width="300" height="200" fill="url(#nsk)"/>
-${stars(26,7)}
-<circle cx="212" cy="58" r="28" fill="#f5ecd8"/><circle cx="202" cy="50" r="6" fill="#e2d5b8" opacity="0.7"/><circle cx="220" cy="66" r="4" fill="#e2d5b8" opacity="0.7"/>
-<path d="M0,130 Q70,108 150,122 T300,116 L300,200 L0,200 Z" fill="#3a4a5e"/>
-<path d="M0,150 Q90,132 190,144 T300,138 L300,200 L0,200 Z" fill="#2b3849"/>
-<path d="M0,172 Q100,160 200,168 T300,164 L300,200 L0,200 Z" fill="#202b3a"/>
-${pine(40,178,36,"#1c2735")}${pine(70,182,28,"#1c2735")}${pine(250,180,34,"#1c2735")}${pine(276,184,26,"#232f40")}
-<rect x="120" y="150" width="60" height="26" rx="4" fill="#f5ecd8" opacity="0.9"/>
-<rect x="128" y="156" width="14" height="10" fill="#e8b34a" opacity="0.95"/><rect x="148" y="156" width="14" height="10" fill="#e8b34a" opacity="0.95"/>
-<circle cx="112" cy="168" r="7" fill="#2b3849"/><circle cx="188" cy="168" r="7" fill="#2b3849"/>
-</svg>`;},
-forest(){return `<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice">
-<defs><linearGradient id="fsk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4e9d0"/><stop offset="1" stop-color="#e8d3a8"/></linearGradient></defs>
-<rect width="300" height="200" fill="url(#fsk)"/>
-<circle cx="90" cy="60" r="24" fill="#fdf3dd" opacity="0.9"/>
-${bird(190,52,6)}${bird(214,44,5)}${bird(240,58,5)}
-<ellipse cx="150" cy="120" rx="150" ry="26" fill="#ffffff" opacity="0.35"/>
-<path d="M0,140 Q80,122 170,134 T300,128 L300,200 L0,200 Z" fill="#7d8b66"/>
-${pine(30,160,44,"#33503f")}${pine(70,166,36,"#2a4436")}${pine(110,162,48,"#33503f")}${pine(155,168,38,"#243b30")}${pine(195,162,46,"#33503f")}${pine(240,168,38,"#2a4436")}${pine(278,164,42,"#243b30")}
-<path d="M0,182 Q100,172 200,180 T300,176 L300,200 L0,200 Z" fill="#1f3329"/>
-</svg>`;},
-peaks(){return `<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice">
-<defs><linearGradient id="psk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7ecd8"/><stop offset="1" stop-color="#eed3ac"/></linearGradient></defs>
-<rect width="300" height="200" fill="url(#psk)"/>
-<circle cx="70" cy="56" r="22" fill="#fdf6e0"/>
-${bird(170,50,6)}${bird(196,42,5)}${bird(240,58,6)}
-<path d="M-10,150 L70,60 L150,150 Z" fill="#b98a6e"/>
-<path d="M70,60 L96,92 L70,84 L46,94 Z" fill="#f7efe0"/>
-<path d="M110,150 L200,44 L290,150 Z" fill="#9a6f56"/>
-<path d="M200,44 L228,80 L200,70 L174,82 Z" fill="#f7efe0"/>
-<ellipse cx="150" cy="140" rx="150" ry="24" fill="#ffffff" opacity="0.4"/>
-<path d="M0,160 Q80,144 170,154 T300,148 L300,200 L0,200 Z" fill="#5c6b52"/>
-${pine(36,182,32,"#3c5245")}${pine(64,186,26,"#3c5245")}${pine(250,184,30,"#3c5245")}${pine(274,188,24,"#465c4e")}
-<path d="M0,186 Q100,178 200,184 T300,182 L300,200 L0,200 Z" fill="#46543f"/>
-</svg>`;}
-};
-function scene(theme){ return (SCENES[theme]||SCENES.lake)(); }
-
-/* ============ МЕХАНИКА ============ */
 const $=id=>document.getElementById(id);
-let favs=[]; try{ favs=JSON.parse(localStorage.getItem("tishina.favs")||"[]"); }catch(e){}
-let mood="all", currentId=null;
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-function saveFavs(){ localStorage.setItem("tishina.favs", JSON.stringify(favs)); }
-function minutes(s){ const w=s.body.join(" ").split(/\s+/).length; return Math.max(2, Math.round(w/130)); }
-function toggleFav(id){
-  favs = favs.includes(id) ? favs.filter(f=>f!==id) : [...favs, id];
-  saveFavs(); render(); if(currentId) syncReaderFav();
+function setStatus(t){ $("status").textContent=t||""; }
+function showError(msg){
+  $("errBox").innerHTML="<b>Не получилось открыть книгу.</b><br>"+esc(msg);
+  $("errBox").classList.remove("hidden");
+  $("resultCard").classList.add("hidden");
+  setStatus("");
 }
-function filtered(){
-  let list=[...STORIES];
-  if(mood==="fav") list=list.filter(s=>favs.includes(s.id));
-  else if(mood!=="all") list=list.filter(s=>s.moods.includes(mood));
-  return list;
+function showBook(b){
+  $("errBox").classList.add("hidden");
+  $("bTitle").textContent=b.title||"(без названия)";
+  $("bAuthor").textContent=(b.authors&&b.authors.length?b.authors.join(", "):"Автор неизвестен");
+  $("coverWrap").innerHTML=b.cover
+    ? `<img class="cover" src="${b.cover}" alt="обложка">`
+    : `<div class="cover-ph">${esc((b.title||"?").slice(0,24))}</div>`;
+  const fmt={epub:"EPUB",fb2:"FB2"}[b.format]||b.format.toUpperCase();
+  $("bBadges").innerHTML=
+    `<span class="badge ok">${fmt}</span>`+
+    `<span class="badge">глав: ${b.chapters.length}</span>`+
+    `<span class="badge">оглавление: ${b.toc.length}</span>`;
+  $("tocSummary").textContent=`Оглавление · ${b.toc.length}`;
+  $("tocList").innerHTML=b.toc.map(t=>`<li>${esc(t.label)}</li>`).join("");
+  $("previewBody").innerHTML=b.chapters[0]?b.chapters[0].html:"";
+  $("resultCard").classList.remove("hidden");
+  $("resultCard").scrollIntoView({behavior:"smooth",block:"start"});
+  setStatus("");
 }
-function cardHTML(s){
-  const liked=favs.includes(s.id)?" liked":"";
-  return `<article class="card" data-open="${s.id}">
-    <button class="fav${liked}" data-fav="${s.id}">${favs.includes(s.id)?"♥":"♡"}</button>
-    <div class="kicker">${s.type} · ${minutes(s)} мин</div>
-    <h3>${s.title}</h3>
-    <p class="ex">${s.ex}</p>
-    <div class="art">${scene(s.theme)}</div>
-    <button class="pill" data-open="${s.id}">Читать</button>
-  </article>`;
-}
-function render(){
-  // чипы
-  $("chips").innerHTML = MOODS.map(m=>
-    `<button class="chip${m.id===mood?" on":""}" data-mood="${m.id}">${m.label}</button>`).join("");
-  // история дня
-  const day=Math.floor(Date.now()/864e5);
-  const d=STORIES[day%STORIES.length];
-  $("daily").innerHTML=`<div class="daily" data-open="${d.id}">
-    <div class="d-art">${scene(d.theme)}</div>
-    <div class="d-body"><div class="d-tag">☀ история дня</div><h2>${d.title}</h2><p class="d-ex">${d.ex}</p></div>
-  </div>`;
-  // сетка
-  const list=filtered();
-  $("grid").innerHTML = list.length ? list.map(cardHTML).join("")
-    : `<div class="empty">Тут пока пусто.<br>Нажми ♡ на карточке, чтобы добавить в избранное.</div>`;
-}
-function openReader(id){
-  const s=STORIES.find(x=>x.id===id); if(!s) return;
-  currentId=id;
-  $("rHero").innerHTML=scene(s.theme);
-  $("rBody").innerHTML=`<span class="kicker">${s.type} · ${minutes(s)} мин чтения</span>
-    <h2>${s.title}</h2><p class="r-sub">${s.ex}</p>`+
-    s.body.map(p=>`<p>${p}</p>`).join("");
-  syncReaderFav();
-  $("reader").classList.add("open");
-  $("reader").scrollTop=0;
-  document.body.style.overflow="hidden";
-}
-function syncReaderFav(){
-  const b=$("rFav");
-  b.textContent=favs.includes(currentId)?"♥":"♡";
-  b.classList.toggle("liked", favs.includes(currentId));
-}
-function closeReader(){ $("reader").classList.remove("open"); document.body.style.overflow=""; currentId=null; }
 
-document.addEventListener("click",e=>{
-  const fav=e.target.closest("[data-fav]");
-  if(fav){ e.stopPropagation(); toggleFav(fav.dataset.fav); return; }
-  const moodBtn=e.target.closest("[data-mood]");
-  if(moodBtn){ mood=moodBtn.dataset.mood; render(); return; }
-  const open=e.target.closest("[data-open]");
-  if(open){ openReader(open.dataset.open); return; }
+async function handleFile(file){
+  if(!file) return;
+  $("errBox").classList.add("hidden");
+  $("resultCard").classList.add("hidden");
+  try{
+    setStatus("Читаем файл…");
+    const book=await TishinaParser.parseBook(file,(done,total,msg)=>{
+      if(msg) setStatus(msg);
+      else if(total) setStatus(`Разбираем главы… ${done}/${total}`);
+    });
+    setStatus("Готово ✓");
+    setTimeout(()=>showBook(book),250);
+  }catch(e){
+    console.error(e);
+    showError(e&&e.message?e.message:"Неизвестная ошибка");
+  }
+}
+
+$("pickBtn").onclick=e=>{e.stopPropagation();$("fileInput").click();};
+$("drop").onclick=()=>$("fileInput").click();
+$("fileInput").onchange=e=>handleFile(e.target.files[0]);
+$("againBtn").onclick=()=>{ $("fileInput").value=""; $("fileInput").click(); };
+["dragover","dragenter"].forEach(ev=>$("drop").addEventListener(ev,e=>{e.preventDefault();$("drop").classList.add("over");}));
+["dragleave","drop"].forEach(ev=>$("drop").addEventListener(ev,e=>{e.preventDefault();$("drop").classList.remove("over");}));
+$("drop").addEventListener("drop",e=>{
+  const f=e.dataTransfer.files&&e.dataTransfer.files[0];
+  handleFile(f);
 });
-$("rBack").onclick=closeReader;
-$("rFav").onclick=()=>{ if(currentId) toggleFav(currentId); };
-$("rNext").onclick=()=>{
-  const list=filtered().length?filtered():STORIES;
-  const i=list.findIndex(s=>s.id===currentId);
-  openReader(list[(i+1)%list.length].id);
-};
-document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeReader(); });
-
-render();
-// диплинк ?read=<id> — удобно делиться историей
-const q=new URLSearchParams(location.search).get("read");
-if(q && STORIES.some(s=>s.id===q)) openReader(q);
 </script>
 </body>
 </html>
