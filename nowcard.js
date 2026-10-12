@@ -166,7 +166,8 @@
 .nowcard-shade{position:absolute;inset:0;background:linear-gradient(to right,transparent 55%,rgba(20,8,5,.45))}
 .nowcard-quote{display:flex;gap:8px;margin:8px 0 10px;align-items:flex-start}
 .nowcard-qline{flex:0 0 3px;align-self:stretch;background:#c65b4e;border-radius:2px;opacity:.9}
-.nowcard-qtext{font-style:italic;font-family:'Tishina Times',Georgia,serif;font-size:14px;line-height:1.5;color:#b79a8f;opacity:.95}`;
+.nowcard-qtext{font-style:italic;font-family:'Tishina Times',Georgia,serif;font-size:14px;line-height:1.5;color:#b79a8f;opacity:.95;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}`;
   const st = document.createElement("style");
   st.textContent = css;
   document.head.appendChild(st);
