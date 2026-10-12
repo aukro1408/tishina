@@ -167,8 +167,7 @@ async function openDetail(id) {
   $("dProg").hidden = !(p > 0);
   $("dPct").textContent = p + "%";
   $("dRingFg").style.strokeDashoffset = (119.4 * (1 - p / 100)).toFixed(1);
-  /* кольцо прогресса в цвете обложки */
-  coverColor(b.cover, col => { if (col) $("dRingFg").style.stroke = col; });
+  $("dRingFg").style.stroke = "";
   const ann = (b.annotation || "").trim();
   $("dDescSec").hidden = !ann;
   $("dDesc").textContent = ann;
