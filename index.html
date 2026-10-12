@@ -122,10 +122,11 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 .ink-progress{position:relative;margin:2px 0 12px;--p:0%;--c:#bf6052}
 .ink-track{position:relative;height:10px;border-radius:99px;background:#e8e6ec;
   box-shadow:inset 0 1px 2px rgba(60,40,50,.14)}
-.ink-wrap{position:absolute;inset:0;transition:transform .35s cubic-bezier(.3,1.5,.5,1)}
+.ink-wrap{position:absolute;inset:0;filter:url(#rough);transition:transform .35s cubic-bezier(.3,1.5,.5,1)}
 .ink-progress.flow .ink-wrap{transform:scaleY(1.45)}
-.ink-fill{position:absolute;left:0;top:0;bottom:0;width:var(--p);border-radius:99px;
-  background:linear-gradient(to right,#d4765f,#bf6052)}
+.ink-fill{position:absolute;inset:0;border-radius:99px;mix-blend-mode:multiply;
+  -webkit-mask-image:linear-gradient(to right,#000 calc(var(--p) - 14px),transparent var(--p));
+  mask-image:linear-gradient(to right,#000 calc(var(--p) - 14px),transparent var(--p))}
 .ink-grain{position:absolute;inset:-6px 0;pointer-events:none;opacity:.2;mix-blend-mode:multiply;
   -webkit-mask-image:linear-gradient(to right,#000 calc(var(--p) - 14px),transparent var(--p));
   mask-image:linear-gradient(to right,#000 calc(var(--p) - 14px),transparent var(--p));
@@ -537,7 +538,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       <span class="grain"></span>
       <span class="label" id="dReadLabel">Читать</span>
     </button>
-    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <svg width="1" height="1" style="position:absolute" aria-hidden="true">
       <defs>
         <filter id="goo">
           <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="b"/>
