@@ -49,25 +49,31 @@ function pageQuote() {
     const el = $("rPages");
     if (!el) return "";
     const r = el.getBoundingClientRect();
-    // точка у верхнего края видимой страницы
-    const x = r.left + r.width / 2, y = r.top + 40;
-    let node;
-    if (document.caretPositionFromPoint) {
-      const pos = document.caretPositionFromPoint(x, y);
-      node = pos && pos.offsetNode;
-    } else if (document.caretRangeFromPoint) {
-      const range = document.caretRangeFromPoint(x, y);
-      node = range && range.startContainer;
+    // ищем первый параграф в видимой области (пропускаем заголовки)
+    const x = r.left + r.width / 2;
+    for (let y = r.top + 30; y < r.top + r.height * 0.6; y += 20) {
+      let node = null;
+      if (document.caretPositionFromPoint) {
+        const pos = document.caretPositionFromPoint(x, y);
+        node = pos && pos.offsetNode;
+      } else if (document.caretRangeFromPoint) {
+        const range = document.caretRangeFromPoint(x, y);
+        node = range && range.startContainer;
+      }
+      if (!node) continue;
+      // поднимаемся к параграфу
+      let p = node.nodeType === 1 ? node : node.parentElement;
+      while (p && p !== el && !/^P$/i.test(p.tagName)) p = p.parentElement;
+      if (!p || p === el) continue;
+      const t = (p.textContent || "").trim().replace(/\s+/g, " ");
+      if (t.length < 30) continue;
+      // пропускаем короткие заголовки
+      let q = t.slice(0, 130);
+      const prefix = /^[а-яёa-z]/.test(t[0]) && t[0] === t[0].toLowerCase() ? "…" : "";
+      if (t.length > 130) q += "…";
+      return prefix + q;
     }
-    if (!node) return "";
-    const t = (node.textContent || "").trim();
-    if (t.length < 20) return "";
-    // берём ~120 символов с начала текстового узла
-    let q = t.slice(0, 120).replace(/\s+/g, " ").trim();
-    // троеточие в начале если фраза с середины
-    const prefix = /^[а-яёa-z]/i.test(t[0]) && t[0] === t[0].toLowerCase() ? "…" : "";
-    if (q.length >= 120) q += "…";
-    return prefix + q;
+    return "";
   } catch (e) { return ""; }
 }
 
