@@ -333,28 +333,41 @@ $("bmDelDevice").onclick = async () => {
 };
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeDetail(); });
 
-// переключатель рельефа луны (без названия) — через делегирование
+// тумблер рельефа луны — точно как в файле
 (function(){
-  function getSw(){ return document.getElementById("moonReliefSw"); }
-  function apply(sw, s){
-    if (!sw) return;
-    sw.classList.toggle("on", s === "relief");
-    sw.setAttribute("aria-checked", s === "relief");
-  }
+  function getTg(){ return document.getElementById("moonReliefSw"); }
   function current(){
     try { return localStorage.getItem("moonStyle") || "flat"; } catch(e){ return "flat"; }
   }
-  // применить при загрузке
-  apply(getSw(), current());
-  // клик через делегирование
+  function apply(tg, on){
+    if (!tg) return;
+    tg.classList.toggle("on", on);
+    tg.setAttribute("aria-checked", on);
+  }
+  // начальное состояние
+  apply(getTg(), current() === "relief");
+
+  function sparks(tg){
+    for(let i=0;i<8;i++){
+      const s=document.createElement('i');s.className='sp';
+      const a=(-160+Math.random()*140)*Math.PI/180, r=1.2+Math.random()*1.2;
+      s.style.setProperty('--dx',(Math.cos(a)*r)+'em');
+      s.style.setProperty('--dy',(Math.sin(a)*r)+'em');
+      s.style.animationDelay=(Math.random()*.08)+'s';
+      tg.appendChild(s);s.addEventListener('animationend',()=>s.remove());
+    }
+  }
+
   document.addEventListener("click", function(e){
-    var sw = e.target.closest("#moonReliefSw");
-    if (!sw) return;
-    var st = current() === "relief" ? "flat" : "relief";
+    const tg = e.target.closest("#moonReliefSw");
+    if (!tg) return;
+    const on = tg.classList.toggle("on");
+    tg.setAttribute("aria-checked", on);
+    tg.classList.remove("pulse"); void tg.offsetWidth; tg.classList.add("pulse");
+    if (on) sparks(tg);
+    if (navigator.vibrate) navigator.vibrate(on ? [6,30,10] : 6);
+    const st = on ? "relief" : "flat";
     try { localStorage.setItem("moonStyle", st); } catch(e){}
-    apply(sw, st);
-    // пульс-кольцо
-    sw.classList.remove("pulse"); void sw.offsetWidth; sw.classList.add("pulse");
     try {
       var mf = document.getElementById("moonFrame");
       if (mf && mf.src) mf.src = mf.src;
