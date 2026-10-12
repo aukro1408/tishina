@@ -171,10 +171,10 @@ async function openDetail(id) {
   $("dReadLabel").textContent = started ? "Продолжить чтение" : "Читать";
   const p = pct(b);
   $("dProg").hidden = !(p > 0);
-  /* луна в iframe */
+  /* луна в iframe — с анимацией при каждом открытии */
   try {
     const mf = $("moonFrame");
-    if (mf) mf.src = "moon.html?p=" + p;
+    if (mf) mf.src = "moon.html?p=" + p + "&t=" + Date.now();
   } catch(e){}
   const ann = (b.annotation || "").trim();
   $("dDescSec").hidden = !ann;
@@ -333,22 +333,26 @@ $("bmDelDevice").onclick = async () => {
 };
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeDetail(); });
 
-// переключатель рельефа луны (без названия)
+// переключатель рельефа луны (без названия) — через делегирование
 (function(){
-  var sw = document.getElementById("moonReliefSw");
-  if (!sw) return;
-  var st = "flat";
-  try { st = localStorage.getItem("moonStyle") || "flat"; } catch(e){}
-  function apply(s){
+  function getSw(){ return document.getElementById("moonReliefSw"); }
+  function apply(sw, s){
+    if (!sw) return;
     sw.classList.toggle("on", s === "relief");
     sw.setAttribute("aria-checked", s === "relief");
   }
-  apply(st);
-  sw.addEventListener("click", function(){
-    st = st === "relief" ? "flat" : "relief";
+  function current(){
+    try { return localStorage.getItem("moonStyle") || "flat"; } catch(e){ return "flat"; }
+  }
+  // применить при загрузке
+  apply(getSw(), current());
+  // клик через делегирование
+  document.addEventListener("click", function(e){
+    var sw = e.target.closest("#moonReliefSw");
+    if (!sw) return;
+    var st = current() === "relief" ? "flat" : "relief";
     try { localStorage.setItem("moonStyle", st); } catch(e){}
-    apply(st);
-    // обновить луну в открытом детальном виде
+    apply(sw, st);
     try {
       var mf = document.getElementById("moonFrame");
       if (mf && mf.src) mf.src = mf.src;
