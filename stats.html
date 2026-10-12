@@ -88,7 +88,7 @@ h3{margin:0 0 4px;font:700 14px Manrope,sans-serif;color:var(--mute)}
     </div>
     <div style="height:12px"></div>
 
-    <div class="card rv goal">
+    <div class="card rv goal" hidden>
       <div class="ringbox"><svg viewBox="0 0 100 100"><circle class="rbg" cx="50" cy="50" r="42" fill="none" stroke-width="10"/><circle class="rfg" cx="50" cy="50" r="42" fill="none" stroke-width="10" style="--off:73.9"/></svg><b>72%</b></div>
       <div><h3>Цель на год</h3><div class="big">18 <small>из 25</small></div><p>Осталось 7 книг. Темп хороший.</p></div>
     </div>
@@ -100,7 +100,7 @@ h3{margin:0 0 4px;font:700 14px Manrope,sans-serif;color:var(--mute)}
       <div class="lab" id="labs"></div>
     </div>
 
-    <div class="card rv gen">
+    <div class="card rv gen" hidden>
       <svg class="donut" viewBox="0 0 100 100" id="donut"></svg>
       <ul class="leg" id="leg"></ul>
     </div>
@@ -317,10 +317,6 @@ $('#pinInput').addEventListener('input',e=>{
   if(e.target.value.length===4)$('#pinOk').click();
 });
 
-
-// появление секций при прокрутке
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');go(e.target);io.unobserve(e.target)}}),{threshold:.2});
-document.querySelectorAll('.rv').forEach(x=>io.observe(x));
 
 // лёгкий параллакс кота
 const cat=$('#cat');
