@@ -25,7 +25,6 @@ function applySettings() {
   r.classList.toggle("ff-sans", set.font === "sans");
   r.classList.toggle("ff-times", set.font === "times");
   r.classList.toggle("ff-georgia", set.font === "georgia");
-  r.classList.toggle("ff-notoserif", set.font === "notoserif");
   syncSetUI();
   if (opened) layout();
 }
