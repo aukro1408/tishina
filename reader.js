@@ -156,6 +156,106 @@ function turnPage(el, target, dir) {
     clean(); el.scrollTo({ left: target, behavior: 'instant' });
   }
 }
+/* ЭФФЕКТ «ПЕРЕПЛЁТ»: чётные строки уходят влево, нечётные вправо (из файла Denis) */
+function weaveTurn(el, target, dir) {
+  const D = dir > 0 ? 1 : -1;
+  const o = { out: 460, inn: 560, blur: 7, line: 55, shift: 60 };
+  if (el._weave) return;
+  // временно оборачиваем слова в текущей видимой области
+  const wrapWords = () => {
+    const ws = [];
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+      acceptNode: n => {
+        if (!n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        const r = n.parentElement.getBoundingClientRect();
+        const er = el.getBoundingClientRect();
+        // только видимая страница
+        if (r.left < er.left - 10 || r.left > er.left + er.width + 10) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(n => {
+      const frag = document.createDocumentFragment();
+      n.nodeValue.split(/(\s+)/).forEach(part => {
+        if (!part) return;
+        if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); }
+        else {
+          const s = document.createElement("span");
+          s.className = "pw-w";
+          s.textContent = part;
+          frag.appendChild(s);
+          ws.push(s);
+        }
+      });
+      n.parentNode.replaceChild(frag, n);
+    });
+    return ws;
+  };
+  const unwrap = () => {
+    el.querySelectorAll(".pw-w").forEach(s => {
+      s.parentNode.replaceChild(document.createTextNode(s.textContent), s);
+    });
+    el.normalize();
+  };
+  const layoutWs = ws => {
+    const tops = [...new Set(ws.map(w => Math.round(w.offsetTop)))].sort((a,b) => a-b);
+    const cnt = {};
+    return ws.map(w => {
+      const l = tops.indexOf(Math.round(w.offsetTop));
+      cnt[l] = (cnt[l] ?? -1) + 1;
+      return { w, l, k: cnt[l], n: tops.length };
+    });
+  };
+  try {
+    el._weave = true;
+    const oldWs = layoutWs(wrapWords());
+    const b = `blur(${o.blur}px)`;
+    const lineSign = l => (l % 2 ? 1 : -1) * D;
+    const order = (l, n) => D > 0 ? l : n - 1 - l;
+    oldWs.forEach(({ w, l, k, n }) => {
+      try {
+        w.animate(
+          [{ opacity: 1, filter: 'blur(0px)', transform: 'none' },
+           { opacity: 0, filter: b, transform: `translateX(${lineSign(l) * o.shift}px)` }],
+          { duration: o.out, delay: order(l, n) * o.line + k * 7, easing: 'cubic-bezier(.5,0,.9,.4)', fill: 'both' });
+      } catch (e) {}
+    });
+    const lines = oldWs[0]?.n || 0;
+    const total = lines * o.line + o.out * .5 + 200;
+    setTimeout(() => {
+      try {
+        // прыжок на новую страницу
+        el.scrollTo({ left: target, behavior: 'instant' });
+        unwrap();
+        const newWs = layoutWs(wrapWords());
+        newWs.forEach(({ w, l, k, n }) => {
+          try {
+            w.animate(
+              [{ opacity: 0, filter: b, transform: `translateX(${-lineSign(l) * o.shift}px)` },
+               { opacity: 1, filter: 'blur(0px)', transform: 'none' }],
+              { duration: o.inn, delay: order(l, n) * o.line + k * 7, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'both' });
+          } catch (e) {}
+        });
+        const lines2 = newWs[0]?.n || 0;
+        const total2 = lines2 * o.line + o.inn + 150;
+        setTimeout(() => {
+          try { el.getAnimations({ subtree: true }).forEach(a => a.cancel()); } catch (e) {}
+          unwrap();
+          el._weave = null;
+        }, total2);
+      } catch (e) {
+        unwrap();
+        el._weave = null;
+      }
+    }, total);
+  } catch (e) {
+    try { unwrap(); } catch (e2) {}
+    el._weave = null;
+    el.scrollTo({ left: target, behavior: 'instant' });
+  }
+}
 function paint(dir) {
   const el = $("rPages");
   const { w } = dims();
@@ -166,6 +266,7 @@ function paint(dir) {
   if (fx === "none" || !dir) { jumpTo(el, target); return; }
   if (fx === "shift") { smoothTo(el, target); return; }
   if (fx === "scan") { turnPage(el, target, dir); return; }
+  if (fx === "weave") { weaveTurn(el, target, dir); return; }
   // slide / fade / curl — как в Paciuk Reader: стартовая поза → прыжок → анимация к покою
   const D = dir > 0 ? 1 : -1;
   el.style.transition = "none";
