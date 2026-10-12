@@ -100,7 +100,7 @@ h3{margin:0 0 4px;font:700 14px Manrope,sans-serif;color:var(--mute)}
       <div class="lab" id="labs"></div>
     </div>
 
-    <div class="card rv gen" style="display:none">
+    <div class="card rv gen" id="genCard" style="display:none">
       <svg class="donut" viewBox="0 0 100 100" id="donut"></svg>
       <ul class="leg" id="leg"></ul>
     </div>
@@ -322,9 +322,34 @@ $('#goalCard').addEventListener('click',()=>{
   }
 });
 
+// жанры (реальные, из метаданных книг)
+function renderGenres(){
+  const counts={};
+  BOOKS.forEach(b=>{
+    (b.genres||[]).forEach(g=>{
+      const gg=String(g).trim();
+      if(gg)counts[gg]=(counts[gg]||0)+1;
+    });
+  });
+  const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if(!entries.length){$('#genCard').style.display='none';return}
+  $('#genCard').style.display='';
+  const total=entries.reduce((s,e)=>s+e[1],0);
+  const colors=['#bf6052','#e8977c','#8f3b30','#f0b9a4','#b9a9a4'];
+  let cum=0,h='',l='';
+  entries.forEach(([n,v],i)=>{
+    const pct=Math.round(v/total*100);
+    const len=pct/100*251.3;
+    h+=`<circle class="seg-d" cx="50" cy="50" r="40" stroke="${colors[i%5]}" style="--len:${len-1.5}px" stroke-dashoffset="${-cum}"/>`;
+    l+=`<li><i style="background:${colors[i%5]}"></i>${n}<em>${pct}%</em></li>`;cum+=len;
+  });
+  $('#donut').innerHTML=`<circle cx="50" cy="50" r="40" fill="none" stroke="var(--track)" stroke-width="15"/>`+h;
+  $('#leg').innerHTML=l;
+}
+
 // обновить цель после загрузки книг
 const _load=load;
-load=async function(){await _load();renderGoal()};
+load=async function(){await _load();renderGoal();renderGenres()};
 
 load();
 

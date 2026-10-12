@@ -177,6 +177,7 @@ async function parseEpub(u8, fileName, onProgress) {
   const authors = els(metadata, "creator").map(c => (c.textContent || "").trim()).filter(Boolean);
   const lang = textOf(metadata, "language");
   const annotation = (textOf(metadata, "description") || "").replace(/\s+/g, " ").trim().slice(0, 2000);
+  const genres = els(metadata, "subject").map(s => (s.textContent || "").trim()).filter(Boolean);
 
   // manifest: id -> {href, type}
   const manifest = {};
@@ -331,7 +332,7 @@ async function parseEpub(u8, fileName, onProgress) {
   }
   if (!toc.length) toc = chapters.map((c, i) => ({ label: c.label, chapter: i }));
 
-  return { format: "epub", fileName, title, authors, lang, cover, toc, chapters, notes: epubNotes || {}, annotation };
+  return { format: "epub", fileName, title, authors, lang, cover, toc, chapters, notes: epubNotes || {}, annotation, genres };
 }
 
 /* ---------- FB2 ---------- */
@@ -362,6 +363,7 @@ function parseFb2(u8, fileName, onProgress) {
   const lang = ti ? textOf(ti, "lang") : "";
   const annEl = ti ? first(ti, "annotation") : null;
   const annotation = annEl ? (annEl.textContent || "").replace(/\s+/g, " ").trim().slice(0, 2000) : "";
+  const genres = ti ? els(ti, "genre").map(g => (g.textContent || "").trim()).filter(Boolean) : [];
 
   // бинарники → dataURL
   const binaries = {};
@@ -479,7 +481,7 @@ function parseFb2(u8, fileName, onProgress) {
   if (Object.keys(byNum).length) for (const ch of chapters) ch.html = linkBracketNotes(ch.html, byNum);
 
   const toc = chapters.map((c, i) => ({ label: c.label, chapter: i }));
-  return { format: "fb2", fileName, title, authors, lang, cover, toc, chapters, notes, annotation };
+  return { format: "fb2", fileName, title, authors, lang, cover, toc, chapters, notes, annotation, genres };
 }
 
 /* ---------- ZIP ---------- */
