@@ -76,7 +76,7 @@ function layout() {
   paint();
 }
 /* ЭФФЕКТ «СКАН»: старый текст гаснет по ходу чтения, новый проявляется следом */
-try { CSS.registerProperty({ name: '--p', syntax: '<percentage>', inherits: false, initialValue: '0%' }); } catch (e) {}
+try { CSS.registerProperty({ name: '--scan', syntax: '<percentage>', inherits: false, initialValue: '0%' }); } catch (e) {}
 const FX = { out: 240, inn: 420, soft: 22, blur: 3, drift: 18 };
 function slideFallback(el, target, D) {
   el.style.transition = "none"; el.style.transformOrigin = ""; el.style.filter = "none";
@@ -98,24 +98,24 @@ function turnPage(el, target, dir) {
   const ang = D > 0 ? 105 : 255, s = FX.soft;
   const setMask = g => { el.style.webkitMaskImage = g; el.style.maskImage = g; };
   const clean = () => {
-    setMask(''); el.style.removeProperty('--p'); el.style.filter = ''; el.style.transform = ''; el._fx = null;
+    setMask(''); el.style.removeProperty('--scan'); el.style.filter = ''; el.style.transform = ''; el._fx = null;
   };
   const bl = v => `blur(${v}px)`;
   try {
-    el.style.setProperty('--p', `-${s}%`);
-    setMask(`linear-gradient(${ang}deg, transparent var(--p), #000 calc(var(--p) + ${s}%))`);
+    el.style.setProperty('--scan', `-${s}%`);
+    setMask(`linear-gradient(${ang}deg, transparent var(--scan), #000 calc(var(--scan) + ${s}%))`);
     const a1 = el.animate(
-      [{ '--p': `-${s}%`, transform: 'none', filter: bl(0) },
-       { '--p': '100%', transform: `translateX(${-D * FX.drift}px)`, filter: bl(FX.blur) }],
+      [{ '--scan': `-${s}%`, transform: 'none', filter: bl(0) },
+       { '--scan': '100%', transform: `translateX(${-D * FX.drift}px)`, filter: bl(FX.blur) }],
       { duration: FX.out, easing: 'cubic-bezier(.4,0,.8,.6)', fill: 'forwards' });
     a1.onfinish = () => {
       el.scrollTo({ left: fx.target, behavior: 'instant' });
-      setMask(`linear-gradient(${ang}deg, #000 calc(var(--p) - ${s}%), transparent var(--p))`);
-      el.style.setProperty('--p', '0%');
+      setMask(`linear-gradient(${ang}deg, #000 calc(var(--scan) - ${s}%), transparent var(--scan))`);
+      el.style.setProperty('--scan', '0%');
       a1.cancel();
       const a2 = el.animate(
-        [{ '--p': '0%', transform: `translateX(${D * FX.drift}px)`, filter: bl(FX.blur) },
-         { '--p': `${100 + s}%`, transform: 'none', filter: bl(0) }],
+        [{ '--scan': '0%', transform: `translateX(${D * FX.drift}px)`, filter: bl(FX.blur) },
+         { '--scan': `${100 + s}%`, transform: 'none', filter: bl(0) }],
         { duration: FX.inn, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'both' });
       a2.onfinish = () => { a2.cancel(); clean(); };
     };
