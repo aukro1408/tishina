@@ -215,10 +215,9 @@ function paintReaderInk(target) {
     const diff = target - rInkShown;
     rInkShown += diff * .12;
     if (Math.abs(diff) < .2) rInkShown = target;
-    el.style.setProperty("--p", rInkShown + "%");
-    el.classList.toggle("flow", Math.abs(diff) > 1.5);
+    fill.style.width = rInkShown + "%";
     if (rInkShown !== target) rInkRaf = requestAnimationFrame(frame);
-    else { rInkRaf = null; el.classList.remove("flow"); }
+    else { rInkRaf = null; }
   };
   if (!rInkRaf) rInkRaf = requestAnimationFrame(frame);
 }
