@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=150"></script>
-<script src="store.js?v=150"></script>
+<script src="parser.js?v=151"></script>
+<script src="store.js?v=151"></script>
 <style>
 @font-face{font-family:'Tishina Times';src:url('fonts/times.ttf') format('truetype');font-display:swap}
 :root{
@@ -452,10 +452,17 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 .r-draw.open{pointer-events:auto}
 .r-draw.open::after{opacity:1}
 .r-draw-panel{position:absolute;top:0;bottom:0;left:0;width:min(340px,88%);z-index:1;
-  background-color:var(--rbg);background-image:var(--rbgimg);color:var(--rink);
-  border-right:1px solid var(--rline);display:flex;flex-direction:column;
+  --tint-a:.60;--tint-b:.46;--blur:28px;
+  background:
+    radial-gradient(170% 120% at 0% 10%,rgba(217,117,95,.22),transparent 58%),
+    linear-gradient(90deg,rgba(64,22,15,var(--tint-a)),rgba(34,14,10,var(--tint-b)));
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(2.2) brightness(.55);
+          backdrop-filter:blur(var(--blur)) saturate(2.2) brightness(.55);
+  color:var(--rink);
+  border-right:1px solid rgba(255,214,196,.16);display:flex;flex-direction:column;
   transform:translateX(-104%);transition:transform .32s cubic-bezier(0.25,0.46,0.45,0.94);
-  padding-top:env(safe-area-inset-top);box-shadow:10px 0 34px rgba(0,0,0,.2)}
+  padding-top:env(safe-area-inset-top);
+  box-shadow:inset 1px 0 0 rgba(255,225,210,.14),10px 0 34px -12px rgba(20,8,5,.6)}
 .r-draw.open .r-draw-panel{transform:none}
 .r-draw-head{display:flex;align-items:center;justify-content:space-between;gap:10px;
   padding:14px 14px 12px;border-bottom:1px solid var(--rline)}
@@ -704,8 +711,8 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       </div>
     </div>
   </div>
-<script src="reader.js?v=150"></script>
-<script src="app.js?v=150"></script>
-<script src="nowcard.js?v=150"></script>
+<script src="reader.js?v=151"></script>
+<script src="app.js?v=151"></script>
+<script src="nowcard.js?v=151"></script>
 </body>
 </html>
