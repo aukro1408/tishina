@@ -10,9 +10,9 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#130a08;--card:#1e110e;--ink:#f6e9e2;--mute:#b79a8f}}
 :root[data-theme="dark"]{--bg:#130a08;--card:#1e110e;--ink:#f6e9e2;--mute:#b79a8f}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--ink);font:500 15px/1.4 Manrope,system-ui,sans-serif;padding:calc(40px + env(safe-area-inset-top,0px)) 16px calc(40px + env(safe-area-inset-bottom,0px))}
-.wrap{max-width:460px;margin:0 auto}
-.card{position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;padding:22px 20px 20px 24px;border-radius:30px;background:var(--card)}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 15px/1.4 Manrope,system-ui,sans-serif;padding:0}
+.wrap{max-width:none;margin:0}
+.card{position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;padding:22px 20px 20px 24px;border-radius:18px;background:var(--card)}
 .info{flex:1;min-width:0}
 .info h3{margin:0;font:700 19px Manrope,sans-serif}
 .pct{margin:8px 0 0;font:700 52px/1 "Cormorant Garamond",serif;color:var(--moon);transition:color .6s;font-variant-numeric:tabular-nums}
@@ -151,7 +151,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:500 15px/1.4 Manrope,sy
         </g>
       </svg>
     </div>
-    <button class="ios" id="sw" role="switch" aria-checked="false" aria-label="Рельеф луны"><i></i></button>
+    
     </div>
   </div>
 
@@ -224,20 +224,21 @@ function setColor(c){document.documentElement.style.setProperty('--moon',c)}
 
 // перетаскивание отключено
 
-// переключатель стиля луны
-const sw=$('#sw'),groups={flat:document.querySelector('.v-flat'),relief:document.querySelector('.v-relief')};
-function setStyle(st,save){
+// стиль луны из настроек приложения (moonStyle в localStorage)
+const groups={flat:document.querySelector('.v-flat'),relief:document.querySelector('.v-relief')};
+function setStyle(st){
   mb.dataset.s=st;
   const other=st==='flat'?'relief':'flat';
   groups[st].style.display='';
   clearTimeout(setStyle.t);
-  setStyle.t=setTimeout(()=>{groups[other].style.display='none'},520); // скрытый вариант не нагружает телефон
-  sw.classList.toggle('on',st==='relief');sw.setAttribute('aria-checked',st==='relief');
-  if(save){try{localStorage.setItem('moonStyle',st)}catch(e){}}
+  setStyle.t=setTimeout(()=>{groups[other].style.display='none'},520);
 }
-sw.addEventListener('click',()=>{setStyle(mb.dataset.s==='relief'?'flat':'relief',true);if(navigator.vibrate)navigator.vibrate(6)});
 let saved='flat';try{saved=localStorage.getItem('moonStyle')||'flat'}catch(e){}
-setStyle(saved==='relief'?'relief':'flat',false);
+setStyle(saved==='relief'?'relief':'flat');
+// следить за изменением из настроек
+window.addEventListener('storage',e=>{
+  if(e.key==='moonStyle'){setStyle(e.newValue==='relief'?'relief':'flat')}
+});
 
 
 // прогресс из URL (?p=71)
