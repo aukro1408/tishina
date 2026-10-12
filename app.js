@@ -74,7 +74,9 @@ function renderShelf() {
   };
   v.innerHTML = `
     <div class="hero-card" data-open="${cur.id}">
-      <div class="hero-cover">${coverHTML(cur)}</div>
+      <div class="hero-cover">${coverHTML(cur)}
+        ${pct(cur) > 0 ? `<span class="bprog">${pct(cur)}%</span>` : ``}
+      </div>
       <div class="hero-info">
         <div class="hero-label">Читаю сейчас</div>
         <div class="hero-title">${esc(cur.title)}</div>
