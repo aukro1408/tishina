@@ -348,6 +348,11 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") closeDetail(
     st = st === "relief" ? "flat" : "relief";
     try { localStorage.setItem("moonStyle", st); } catch(e){}
     apply(st);
+    // обновить луну в открытом детальном виде
+    try {
+      var mf = document.getElementById("moonFrame");
+      if (mf && mf.src) mf.src = mf.src;
+    } catch(e){}
   });
 })();
 

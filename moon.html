@@ -247,7 +247,8 @@ try {
   const m = location.search.match(/[?&]p=(\d+)/);
   if (m) initP = Math.max(0, Math.min(100, parseInt(m[1])));
 } catch(e){}
-show(initP);
+show(0);
+setTimeout(()=>animateTo(initP, 2000), 400);
 // тема луны из localStorage
 try {
   const mt = localStorage.getItem('moonTheme');
