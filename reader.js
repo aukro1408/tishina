@@ -548,7 +548,7 @@ function bind() {
       const r = sel.getRangeAt(0).getBoundingClientRect();
       if (pop) {
         pop.style.left = (r.left + r.width / 2) + "px";
-        pop.style.top = Math.max(r.top - 8, 60) + "px";
+        pop.style.top = (r.bottom + 12) + "px";
         pop.hidden = false;
       }
     } catch(e){}
