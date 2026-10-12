@@ -44,6 +44,32 @@ function bookProgress() {
   done += (chLens[chIdx] || 0) * ((page + 1) / pages);
   return Math.min(1, done / totalLen);
 }
+function pageQuote() {
+  try {
+    const el = $("rPages");
+    if (!el) return "";
+    const r = el.getBoundingClientRect();
+    // точка у верхнего края видимой страницы
+    const x = r.left + r.width / 2, y = r.top + 40;
+    let node;
+    if (document.caretPositionFromPoint) {
+      const pos = document.caretPositionFromPoint(x, y);
+      node = pos && pos.offsetNode;
+    } else if (document.caretRangeFromPoint) {
+      const range = document.caretRangeFromPoint(x, y);
+      node = range && range.startContainer;
+    }
+    if (!node) return "";
+    const t = (node.textContent || "").trim();
+    if (t.length < 20) return "";
+    // берём ~120 символов с начала текстового узла
+    let q = t.slice(0, 120).replace(/\s+/g, " ").trim();
+    // троеточие в начале если фраза с середины
+    const prefix = /^[а-яёa-z]/i.test(t[0]) && t[0] === t[0].toLowerCase() ? "…" : "";
+    if (q.length >= 120) q += "…";
+    return prefix + q;
+  } catch (e) { return ""; }
+}
 
 /* ---------- раскладка ---------- */
 
@@ -275,7 +301,7 @@ function saveSoon() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     if (book && global.Shelf) {
-      global.Shelf.touch(book.id, { progress: bookProgress(), lastRead: { ch: chIdx, page } });
+      global.Shelf.touch(book.id, { progress: bookProgress(), lastRead: { ch: chIdx, page, quote: pageQuote() } });
     }
   }, 600);
 }
@@ -466,7 +492,7 @@ async function close() {
   try { Stats.end(book ? book.id : null); } catch(e){}
   clearTimeout(saveTimer);
   if (book && global.Shelf) {
-    await global.Shelf.touch(book.id, { progress: bookProgress(), lastRead: { ch: chIdx, page } });
+    await global.Shelf.touch(book.id, { progress: bookProgress(), lastRead: { ch: chIdx, page, quote: pageQuote() } });
   }
   book = null;
   $("reader").classList.remove("open");
