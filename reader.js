@@ -84,6 +84,7 @@ function paint(dir) {
     ? "none" : (set.turn || "slide");
   if (fx === "none" || !dir) { jumpTo(el, target); return; }
   if (fx === "shift") { smoothTo(el, target); return; }
+  if (fx === "weave") { weaveTo(el, target, dir); return; }
   // slide / fade / curl — как в Paciuk Reader: стартовая поза → прыжок → анимация к покою
   const D = dir > 0 ? 1 : -1;
   el.style.transition = "none";
@@ -110,6 +111,81 @@ function paint(dir) {
     clearTimeout(paint._t);
     paint._t = setTimeout(() => { el.style.transition = "none"; el.style.transformOrigin = ""; }, 450);
   });
+}
+/* Переплёт: чётные строки уходят влево, нечётные вправо — как в присланном файле */
+function weaveTo(el, target, dir) {
+  try {
+    const reduce = global.matchMedia && global.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const R = el.getBoundingClientRect();
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const words = [];
+    let node;
+    while ((node = walker.nextNode())) {
+      const pe = node.parentElement;
+      if (!pe) continue;
+      const r = pe.getBoundingClientRect();
+      if (r.right < R.left || r.left > R.right) continue;
+      const text = node.textContent;
+      if (!text || !text.trim()) continue;
+      const parts = text.split(/(\s+)/);
+      const frag = document.createDocumentFragment();
+      parts.forEach(p => {
+        if (!p) return;
+        if (/^\s+$/.test(p)) { frag.appendChild(document.createTextNode(p)); }
+        else {
+          const s = document.createElement("span");
+          s.className = "pw-w";
+          s.textContent = p;
+          frag.appendChild(s);
+          words.push(s);
+        }
+      });
+      node.parentNode.replaceChild(frag, node);
+    }
+    if (!words.length || reduce) { jumpTo(el, target); return; }
+    // номер строки для каждого слова
+    const tops = [...new Set(words.map(w => Math.round(w.offsetTop)))].sort((a,b) => a-b);
+    const layout = words.map(w => {
+      const l = tops.indexOf(Math.round(w.offsetTop));
+      return { w, l, n: tops.length };
+    });
+    const lineSign = l => (l % 2 ? 1 : -1) * dir;
+    const order = (l, n) => dir > 0 ? l : n - 1 - l;
+    const o = { out: 420, inn: 520, blur: 6, line: 50, shift: 55 };
+    const b = `blur(${o.blur}px)`;
+    layout.forEach(({ w, l, n }, k) => {
+      // порядковый номер слова в строке для микро-задержки
+      w.animate(
+        [{ opacity: 1, filter: "blur(0px)", transform: "none" },
+         { opacity: 0, filter: b, transform: `translateX(${lineSign(l) * o.shift}px)` }],
+        { duration: o.out, delay: order(l, n) * o.line, easing: "cubic-bezier(.5,0,.9,.4)", fill: "both" });
+    });
+    const totalOut = tops.length * o.line + o.out;
+    setTimeout(() => {
+      jumpTo(el, target);
+      // новые слова заходят с противоположной стороны
+      try {
+        const words2 = [...el.querySelectorAll(".pw-w")];
+        const tops2 = [...new Set(words2.map(w => Math.round(w.offsetTop)))].sort((a,b) => a-b);
+        words2.forEach(w => {
+          const l = tops2.indexOf(Math.round(w.offsetTop));
+          const n = tops2.length;
+          w.animate(
+            [{ opacity: 0, filter: b, transform: `translateX(${-lineSign(l) * o.shift}px)` },
+             { opacity: 1, filter: "blur(0px)", transform: "none" }],
+            { duration: o.inn, delay: order(l, n) * o.line + 60, easing: "cubic-bezier(.2,.8,.2,1)", fill: "both" });
+        });
+      } catch(e){}
+      setTimeout(() => {
+        try {
+          el.querySelectorAll(".pw-w").forEach(s => {
+            s.parentNode.replaceChild(document.createTextNode(s.textContent), s);
+          });
+          el.normalize();
+        } catch(e){}
+      }, tops.length * o.line + o.inn + 200);
+    }, totalOut + 60);
+  } catch(e) { jumpTo(el, target); }
 }
 function jumpTo(el, left) {
   if (typeof el.scrollTo === "function") el.scrollTo({ left, behavior: "instant" });
