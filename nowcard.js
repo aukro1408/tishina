@@ -26,9 +26,9 @@
       const buckets = {};
       for (let i = 0; i < data.length; i += 16) {
         const r = data[i], g = data[i+1], b = data[i+2];
-        // пропускаем слишком тёмные и слишком светлые
+        // пропускаем слишком тёмные и слишком светлые (порог ниже для тёмных обложек)
         const mx = Math.max(r,g,b), mn = Math.min(r,g,b);
-        if (mx < 30 || mn > 225) continue;
+        if (mx < 18 || mn > 235) continue;
         // квантуем
         const key = [r>>5, g>>5, b>>5].join(",");
         buckets[key] = buckets[key] || { n: 0, r: 0, g: 0, b: 0 };
@@ -99,30 +99,31 @@
     let book = null;
     try {
       if (window.Shelf) {
-        const books = (typeof Shelf.list === "function") ? Shelf.list() : [];
-        // Shelf.list может быть промисом
-        if (books && typeof books.then === "function") {
-          books.then(list => {
+        const getBooks = (typeof Shelf.all === "function") ? Shelf.all() : [];
+        // Shelf.all может быть промисом
+        if (getBooks && typeof getBooks.then === "function") {
+          getBooks.then(list => {
             const b = (list||[]).find(x => String(x.id) === String(bookId));
             if (b) enhanceWithBook(card, b);
+            else enhanceFallback(card);
           });
           return;
         }
-        book = (books||[]).find(x => String(x.id) === String(bookId));
+        book = (getBooks||[]).find(x => String(x.id) === String(bookId));
       }
     } catch (e) {}
     if (book) enhanceWithBook(card, book);
-    else {
-      // без книги — только цитата если есть в DOM? пробуем по заголовку
-      const title = (card.querySelector(".hero-title")||{}).textContent || "";
-      try {
-        const c = getCache();
-        // ищем по заголовку в кэше цитат
-        const qc = JSON.parse(localStorage.getItem("tishina.nowcard.quotes")||"{}");
-        if (qc[title]) applyQuote(card, qc[title]);
-      } catch (e) {}
-      applyGlow(card, FALLBACK);
-    }
+    else enhanceFallback(card);
+  }
+
+  function enhanceFallback(card) {
+    // без книги — пробуем цитату из кэша по заголовку
+    const title = (card.querySelector(".hero-title")||{}).textContent || "";
+    try {
+      const qc = JSON.parse(localStorage.getItem("tishina.nowcard.quotes")||"{}");
+      if (qc[title]) applyQuote(card, qc[title]);
+    } catch (e) {}
+    applyGlow(card, FALLBACK);
   }
 
   function enhanceWithBook(card, book) {
