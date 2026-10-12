@@ -247,8 +247,20 @@ sw.addEventListener('click',()=>{setStyle(mb.dataset.s==='relief'?'flat':'relief
 let saved='flat';try{saved=localStorage.getItem('moonStyle')||'flat'}catch(e){}
 setStyle(saved==='relief'?'relief':'flat',false);
 
-show(0);
-setTimeout(()=>animateTo(71,2400),350);
+
+// прогресс из URL (?p=71)
+let initP = 0;
+try {
+  const m = location.search.match(/[?&]p=(\d+)/);
+  if (m) initP = Math.max(0, Math.min(100, parseInt(m[1])));
+} catch(e){}
+show(initP);
+// тема луны из localStorage
+try {
+  const mt = localStorage.getItem('moonTheme');
+  if (mt) document.documentElement.setAttribute('data-theme', mt);
+} catch(e){}
+
 </script>
 </body>
 </html>

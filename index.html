@@ -8,18 +8,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=69"></script>
-<script src="store.js?v=69"></script>
+<script src="parser.js?v=70"></script>
+<script src="store.js?v=70"></script>
 <style>
 @font-face{font-family:'Tishina Times';src:url('fonts/times.ttf') format('truetype');font-display:swap}
 :root{
   --ink:#f6e9e2; --muted:#b79a8f; --line:#3a2420; --bg:#150b09; --bg2:#241310;
   --accent:#c65b4e; --card:#241310;
-}
-/* светлая тема */
-:root[data-theme="light"]{
-  --ink:#1c1c1e; --muted:#8e8e93; --line:#e9e9ee; --bg:#f4f4f6; --bg2:#ececef;
-  --card:#ffffff;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
@@ -29,7 +24,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 
 /* шапка */
 .top{position:relative;overflow:hidden;margin:0 -20px;padding:0;
-  background:url('header-cat.jpg?v=69') center 0/cover no-repeat;
+  background:url('header-cat.jpg?v=70') center 0/cover no-repeat;
   min-height:230px}
 .top::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(to bottom,rgba(0,0,0,.25),transparent 30%,transparent 55%,var(--bg))}
@@ -43,7 +38,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 
 /* экран настроек */
 .set-top{position:relative;overflow:hidden;margin:0 -20px;padding:0;
-  background:url('header-set.jpg?v=69') center/cover no-repeat;
+  background:url('header-set.jpg?v=70') center/cover no-repeat;
   min-height:230px}
 .set-top::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(to bottom,rgba(0,0,0,.25),transparent 30%,transparent 55%,var(--bg))}
@@ -447,8 +442,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   <div id="viewSettings" hidden>
     <div class="set-top"></div>
     <div class="set-list">
-      <div class="set-group">Оформление</div>
-      <div class="set-row"><div><div class="set-t">Тёмная тема</div><div class="set-d">Тёмные цвета статистики</div></div><button class="switch on" id="themeSw" role="switch" aria-checked="true"></button></div>
+      <div class="set-row"><div></div><button class="switch on" id="moonThemeSw" role="switch" aria-checked="true" aria-label="Тема луны"></button></div>
     </div>
     <p class="set-ver">Тишина · 1.0</p>
   </div>
@@ -459,7 +453,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg>
     Домой
   </button>
-  <a class="navbtn" href="stats.html?v=69" style="text-decoration:none">
+  <a class="navbtn" href="stats.html?v=70" style="text-decoration:none">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20v-7"/><path d="M12 20V6"/><path d="M18 20v-11"/></svg>
     Статистика
   </a>
@@ -513,11 +507,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       </defs>
     </svg>
     <div class="d-prog" id="dProg" hidden>
-      <div class="d-prog-info">
-        <div class="d-prog-t">Прогресс чтения</div>
-        <div class="d-prog-s">Продолжите с того же места</div>
-      </div>
-      <div class="ring"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" class="ring-bg"/><circle cx="22" cy="22" r="19" class="ring-fg" id="dRingFg"/></svg><span id="dPct">0%</span></div>
+      <iframe id="moonFrame" src="moon.html" style="width:100%;height:220px;border:none;border-radius:30px;overflow:hidden" scrolling="no" title="Прогресс чтения"></iframe>
     </div>
     <div class="d-sec" id="dDescSec" hidden>
       <div class="d-sec-t">Описание</div>
@@ -616,7 +606,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       </div>
     </div>
   </div>
-<script src="reader.js?v=69"></script>
-<script src="app.js?v=69"></script>
+<script src="reader.js?v=70"></script>
+<script src="app.js?v=70"></script>
 </body>
 </html>

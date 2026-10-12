@@ -171,9 +171,11 @@ async function openDetail(id) {
   $("dReadLabel").textContent = started ? "Продолжить чтение" : "Читать";
   const p = pct(b);
   $("dProg").hidden = !(p > 0);
-  $("dPct").textContent = p + "%";
-  $("dRingFg").style.strokeDashoffset = (119.4 * (1 - p / 100)).toFixed(1);
-  $("dRingFg").style.stroke = "";
+  /* луна в iframe */
+  try {
+    const mf = $("moonFrame");
+    if (mf) mf.src = "moon.html?p=" + p;
+  } catch(e){}
   const ann = (b.annotation || "").trim();
   $("dDescSec").hidden = !ann;
   $("dDesc").textContent = ann;
@@ -331,21 +333,20 @@ $("bmDelDevice").onclick = async () => {
 };
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeDetail(); });
 
-// переключатель темы
+// переключатель темы луны (без названия)
 (function(){
-  var sw = document.getElementById("themeSw");
+  var sw = document.getElementById("moonThemeSw");
   if (!sw) return;
   var theme = "dark";
-  try { theme = localStorage.getItem("tishina.theme") || "dark"; } catch(e){}
+  try { theme = localStorage.getItem("moonTheme") || "dark"; } catch(e){}
   function apply(t){
-    document.documentElement.setAttribute("data-theme", t === "light" ? "light" : "dark");
     sw.classList.toggle("on", t !== "light");
     sw.setAttribute("aria-checked", t !== "light");
   }
   apply(theme);
   sw.addEventListener("click", function(){
     theme = theme === "light" ? "dark" : "light";
-    try { localStorage.setItem("tishina.theme", theme); } catch(e){}
+    try { localStorage.setItem("moonTheme", theme); } catch(e){}
     apply(theme);
   });
 })();
