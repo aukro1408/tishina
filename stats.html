@@ -88,9 +88,9 @@ h3{margin:0 0 4px;font:700 14px Manrope,sans-serif;color:var(--mute)}
     </div>
     <div style="height:12px"></div>
 
-    <div class="card rv goal" hidden>
-      <div class="ringbox"><svg viewBox="0 0 100 100"><circle class="rbg" cx="50" cy="50" r="42" fill="none" stroke-width="10"/><circle class="rfg" cx="50" cy="50" r="42" fill="none" stroke-width="10" style="--off:73.9"/></svg><b>72%</b></div>
-      <div><h3>Цель на год</h3><div class="big">18 <small>из 25</small></div><p>Осталось 7 книг. Темп хороший.</p></div>
+    <div class="card rv goal" id="goalCard" style="cursor:pointer">
+      <div class="ringbox"><svg viewBox="0 0 100 100"><circle class="rbg" cx="50" cy="50" r="42" fill="none" stroke-width="10"/><circle class="rfg" id="goalRing" cx="50" cy="50" r="42" fill="none" stroke-width="10" style="--off:264"/></svg><b id="goalPct">0%</b></div>
+      <div><h3>Цель на год</h3><div class="big"><span id="goalDone">0</span> <small>из <span id="goalTarget">12</span></small></div><p id="goalText">Нажмите, чтобы задать цель</p></div>
     </div>
 
     <div class="card rv act">
@@ -255,21 +255,23 @@ function calcStats(period){
     if(days[ds]&&days[ds].secs>0){streak++;d.setDate(d.getDate()-1)}else break;
   }
   
-  // страницы (примерно)
-  let totalChars=0;
+  // страницы прочитано (по прогрессу каждой книги)
+  let readChars=0;
   BOOKS.forEach(b=>{
+    let bc=0;
     (b.chapters||[]).forEach(c=>{
       const h=(c&&c.html)||c||"";
-      totalChars+=String(h).replace(/<[^>]+>/g,"").length;
+      bc+=String(h).replace(/<[^>]+>/g,"").length;
     });
+    readChars+=bc*((b.progress||0)/100);
   });
-  const pages=Math.round(totalChars/1800*(totalSecs/Math.max(1,totalSecs)));
+  const pages=Math.round(readChars/1800);
   
   // скорость (стр/час)
   const hours=totalSecs/3600;
   const speed=hours>0?Math.round(pages/Math.max(hours,0.1)):0;
   
-  return {books:booksRead,mins:Math.round(totalSecs/60),vals,labels,streak,pages:Math.round(totalChars/1800),speed};
+  return {books:booksRead,mins:Math.round(totalSecs/60),vals,labels,streak,pages,speed};
 }
 
 function render(k){
@@ -290,6 +292,39 @@ seg.querySelectorAll('button').forEach((b,i)=>b.addEventListener('click',()=>{
 // появление секций при прокрутке
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');go(e.target);io.unobserve(e.target)}}),{threshold:.2});
 document.querySelectorAll('.rv').forEach(x=>io.observe(x));
+
+function renderGoal(){
+  let target=12;
+  try{target=parseInt(localStorage.getItem("tishina.goal")||"12")||12}catch(e){}
+  const year=new Date().getFullYear();
+  const done=BOOKS.filter(b=>(b.progress||0)>=100).length;
+  const pct=target>0?Math.min(100,Math.round(done/target*100)):0;
+  const circ=2*Math.PI*42;
+  const off=circ*(1-pct/100);
+  $('#goalPct').textContent=pct+'%';
+  $('#goalDone').textContent=done;
+  $('#goalTarget').textContent=target;
+  $('#goalRing').style.setProperty('--off',off);
+  const left=target-done;
+  $('#goalText').textContent=left>0?`Осталось ${left} книг.`:(done>=target&&target>0?'Цель достигнута!':'');
+}
+$('#goalCard').addEventListener('click',()=>{
+  let cur=12;
+  try{cur=localStorage.getItem("tishina.goal")||"12"}catch(e){}
+  const v=prompt('Сколько книг хотите прочитать за год?',cur);
+  if(v!=null){
+    const n=parseInt(v);
+    if(n>0&&n<=1000){
+      try{localStorage.setItem("tishina.goal",String(n))}catch(e){}
+      renderGoal();
+      if(navigator.vibrate)navigator.vibrate(10);
+    }
+  }
+});
+
+// обновить цель после загрузки книг
+const _load=load;
+load=async function(){await _load();renderGoal()};
 
 load();
 
