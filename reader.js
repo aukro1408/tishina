@@ -156,85 +156,6 @@ function turnPage(el, target, dir) {
     clean(); el.scrollTo({ left: target, behavior: 'instant' });
   }
 }
-/* ЭФФЕКТ «ПЕРЕПЛЁТ»: чётные строки уходят влево, нечётные вправо (из файла Denis) */
-function weaveTurn(el, target, dir) {
-  const D = dir > 0 ? 1 : -1;
-  const o = { out: 460, inn: 560, blur: 7, line: 55, shift: 60 };
-  if (el._weave) return;
-  try {
-    el._weave = true;
-    const er = el.getBoundingClientRect();
-    // оверлей поверх ридера
-    const ov = document.createElement("div");
-    ov.style.cssText = `position:absolute;inset:0;z-index:30;pointer-events:none;overflow:hidden;` +
-      `font:${getComputedStyle(el).font};padding:${getComputedStyle(el).padding};`;
-    // relative к родителю ридера
-    const host = el.parentElement;
-    const wasPos = host.style.position;
-    if (!wasPos || wasPos === "static") host.style.position = "relative";
-    host.appendChild(ov);
-    const mkPage = text => {
-      const d = document.createElement("div");
-      d.style.cssText = "position:absolute;inset:0;";
-      d.innerHTML = text.split(/(\s+)/).map(part =>
-        /^\s*$/.test(part) ? part : `<span class="pw-w" style="display:inline-block">${part}</span>`
-      ).join("");
-      return d;
-    };
-    // текст текущей видимой страницы — берём из DOM грубо по скроллу
-    const fullText = (el.textContent || "").replace(/\s+/g, " ").trim();
-    const oldPage = mkPage(fullText.slice(0, 1200));
-    ov.appendChild(oldPage);
-    const ws = [...oldPage.querySelectorAll(".pw-w")];
-    const tops = [...new Set(ws.map(w => Math.round(w.offsetTop)))].sort((a,b) => a-b).slice(0, 30);
-    const cnt = {};
-    const items = ws.map(w => {
-      const l = tops.indexOf(Math.round(w.offsetTop));
-      if (l < 0) return null;
-      cnt[l] = (cnt[l] ?? -1) + 1;
-      return { w, l, k: cnt[l], n: tops.length };
-    }).filter(Boolean);
-    const b = `blur(${o.blur}px)`;
-    const lineSign = l => (l % 2 ? 1 : -1) * D;
-    const order = (l, n) => D > 0 ? l : n - 1 - l;
-    items.forEach(({ w, l, k, n }) => {
-      try {
-        w.animate(
-          [{ opacity: 1, filter: "blur(0px)", transform: "none" },
-           { opacity: 0, filter: b, transform: `translateX(${lineSign(l) * o.shift}px)` }],
-          { duration: o.out, delay: order(l, n) * o.line + k * 7, easing: "cubic-bezier(.5,0,.9,.4)", fill: "both" });
-      } catch (e) {}
-    });
-    const total = tops.length * o.line + o.out * .5 + 150;
-    setTimeout(() => {
-      try {
-        el.scrollTo({ left: target, behavior: "instant" });
-        oldPage.remove();
-        const newPage = mkPage(fullText.slice(0, 1200));
-        ov.appendChild(newPage);
-        const ws2 = [...newPage.querySelectorAll(".pw-w")];
-        const tops2 = [...new Set(ws2.map(w => Math.round(w.offsetTop)))].sort((a,b) => a-b).slice(0, 30);
-        const cnt2 = {};
-        ws2.forEach(w => {
-          const l = tops2.indexOf(Math.round(w.offsetTop));
-          if (l < 0) return;
-          cnt2[l] = (cnt2[l] ?? -1) + 1;
-          const k = cnt2[l], n = tops2.length;
-          try {
-            w.animate(
-              [{ opacity: 0, filter: b, transform: `translateX(${-lineSign(l) * o.shift}px)` },
-               { opacity: 1, filter: "blur(0px)", transform: "none" }],
-              { duration: o.inn, delay: order(l, n) * o.line + k * 7, easing: "cubic-bezier(.2,.8,.2,1)", fill: "both" });
-          } catch (e) {}
-        });
-        setTimeout(() => { ov.remove(); el._weave = null; }, tops2.length * o.line + o.inn + 150);
-      } catch (e) { ov.remove(); el._weave = null; }
-    }, total);
-  } catch (e) {
-    el._weave = null;
-    el.scrollTo({ left: target, behavior: "instant" });
-  }
-}
 function paint(dir) {
   const el = $("rPages");
   const { w } = dims();
@@ -245,7 +166,6 @@ function paint(dir) {
   if (fx === "none" || !dir) { jumpTo(el, target); return; }
   if (fx === "shift") { smoothTo(el, target); return; }
   if (fx === "scan") { turnPage(el, target, dir); return; }
-  if (fx === "weave") { weaveTurn(el, target, dir); return; }
   // slide / fade / curl — как в Paciuk Reader: стартовая поза → прыжок → анимация к покою
   const D = dir > 0 ? 1 : -1;
   el.style.transition = "none";
