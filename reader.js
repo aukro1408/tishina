@@ -84,7 +84,6 @@ function paint(dir) {
     ? "none" : (set.turn || "slide");
   if (fx === "none" || !dir) { jumpTo(el, target); return; }
   if (fx === "shift") { smoothTo(el, target); return; }
-  if (fx === "wave") { waveTo(el, target, dir); return; }
   // slide / fade / curl — как в Paciuk Reader: стартовая поза → прыжок → анимация к покою
   const D = dir > 0 ? 1 : -1;
   el.style.transition = "none";
@@ -111,84 +110,6 @@ function paint(dir) {
     clearTimeout(paint._t);
     paint._t = setTimeout(() => { el.style.transition = "none"; el.style.transformOrigin = ""; }, 450);
   });
-}
-/* PageWave: волна слов от точки касания — как в присланном файле */
-function waveTo(el, target, dir) {
-  try {
-    const reduce = global.matchMedia && global.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // собираем слова видимой страницы
-    const R = el.getBoundingClientRect();
-    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-    const words = [];
-    let node;
-    while ((node = walker.nextNode())) {
-      const r = node.parentElement ? node.parentElement.getBoundingClientRect() : null;
-      if (!r) continue;
-      // только видимые (в пределах вьюпорта колонки)
-      if (r.right < R.left || r.left > R.right) continue;
-      const text = node.textContent;
-      if (!text || !text.trim()) continue;
-      const parts = text.split(/(\s+)/);
-      const frag = document.createDocumentFragment();
-      parts.forEach(p => {
-        if (!p) return;
-        if (/^\s+$/.test(p)) { frag.appendChild(document.createTextNode(p)); }
-        else {
-          const s = document.createElement("span");
-          s.className = "pw-w";
-          s.textContent = p;
-          frag.appendChild(s);
-          words.push(s);
-        }
-      });
-      node.parentNode.replaceChild(frag, node);
-    }
-    if (!words.length || reduce) {
-      jumpTo(el, target);
-      return;
-    }
-    // точка волны — центр по направлению
-    const cx = dir > 0 ? R.right - 40 : R.left + 40;
-    const cy = R.top + R.height / 2;
-    const maxD = Math.hypot(R.width, R.height);
-    const dist = w => {
-      const r = w.getBoundingClientRect();
-      return Math.hypot(r.left + r.width / 2 - cx, r.top + r.height / 2 - cy);
-    };
-    const speed = 700, out = 380, inn = 480, blur = "6px";
-    // гаснем
-    words.forEach(w => w.animate(
-      [{ opacity: 1, filter: "blur(0px)", transform: "none" },
-       { opacity: 0, filter: `blur(${blur})`, transform: "translateY(-8px) scale(1.05)" }],
-      { duration: out, delay: dist(w) / maxD * speed, easing: "ease-in", fill: "both" }));
-    setTimeout(() => {
-      jumpTo(el, target);
-      // проявляемся
-      words.forEach(w => {
-        try {
-          const r = w.getBoundingClientRect();
-          // пересчитать дистанцию для новой позиции
-          w.animate(
-            [{ opacity: 0, filter: `blur(${blur})`, transform: "translateY(10px) scale(.96)" },
-             { opacity: 1, filter: "blur(0px)", transform: "none" }],
-            { duration: inn, delay: Math.hypot(r.left + r.width / 2 - cx, r.top + r.height / 2 - cy) / maxD * speed + 100,
-              easing: "cubic-bezier(.2,.8,.2,1)", fill: "both" });
-        } catch(e){}
-      });
-      // убрать спаны после анимации
-      setTimeout(() => {
-        try {
-          el.querySelectorAll(".pw-w").forEach(s => {
-            const t = document.createTextNode(s.textContent);
-            s.parentNode.replaceChild(t, s);
-          });
-          el.normalize();
-        } catch(e){}
-      }, speed + inn + 200);
-    }, speed + out + 50);
-  } catch(e) {
-    jumpTo(el, target);
-  }
 }
 function jumpTo(el, left) {
   if (typeof el.scrollTo === "function") el.scrollTo({ left, behavior: "instant" });
