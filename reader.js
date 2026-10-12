@@ -159,101 +159,80 @@ function turnPage(el, target, dir) {
 /* ЭФФЕКТ «ПЕРЕПЛЁТ»: чётные строки уходят влево, нечётные вправо (из файла Denis) */
 function weaveTurn(el, target, dir) {
   const D = dir > 0 ? 1 : -1;
-  const o = { out: 460, inn: 560, blur: 7, line: 55, shift: 60 };
+  const o = { out: 380, inn: 480, blur: 6, line: 45, shift: 50 };
   if (el._weave) return;
-  // временно оборачиваем слова в текущей видимой области
-  const wrapWords = () => {
-    const ws = [];
-    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
-      acceptNode: n => {
-        if (!n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
-        const r = n.parentElement.getBoundingClientRect();
-        const er = el.getBoundingClientRect();
-        // только видимая страница
-        if (r.left < er.left - 10 || r.left > er.left + er.width + 10) return NodeFilter.FILTER_REJECT;
-        return NodeFilter.FILTER_ACCEPT;
-      }
-    });
-    const nodes = [];
-    while (walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(n => {
-      const frag = document.createDocumentFragment();
-      n.nodeValue.split(/(\s+)/).forEach(part => {
-        if (!part) return;
-        if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); }
-        else {
-          const s = document.createElement("span");
-          s.className = "pw-w";
-          s.textContent = part;
-          frag.appendChild(s);
-          ws.push(s);
-        }
-      });
-      n.parentNode.replaceChild(frag, n);
-    });
-    return ws;
-  };
-  const unwrap = () => {
-    el.querySelectorAll(".pw-w").forEach(s => {
-      s.parentNode.replaceChild(document.createTextNode(s.textContent), s);
-    });
-    el.normalize();
-  };
-  const layoutWs = ws => {
-    const tops = [...new Set(ws.map(w => Math.round(w.offsetTop)))].sort((a,b) => a-b);
-    const cnt = {};
-    return ws.map(w => {
-      const l = tops.indexOf(Math.round(w.offsetTop));
-      cnt[l] = (cnt[l] ?? -1) + 1;
-      return { w, l, k: cnt[l], n: tops.length };
-    });
-  };
   try {
     el._weave = true;
-    const oldWs = layoutWs(wrapWords());
+    const er = el.getBoundingClientRect();
+    // оверлей поверх ридера
+    const ov = document.createElement("div");
+    ov.style.cssText = `position:absolute;inset:0;z-index:30;pointer-events:none;overflow:hidden;` +
+      `font:${getComputedStyle(el).font};padding:${getComputedStyle(el).padding};`;
+    // relative к родителю ридера
+    const host = el.parentElement;
+    const wasPos = host.style.position;
+    if (!wasPos || wasPos === "static") host.style.position = "relative";
+    host.appendChild(ov);
+    const mkPage = text => {
+      const d = document.createElement("div");
+      d.style.cssText = "position:absolute;inset:0;";
+      d.innerHTML = text.split(/(\s+)/).map(part =>
+        /^\s*$/.test(part) ? part : `<span class="pw-w" style="display:inline-block">${part}</span>`
+      ).join("");
+      return d;
+    };
+    // текст текущей видимой страницы — берём из DOM грубо по скроллу
+    const fullText = (el.textContent || "").replace(/\s+/g, " ").trim();
+    const oldPage = mkPage(fullText.slice(0, 1200));
+    ov.appendChild(oldPage);
+    const ws = [...oldPage.querySelectorAll(".pw-w")];
+    const tops = [...new Set(ws.map(w => Math.round(w.offsetTop)))].sort((a,b) => a-b).slice(0, 30);
+    const cnt = {};
+    const items = ws.map(w => {
+      const l = tops.indexOf(Math.round(w.offsetTop));
+      if (l < 0) return null;
+      cnt[l] = (cnt[l] ?? -1) + 1;
+      return { w, l, k: cnt[l], n: tops.length };
+    }).filter(Boolean);
     const b = `blur(${o.blur}px)`;
     const lineSign = l => (l % 2 ? 1 : -1) * D;
     const order = (l, n) => D > 0 ? l : n - 1 - l;
-    oldWs.forEach(({ w, l, k, n }) => {
+    items.forEach(({ w, l, k, n }) => {
       try {
         w.animate(
-          [{ opacity: 1, filter: 'blur(0px)', transform: 'none' },
+          [{ opacity: 1, filter: "blur(0px)", transform: "none" },
            { opacity: 0, filter: b, transform: `translateX(${lineSign(l) * o.shift}px)` }],
-          { duration: o.out, delay: order(l, n) * o.line + k * 7, easing: 'cubic-bezier(.5,0,.9,.4)', fill: 'both' });
+          { duration: o.out, delay: order(l, n) * o.line + k * 5, easing: "cubic-bezier(.5,0,.9,.4)", fill: "both" });
       } catch (e) {}
     });
-    const lines = oldWs[0]?.n || 0;
-    const total = lines * o.line + o.out * .5 + 200;
+    const total = tops.length * o.line + o.out * .5 + 150;
     setTimeout(() => {
       try {
-        // прыжок на новую страницу
-        el.scrollTo({ left: target, behavior: 'instant' });
-        unwrap();
-        const newWs = layoutWs(wrapWords());
-        newWs.forEach(({ w, l, k, n }) => {
+        el.scrollTo({ left: target, behavior: "instant" });
+        oldPage.remove();
+        const newPage = mkPage(fullText.slice(0, 1200));
+        ov.appendChild(newPage);
+        const ws2 = [...newPage.querySelectorAll(".pw-w")];
+        const tops2 = [...new Set(ws2.map(w => Math.round(w.offsetTop)))].sort((a,b) => a-b).slice(0, 30);
+        const cnt2 = {};
+        ws2.forEach(w => {
+          const l = tops2.indexOf(Math.round(w.offsetTop));
+          if (l < 0) return;
+          cnt2[l] = (cnt2[l] ?? -1) + 1;
+          const k = cnt2[l], n = tops2.length;
           try {
             w.animate(
               [{ opacity: 0, filter: b, transform: `translateX(${-lineSign(l) * o.shift}px)` },
-               { opacity: 1, filter: 'blur(0px)', transform: 'none' }],
-              { duration: o.inn, delay: order(l, n) * o.line + k * 7, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'both' });
+               { opacity: 1, filter: "blur(0px)", transform: "none" }],
+              { duration: o.inn, delay: order(l, n) * o.line + k * 5, easing: "cubic-bezier(.2,.8,.2,1)", fill: "both" });
           } catch (e) {}
         });
-        const lines2 = newWs[0]?.n || 0;
-        const total2 = lines2 * o.line + o.inn + 150;
-        setTimeout(() => {
-          try { el.getAnimations({ subtree: true }).forEach(a => a.cancel()); } catch (e) {}
-          unwrap();
-          el._weave = null;
-        }, total2);
-      } catch (e) {
-        unwrap();
-        el._weave = null;
-      }
+        setTimeout(() => { ov.remove(); el._weave = null; }, tops2.length * o.line + o.inn + 150);
+      } catch (e) { ov.remove(); el._weave = null; }
     }, total);
   } catch (e) {
-    try { unwrap(); } catch (e2) {}
     el._weave = null;
-    el.scrollTo({ left: target, behavior: 'instant' });
+    el.scrollTo({ left: target, behavior: "instant" });
   }
 }
 function paint(dir) {
