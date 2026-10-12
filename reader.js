@@ -263,10 +263,12 @@ function paint(dir) {
     el.style.transform = "none";
     el.style.opacity = "0";
   } else if (fx === "curl") {
+    // MoonReader-style: страница загибается с тенью
     el.style.transformOrigin = D > 0 ? "left center" : "right center";
-    el.style.transform = `perspective(1400px) rotateY(${D * -14}deg) scale(0.96)`;
+    el.style.transform = `perspective(1200px) rotateY(${D * -38}deg) scale(0.94)`;
     el.style.opacity = "1";
-    el.style.filter = "brightness(0.93)";
+    el.style.filter = "brightness(0.88) saturate(0.96)";
+    el.style.boxShadow = D > 0 ? "-28px 0 48px rgba(0,0,0,.35)" : "28px 0 48px rgba(0,0,0,.35)";
   }
   jumpTo(el, target);
   nextFrame(() => {
@@ -274,6 +276,7 @@ function paint(dir) {
     el.style.transform = "none";
     el.style.opacity = "1";
     el.style.filter = "none";
+    el.style.boxShadow = "none";
     clearTimeout(paint._t);
     paint._t = setTimeout(() => { el.style.transition = "none"; el.style.transformOrigin = ""; }, 450);
   });
