@@ -333,21 +333,21 @@ $("bmDelDevice").onclick = async () => {
 };
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeDetail(); });
 
-// переключатель темы луны (без названия)
+// переключатель рельефа луны (без названия)
 (function(){
-  var sw = document.getElementById("moonThemeSw");
+  var sw = document.getElementById("moonReliefSw");
   if (!sw) return;
-  var theme = "dark";
-  try { theme = localStorage.getItem("moonTheme") || "dark"; } catch(e){}
-  function apply(t){
-    sw.classList.toggle("on", t !== "light");
-    sw.setAttribute("aria-checked", t !== "light");
+  var st = "flat";
+  try { st = localStorage.getItem("moonStyle") || "flat"; } catch(e){}
+  function apply(s){
+    sw.classList.toggle("on", s === "relief");
+    sw.setAttribute("aria-checked", s === "relief");
   }
-  apply(theme);
+  apply(st);
   sw.addEventListener("click", function(){
-    theme = theme === "light" ? "dark" : "light";
-    try { localStorage.setItem("moonTheme", theme); } catch(e){}
-    apply(theme);
+    st = st === "relief" ? "flat" : "relief";
+    try { localStorage.setItem("moonStyle", st); } catch(e){}
+    apply(st);
   });
 })();
 
