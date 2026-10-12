@@ -64,6 +64,7 @@ async function reparseIfStale(b) {
       Object.assign(b, {
         title: p.title, authors: p.authors, cover: p.cover,
         toc: p.toc, chapters: p.chapters, notes: p.notes, annotation: p.annotation,
+        genres: p.genres || [],
         parserV: V
       }, keep);
       await put(b);
