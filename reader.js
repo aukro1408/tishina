@@ -67,11 +67,12 @@ function pageQuote() {
       if (!p || p === el) continue;
       const t = (p.textContent || "").trim().replace(/\s+/g, " ");
       if (t.length < 30) continue;
-      // пропускаем короткие заголовки
-      let q = t.slice(0, 130);
-      const prefix = /^[а-яёa-z]/.test(t[0]) && t[0] === t[0].toLowerCase() ? "…" : "";
-      if (t.length > 130) q += "…";
-      return prefix + q;
+      // берём кусок ~110 символов, всегда с троеточиями
+      let q = t.slice(0, 110).trim();
+      // обрезаем по последнему пробелу чтобы не рвать слово
+      const sp = q.lastIndexOf(" ");
+      if (sp > 60) q = q.slice(0, sp);
+      return "…" + q + "…";
     }
     return "";
   } catch (e) { return ""; }

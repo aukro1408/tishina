@@ -164,9 +164,9 @@
 .nowcard-spot{position:absolute;border-radius:50%;filter:blur(38px);opacity:.5;animation:nowcardfloat 14s ease-in-out infinite}
 @keyframes nowcardfloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(6%,-8%) scale(1.08)}66%{transform:translate(-5%,6%) scale(.94)}}
 .nowcard-shade{position:absolute;inset:0;background:linear-gradient(to right,transparent 55%,rgba(20,8,5,.45))}
-.nowcard-quote{display:flex;gap:8px;margin:6px 0 2px;align-items:flex-start}
+.nowcard-quote{display:flex;gap:8px;margin:8px 0 10px;align-items:flex-start}
 .nowcard-qline{flex:0 0 3px;align-self:stretch;background:#c65b4e;border-radius:2px;opacity:.9}
-.nowcard-qtext{font-style:italic;font-size:13.5px;line-height:1.45;color:#e8d5cc;opacity:.92}`;
+.nowcard-qtext{font-style:italic;font-family:'Tishina Times',Georgia,serif;font-size:14px;line-height:1.5;color:#b79a8f;opacity:.95}`;
   const st = document.createElement("style");
   st.textContent = css;
   document.head.appendChild(st);
