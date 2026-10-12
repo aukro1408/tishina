@@ -81,7 +81,7 @@ function renderShelf() {
         <div class="hero-author">${esc((cur.authors || []).join(", ") || "Автор неизвестен")}</div>
         <div class="ink-progress" id="heroInk">
           <div class="ink-track">
-            <div class="ink-wrap"><div class="ink-fill" id="heroInkFill"></div></div>
+            <div class="ink-fill" id="heroInkFill"></div>
             <div class="ink-grain"></div>
           </div>
         </div>
