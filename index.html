@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=151"></script>
-<script src="store.js?v=151"></script>
+<script src="parser.js?v=152"></script>
+<script src="store.js?v=152"></script>
 <style>
 @font-face{font-family:'Tishina Times';src:url('fonts/times.ttf') format('truetype');font-display:swap}
 :root{
@@ -409,10 +409,17 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 /* меню тёмное стекло как шторки */
 .r-set-card,.r-draw-panel,.r-note-card{
   --rbg:#1c0e0b;--rink:#f6e9e2;--rmuted:#b79a8f;--rline:#3a2420;--rbar:rgba(28,14,11,.82);--rbgimg:none}
-.r-set-card{width:100%;max-width:560px;background:var(--rbar);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border:1px solid rgba(255,255,255,.08);
+.r-set-card{width:100%;max-width:560px;
+  --tint-a:.60;--tint-b:.46;--blur:28px;
+  background:
+    radial-gradient(120% 170% at 50% 100%,rgba(217,117,95,.22),transparent 58%),
+    linear-gradient(0deg,rgba(64,22,15,var(--tint-a)),rgba(34,14,10,var(--tint-b)));
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(2.2) brightness(.55);
+          backdrop-filter:blur(var(--blur)) saturate(2.2) brightness(.55);
+  border:1px solid rgba(255,214,196,.16);border-bottom:none;
   border-radius:22px 22px 0 0;padding:8px 22px calc(24px + env(safe-area-inset-bottom));
-  transform:translateY(103%);transition:transform .28s ease;color:var(--rink)}
+  transform:translateY(103%);transition:transform .28s ease;color:var(--rink);
+  box-shadow:inset 0 1px 0 rgba(255,225,210,.14),0 -14px 34px -12px rgba(20,8,5,.6)}
 .r-set.open .r-set-card{transform:none}
 .r-set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;
   border-bottom:1px solid var(--rline);font-weight:700;font-size:15px}
@@ -711,8 +718,8 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       </div>
     </div>
   </div>
-<script src="reader.js?v=151"></script>
-<script src="app.js?v=151"></script>
-<script src="nowcard.js?v=151"></script>
+<script src="reader.js?v=152"></script>
+<script src="app.js?v=152"></script>
+<script src="nowcard.js?v=152"></script>
 </body>
 </html>
