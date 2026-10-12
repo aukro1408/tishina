@@ -324,12 +324,14 @@ function renderBm() {
     const ch = book.chapters[m.ch];
     return `<div class="bm-row">
       <button class="bm-go" data-bm="${i}">
-        <div class="bm-snippet">${escapeHtml(m.snippet || (ch && ch.label) || "")}</div>
+        <div class="bm-snippet">${escapeHtml(m.text || m.snippet || (ch && ch.label) || "")}</div>
+        ${m.desc ? `<div class="bm-desc">${escapeHtml(m.desc)}</div>` : ""}
         <div class="bm-meta">${escapeHtml((ch && ch.label) || "")} · стр. ${m.page + 1} · ${fmtDate(m.ts)}</div>
       </button>
+      <button class="bm-edit" data-edit="${i}" title="Описание">✎</button>
       <button class="bm-del" data-del="${i}" title="Удалить">✕</button>
     </div>`;
-  }).join("") || `<div class="bm-empty">Пока пусто — нажми «+ Добавить закладку»</div>`;
+  }).join("") || `<div class="bm-empty">Выделите текст в книге и нажмите «Пометка»</div>`;
 }
 function renderAbout() {
   const b = book; if (!b) return;
@@ -464,12 +466,19 @@ function bind() {
     chIdx = i; page = 0; setChapter(); paint(1);
     saveSoon();
   });
-  $("bmAdd").addEventListener("click", addMark);
+  // пометки добавляются через выделение текста
   $("rBmList").addEventListener("click", e => {
     const del = e.target.closest("[data-del]");
     if (del) {
       const ms = getMarks(); ms.splice(+del.dataset.del, 1);
       book.marks = ms; persistMarks(); renderBm(); return;
+    }
+    const ed = e.target.closest("[data-edit]");
+    if (ed) {
+      const ms = getMarks(); const m = ms[+ed.dataset.edit]; if (!m) return;
+      const v = prompt("Описание пометки:", m.desc || "");
+      if (v !== null) { m.desc = v.trim(); persistMarks(); renderBm(); }
+      return;
     }
     const go2 = e.target.closest("[data-bm]");
     if (go2) {
@@ -512,8 +521,60 @@ function bind() {
     if (tx == null) return;
     const dx = e.changedTouches[0].clientX - tx;
     tx = null;
+    // не листать если есть выделение текста
+    try {
+      const sel = window.getSelection();
+      if (sel && sel.toString().trim().length > 0) return;
+    } catch(e2){}
     if (dx < -60) next();
     else if (dx > 60) prev();
+  }, { passive: true });
+  // выделение текста → попап "Пометка"
+  document.addEventListener("selectionchange", () => {
+    if (!opened) return;
+    try {
+      const sel = window.getSelection();
+      const pop = $("selPop");
+      if (!sel || sel.isCollapsed || !sel.toString().trim()) {
+        if (pop) pop.hidden = true;
+        return;
+      }
+      // только внутри текста книги
+      const node = sel.anchorNode;
+      if (!node || !$("rPages").contains(node)) {
+        if (pop) pop.hidden = true;
+        return;
+      }
+      const r = sel.getRangeAt(0).getBoundingClientRect();
+      if (pop) {
+        pop.style.left = (r.left + r.width / 2) + "px";
+        pop.style.top = Math.max(r.top - 8, 60) + "px";
+        pop.hidden = false;
+      }
+    } catch(e){}
+  });
+  $("selMark").addEventListener("click", () => {
+    try {
+      const sel = window.getSelection();
+      const text = sel ? sel.toString().trim().slice(0, 200) : "";
+      if (!text || !book) return;
+      book.marks = [{ ch: chIdx, page, text, desc: "", ts: Date.now() },
+        ...getMarks()].slice(0, 200);
+      persistMarks(); renderBm();
+      sel.removeAllRanges();
+      $("selPop").hidden = true;
+      if (navigator.vibrate) navigator.vibrate(10);
+    } catch(e){}
+  });
+  // скрыть попап при тапе в другом месте
+  document.addEventListener("touchstart", e => {
+    const pop = $("selPop");
+    if (pop && !pop.hidden && !pop.contains(e.target)) {
+      try {
+        const sel = window.getSelection();
+        if (!sel || sel.isCollapsed) pop.hidden = true;
+      } catch(e2){}
+    }
   }, { passive: true });
   document.addEventListener("keydown", e => {
     if (!opened) return;
