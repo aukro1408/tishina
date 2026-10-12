@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=78"></script>
-<script src="store.js?v=78"></script>
+<script src="parser.js?v=79"></script>
+<script src="store.js?v=79"></script>
 <style>
 @font-face{font-family:'Tishina Times';src:url('fonts/times.ttf') format('truetype');font-display:swap}
 :root{
@@ -24,7 +24,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 
 /* шапка */
 .top{position:relative;overflow:hidden;margin:0 -20px;padding:0;
-  background:url('header-cat.jpg?v=78') center 0/cover no-repeat;
+  background:url('header-cat.jpg?v=79') center 0/cover no-repeat;
   min-height:230px}
 .top::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(to bottom,rgba(0,0,0,.25),transparent 30%,transparent 55%,var(--bg))}
@@ -38,7 +38,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 
 /* экран настроек */
 .set-top{position:relative;overflow:hidden;margin:0 -20px;padding:0;
-  background:url('header-set.jpg?v=78') center/cover no-repeat;
+  background:url('header-set.jpg?v=79') center/cover no-repeat;
   min-height:230px}
 .set-top::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(to bottom,rgba(0,0,0,.25),transparent 30%,transparent 55%,var(--bg))}
@@ -335,6 +335,8 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-indent:2em}
 .reader.ff-sans .r-pages p{font-family:-apple-system,'Manrope',system-ui,sans-serif}
 .reader.ff-times .r-pages p{font-family:'Tishina Times',Georgia,serif}
+.reader.ff-georgia .r-pages p{font-family:Georgia,'Times New Roman',serif}
+.reader.ff-palatino .r-pages p{font-family:'Palatino Linotype','Book Antiqua',Palatino,serif}
 .r-pages p.no-indent,.r-chapter-label + p{text-indent:0}
 .r-pages h1,.r-pages h2{font-family:'Cormorant Garamond',serif;font-weight:600;break-after:avoid;margin:0 0 .7em;line-height:1.25;color:var(--rink);font-size:1.4em}
 .r-pages h3{font-family:'Cormorant Garamond',serif;font-weight:600;break-after:avoid;margin:0 0 .7em;line-height:1.3;
@@ -361,17 +363,19 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 .r-set{position:fixed;inset:0;z-index:90;display:flex;align-items:flex-end;justify-content:center;
   background:rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .25s}
 .r-set.open{opacity:1;pointer-events:auto}
-/* меню всегда одного цвета — не красятся в фон страниц */
+/* меню тёмное стекло как шторки */
 .r-set-card,.r-draw-panel,.r-note-card{
-  --rbg:#ffffff;--rink:#1c1c1e;--rmuted:#8e8e93;--rline:#e9e9ee;--rbar:#ffffff;--rbgimg:none}
-.r-set-card{width:100%;max-width:560px;background:var(--rbar);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  --rbg:#1c0e0b;--rink:#f6e9e2;--rmuted:#b79a8f;--rline:#3a2420;--rbar:rgba(28,14,11,.62);--rbgimg:none}
+.r-set-card{width:100%;max-width:560px;background:var(--rbar);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.08);
   border-radius:22px 22px 0 0;padding:8px 22px calc(24px + env(safe-area-inset-bottom));
   transform:translateY(103%);transition:transform .28s ease;color:var(--rink)}
 .r-set.open .r-set-card{transform:none}
 .r-set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;
   border-bottom:1px solid var(--rline);font-weight:700;font-size:15px}
 .r-set-row:last-child{border-bottom:none}
-.seg{display:flex;background:rgba(120,120,128,.16);border-radius:12px;padding:3px;gap:2px}
+.seg{display:flex;background:rgba(120,120,128,.16);border-radius:12px;padding:3px;gap:2px;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
 .seg button{border:none;background:none;font-family:inherit;font-weight:700;font-size:13.5px;padding:8px 13px;
   border-radius:9px;cursor:pointer;color:var(--rink)}
 .seg button.on{background:var(--rbg);box-shadow:0 1px 4px rgba(0,0,0,.18)}
@@ -463,6 +467,8 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 .r-note-text{font-family:Georgia,serif;font-size:16.5px;line-height:1.65;text-align:justify}
 .reader.ff-times .r-note-text{font-family:'Tishina Times',Georgia,serif}
 .reader.ff-sans .r-note-text{font-family:-apple-system,'Manrope',system-ui,sans-serif}
+.reader.ff-georgia .r-note-text{font-family:Georgia,'Times New Roman',serif}
+.reader.ff-palatino .r-note-text{font-family:'Palatino Linotype','Book Antiqua',Palatino,serif}
 </style>
 </head>
 <body>
@@ -487,7 +493,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg>
     Домой
   </button>
-  <a class="navbtn" href="stats.html?v=78" style="text-decoration:none">
+  <a class="navbtn" href="stats.html?v=79" style="text-decoration:none">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20v-7"/><path d="M12 20V6"/><path d="M18 20v-11"/></svg>
     Статистика
   </a>
@@ -626,7 +632,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
         <div class="stepper"><button id="fsMinus">A−</button><span id="fsVal">19</span><button id="fsPlus">A+</button></div>
       </div>
       <div class="r-set-row"><span>Шрифт</span>
-        <div class="seg" id="fontSeg"><button data-font="serif" class="on">Serif</button><button data-font="times">Times</button><button data-font="sans">Sans</button></div>
+        <div class="seg" id="fontSeg"><button data-font="serif" class="on">Serif</button><button data-font="times">Times</button><button data-font="sans">Sans</button><button data-font="georgia">Georgia</button><button data-font="palatino">Palatino</button></div>
       </div>
       <div class="r-set-row r-set-row-col"><span>Фон страниц</span>
         <div class="bg-pick" id="bgPick">
@@ -640,7 +646,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       </div>
     </div>
   </div>
-<script src="reader.js?v=78"></script>
-<script src="app.js?v=78"></script>
+<script src="reader.js?v=79"></script>
+<script src="app.js?v=79"></script>
 </body>
 </html>

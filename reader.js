@@ -24,6 +24,8 @@ function applySettings() {
   r.dataset.bg = curBg();
   r.classList.toggle("ff-sans", set.font === "sans");
   r.classList.toggle("ff-times", set.font === "times");
+  r.classList.toggle("ff-georgia", set.font === "georgia");
+  r.classList.toggle("ff-palatino", set.font === "palatino");
   syncSetUI();
   if (opened) layout();
 }
