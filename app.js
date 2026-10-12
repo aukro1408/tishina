@@ -331,6 +331,25 @@ $("bmDelDevice").onclick = async () => {
 };
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeDetail(); });
 
+// переключатель темы
+(function(){
+  var sw = document.getElementById("themeSw");
+  if (!sw) return;
+  var theme = "dark";
+  try { theme = localStorage.getItem("tishina.theme") || "dark"; } catch(e){}
+  function apply(t){
+    document.documentElement.setAttribute("data-theme", t === "light" ? "light" : "dark");
+    sw.classList.toggle("on", t !== "light");
+    sw.setAttribute("aria-checked", t !== "light");
+  }
+  apply(theme);
+  sw.addEventListener("click", function(){
+    theme = theme === "light" ? "dark" : "light";
+    try { localStorage.setItem("tishina.theme", theme); } catch(e){}
+    apply(theme);
+  });
+})();
+
 window.__toast = toast;
 window.__shelfReload = reload;
 
