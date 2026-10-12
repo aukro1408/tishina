@@ -353,6 +353,8 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") closeDetail(
     var st = current() === "relief" ? "flat" : "relief";
     try { localStorage.setItem("moonStyle", st); } catch(e){}
     apply(sw, st);
+    // пульс-кольцо
+    sw.classList.remove("pulse"); void sw.offsetWidth; sw.classList.add("pulse");
     try {
       var mf = document.getElementById("moonFrame");
       if (mf && mf.src) mf.src = mf.src;
