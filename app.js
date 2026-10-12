@@ -82,6 +82,7 @@ function renderShelf() {
         <div class="ink-progress" id="heroInk">
           <div class="ink-track">
             <div class="ink-fill" id="heroInkFill"></div>
+            <div class="ink-grain"></div>
           </div>
         </div>
         <div class="hero-foot">
@@ -115,7 +116,7 @@ function renderShelf() {
     const diff = targetP - shown;
     shown += diff * .08;
     if (Math.abs(diff) < .3) shown = targetP;
-    inkFill.style.width = shown + "%";
+    inkEl.style.setProperty("--p", shown + "%");
     if (shown !== targetP) requestAnimationFrame(flowInk);
   };
   setTimeout(flowInk, 350);
