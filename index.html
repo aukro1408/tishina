@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=148"></script>
-<script src="store.js?v=148"></script>
+<script src="parser.js?v=149"></script>
+<script src="store.js?v=149"></script>
 <style>
 @font-face{font-family:'Tishina Times';src:url('fonts/times.ttf') format('truetype');font-display:swap}
 :root{
@@ -318,17 +318,60 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 .reader[data-bg="sand"]{--rbg:#dcc2a1;--rink:#33291c;--rmuted:#77644c;--rline:#c6a67f;--rbgimg:url('bg/sand.png')}
 .reader[data-bg="night"]{--rbg:#17171a;--rink:#e8e3d8;--rmuted:#98989d;--rline:#2c2c31;--rbgimg:none}
 .reader.open{transform:none}
-.r-top{position:absolute;top:0;left:0;right:0;z-index:5;
-  display:flex;align-items:center;gap:12px;padding:calc(8px + env(safe-area-inset-top)) 14px 8px;
-  background:#1c0e0b;
-  border-bottom:1px solid rgba(255,255,255,.06);
-  min-height:56px;
-  transition:transform .28s ease,opacity .28s ease}
+
+
+
 
 .r-top.gone{transform:translateY(-140%);opacity:0;pointer-events:none}
 .r-back{border:none;background:rgba(255,255,255,.1);width:38px;height:38px;border-radius:50%;font-size:17px;cursor:pointer;color:#f6e9e2;flex:0 0 auto}
 /* верх/низ тёмное стекло */
 .r-top,.r-bottom{--rink:#f6e9e2;--rmuted:#b79a8f;--rline:#3a2420}
+/* Панели ридера — матовое стекло (Frosted): тот же тёмно-красный тон, но прозрачное,
+   сильно размытое и с лёгким свечением. Ручки настройки — переменные в начале каждой панели. */
+
+/* Верхняя панель ридера */
+.r-top{position:absolute;top:0;left:0;right:0;z-index:5;
+  --tint-a:.60;--tint-b:.46;--blur:28px;
+  display:flex;align-items:center;gap:12px;padding:calc(8px + env(safe-area-inset-top)) 14px 8px;
+  background:
+    radial-gradient(120% 170% at 10% 0%,rgba(217,117,95,.22),transparent 58%),
+    linear-gradient(180deg,rgba(64,22,15,var(--tint-a)),rgba(34,14,10,var(--tint-b)));
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(2.2) brightness(.55);
+          backdrop-filter:blur(var(--blur)) saturate(2.2) brightness(.55);
+  border-bottom:1px solid rgba(255,214,196,.16);
+  box-shadow:inset 0 1px 0 rgba(255,225,210,.14),inset 0 -1px 0 rgba(0,0,0,.28),0 14px 34px -12px rgba(20,8,5,.6);
+  min-height:56px;
+  transition:transform .28s ease,opacity .28s ease}
+
+/* Нижняя панель ридера */
+.r-bottom{position:absolute;bottom:0;left:0;right:0;z-index:5;
+  --tint-a:.60;--tint-b:.46;--blur:28px;
+  padding:8px 18px calc(8px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(120% 170% at 90% 100%,rgba(217,117,95,.22),transparent 58%),
+    linear-gradient(0deg,rgba(64,22,15,var(--tint-a)),rgba(34,14,10,var(--tint-b)));
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(2.2) brightness(.55);
+          backdrop-filter:blur(var(--blur)) saturate(2.2) brightness(.55);
+  border-top:1px solid rgba(255,214,196,.16);
+  box-shadow:inset 0 -1px 0 rgba(255,225,210,.10),inset 0 1px 0 rgba(0,0,0,.28),0 -14px 34px -12px rgba(20,8,5,.6);
+  min-height:56px;
+  transition:transform .28s ease,opacity .28s ease}
+
+/* зерно матового стекла: лежит под содержимым панели, поверх её фона */
+.r-top::before,.r-bottom::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  opacity:.17;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+
+/* стеклянный отблеск: диагональная полоса света */
+.r-top::after,.r-bottom::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(112deg,rgba(255,235,225,.10) 0%,transparent 34%,transparent 66%,rgba(255,170,140,.09) 100%)}
+
+/* если браузер не умеет размытие фона — сплошной цвет, как раньше */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .r-top,.r-bottom{background:#1c0e0b}
+  .r-top::before,.r-bottom::before,.r-top::after,.r-bottom::after{display:none}
+}
+
 .r-title{flex:1;min-width:0;font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#f6e9e2}
 .r-aa{border:none;background:none;font-size:21px;font-weight:600;cursor:pointer;color:var(--rink);padding:6px 8px;flex:0 0 auto;font-family:inherit}
 .r-pct{font-size:13px;color:var(--rmuted);font-weight:700;flex:0 0 auto}
@@ -351,12 +394,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   font-family:Georgia,serif;font-style:italic;color:var(--rink)}
 .r-chapter-label{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:1.5em;
   margin:0 0 18px;break-after:avoid;line-height:1.2;color:var(--rink);text-align:left}
-.r-bottom{position:absolute;bottom:0;left:0;right:0;z-index:5;
-  padding:8px 18px calc(8px + env(safe-area-inset-bottom));
-  background:#1c0e0b;
-  border-top:1px solid rgba(255,255,255,.06);
-  min-height:56px;
-  transition:transform .28s ease,opacity .28s ease}
+
 
 .r-bottom.gone{transform:translateY(140%);opacity:0;pointer-events:none}
 .r-bottom .row{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;color:var(--rmuted);
@@ -666,8 +704,8 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       </div>
     </div>
   </div>
-<script src="reader.js?v=148"></script>
-<script src="app.js?v=148"></script>
-<script src="nowcard.js?v=148"></script>
+<script src="reader.js?v=149"></script>
+<script src="app.js?v=149"></script>
+<script src="nowcard.js?v=149"></script>
 </body>
 </html>
