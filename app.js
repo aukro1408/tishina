@@ -161,6 +161,12 @@ async function openDetail(id) {
   $("dCover").innerHTML = coverHTML(b);
   $("dTitle").textContent = b.title || "(без названия)";
   $("dAuthor").textContent = (b.authors || []).join(", ") || "Автор неизвестен";
+  /* количество страниц (~1800 символов на страницу) */
+  try {
+    const chars = (b.chapters || []).reduce((s, c) => s + String(c || "").replace(/<[^>]+>/g, "").length, 0);
+    const pages = Math.max(1, Math.round(chars / 1800));
+    $("dPages").textContent = pages + " стр.";
+  } catch(e) { $("dPages").textContent = ""; }
   const started = !!(b.lastRead || (b.progress || 0) > 0);
   $("dReadLabel").textContent = started ? "Продолжить чтение" : "Читать";
   const p = pct(b);
