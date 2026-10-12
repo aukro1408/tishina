@@ -216,7 +216,6 @@ function setChapter() {
   $("rPages").setAttribute("lang", book.lang || "ru");
   $("rPages").scrollLeft = 0;
   layout();
-  showChrome();
 }
 function escapeHtml(s) {
   return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
