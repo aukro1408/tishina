@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=76"></script>
-<script src="store.js?v=76"></script>
+<script src="parser.js?v=77"></script>
+<script src="store.js?v=77"></script>
 <style>
 @font-face{font-family:'Tishina Times';src:url('fonts/times.ttf') format('truetype');font-display:swap}
 :root{
@@ -24,7 +24,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 
 /* шапка */
 .top{position:relative;overflow:hidden;margin:0 -20px;padding:0;
-  background:url('header-cat.jpg?v=76') center 0/cover no-repeat;
+  background:url('header-cat.jpg?v=77') center 0/cover no-repeat;
   min-height:230px}
 .top::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(to bottom,rgba(0,0,0,.25),transparent 30%,transparent 55%,var(--bg))}
@@ -38,7 +38,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 
 /* экран настроек */
 .set-top{position:relative;overflow:hidden;margin:0 -20px;padding:0;
-  background:url('header-set.jpg?v=76') center/cover no-repeat;
+  background:url('header-set.jpg?v=77') center/cover no-repeat;
   min-height:230px}
 .set-top::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(to bottom,rgba(0,0,0,.25),transparent 30%,transparent 55%,var(--bg))}
@@ -62,9 +62,10 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 .switch.on{box-shadow:inset 0 2px 5px rgba(0,0,0,.12),0 6px 14px -6px rgba(191,96,82,.75)}
 .switch::after{content:"";position:absolute;top:2.5px;left:3px;width:26px;height:26px;border-radius:50%;
   background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.28);
-  transition:transform .6s cubic-bezier(.34,1.45,.5,1),left .25s}
+  transition:transform .6s cubic-bezier(.34,1.45,.5,1),left .25s,box-shadow .5s,background .5s}
 .switch.on::after{transform:translateX(20px);
-  box-shadow:0 3px 8px rgba(0,0,0,.28),0 0 10px 2px rgba(255,214,120,.5)}
+  background:#fff radial-gradient(circle,#f3d98a 0 4.5px,transparent 5px);
+  box-shadow:0 3px 8px rgba(0,0,0,.28),0 0 14px 4px rgba(255,214,120,.45)}
 .switch:active::after{width:31px}
 .switch.on:active::after{transform:translateX(15px)}
 /* кольцо-волна при переключении */
@@ -469,7 +470,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg>
     Домой
   </button>
-  <a class="navbtn" href="stats.html?v=76" style="text-decoration:none">
+  <a class="navbtn" href="stats.html?v=77" style="text-decoration:none">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20v-7"/><path d="M12 20V6"/><path d="M18 20v-11"/></svg>
     Статистика
   </a>
@@ -622,7 +623,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       </div>
     </div>
   </div>
-<script src="reader.js?v=76"></script>
-<script src="app.js?v=76"></script>
+<script src="reader.js?v=77"></script>
+<script src="app.js?v=77"></script>
 </body>
 </html>
