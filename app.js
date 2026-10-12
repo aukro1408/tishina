@@ -163,7 +163,7 @@ async function openDetail(id) {
   $("dAuthor").textContent = (b.authors || []).join(", ") || "Автор неизвестен";
   /* количество страниц (~1800 символов на страницу) */
   try {
-    const chars = (b.chapters || []).reduce((s, c) => s + String(c || "").replace(/<[^>]+>/g, "").length, 0);
+    const chars = (b.chapters || []).reduce((s, c) => s + String((c && c.html) || c || "").replace(/<[^>]+>/g, "").length, 0);
     const pages = Math.max(1, Math.round(chars / 1800));
     $("dPages").textContent = pages + " стр.";
   } catch(e) { $("dPages").textContent = ""; }
