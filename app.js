@@ -86,7 +86,6 @@ function renderShelf() {
           </div>
         </div>
         <div class="hero-foot">
-          <span class="hero-pct">${pct(cur)}%</span>
           <button class="read-btn hero-btn liquid-btn" data-read="${cur.id}">
             <div class="liquid">
               <span class="blob b1"></span><span class="blob b2"></span>
