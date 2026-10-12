@@ -365,6 +365,30 @@ function renderDraw() {
   $("rDrawFoot").textContent = `${ch ? ch.label : ""} · стр. ${page + 1}/${pages}`;
 }
 
+/* трекер статистики чтения — безопасный, не влияет на ридер */
+const Stats = {
+  start: 0,
+  begin() {
+    try { this.start = Date.now(); } catch(e){}
+  },
+  end(bookId) {
+    try {
+      if (!this.start) return;
+      const dur = Math.round((Date.now() - this.start) / 1000);
+      this.start = 0;
+      if (dur < 5) return; // меньше 5 сек не считаем
+      const day = new Date().toISOString().slice(0, 10);
+      let s = {};
+      try { s = JSON.parse(localStorage.getItem("tishina.stats") || "{}"); } catch(e){}
+      if (!s.days) s.days = {};
+      if (!s.days[day]) s.days[day] = { secs: 0, books: {} };
+      s.days[day].secs += dur;
+      if (bookId) s.days[day].books[bookId] = (s.days[day].books[bookId] || 0) + dur;
+      try { localStorage.setItem("tishina.stats", JSON.stringify(s)); } catch(e){}
+    } catch(e){}
+  }
+};
+
 async function open(id, chapter, pg) {
   const rep = global.Shelf.reparseIfStale || (async x => x);
   const b = await rep(await global.Shelf.get(id));
@@ -386,9 +410,11 @@ async function open(id, chapter, pg) {
   if (pg != null) go(pg);
   else if (chapter == null && lr.page) go(lr.page);
   global.Shelf.touch(b.id, {});
+  Stats.begin();
 }
 async function close() {
   opened = false;
+  try { Stats.end(book ? book.id : null); } catch(e){}
   clearTimeout(saveTimer);
   if (book && global.Shelf) {
     await global.Shelf.touch(book.id, { progress: bookProgress(), lastRead: { ch: chIdx, page } });
