@@ -529,29 +529,33 @@ function bind() {
     if (dx < -60) next();
     else if (dx > 60) prev();
   }, { passive: true });
-  // выделение текста → попап "Пометка"
+  // выделение текста → попап "Пометка" (с задержкой, чтобы системное меню успело показаться)
+  let selTimer = null;
   document.addEventListener("selectionchange", () => {
     if (!opened) return;
-    try {
-      const sel = window.getSelection();
-      const pop = $("selPop");
-      if (!sel || sel.isCollapsed || !sel.toString().trim()) {
-        if (pop) pop.hidden = true;
-        return;
-      }
-      // только внутри текста книги
-      const node = sel.anchorNode;
-      if (!node || !$("rPages").contains(node)) {
-        if (pop) pop.hidden = true;
-        return;
-      }
-      const r = sel.getRangeAt(0).getBoundingClientRect();
-      if (pop) {
-        pop.style.left = (r.left + r.width / 2) + "px";
-        pop.style.top = (r.bottom + 12) + "px";
-        pop.hidden = false;
-      }
-    } catch(e){}
+    clearTimeout(selTimer);
+    selTimer = setTimeout(() => {
+      try {
+        const sel = window.getSelection();
+        const pop = $("selPop");
+        if (!sel || sel.isCollapsed || !sel.toString().trim()) {
+          if (pop) pop.hidden = true;
+          return;
+        }
+        // только внутри текста книги
+        const node = sel.anchorNode;
+        if (!node || !$("rPages").contains(node)) {
+          if (pop) pop.hidden = true;
+          return;
+        }
+        const r = sel.getRangeAt(0).getBoundingClientRect();
+        if (pop && r.width > 0) {
+          pop.style.left = Math.min(Math.max(r.left + r.width / 2, 80), window.innerWidth - 80) + "px";
+          pop.style.top = (r.bottom + 12) + "px";
+          pop.hidden = false;
+        }
+      } catch(e){}
+    }, 400);
   });
   $("selMark").addEventListener("click", () => {
     try {
