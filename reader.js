@@ -159,7 +159,7 @@ function turnPage(el, target, dir) {
 /* ЭФФЕКТ «ПЕРЕПЛЁТ»: чётные строки уходят влево, нечётные вправо (из файла Denis) */
 function weaveTurn(el, target, dir) {
   const D = dir > 0 ? 1 : -1;
-  const o = { out: 380, inn: 480, blur: 6, line: 45, shift: 50 };
+  const o = { out: 460, inn: 560, blur: 7, line: 55, shift: 60 };
   if (el._weave) return;
   try {
     el._weave = true;
@@ -202,7 +202,7 @@ function weaveTurn(el, target, dir) {
         w.animate(
           [{ opacity: 1, filter: "blur(0px)", transform: "none" },
            { opacity: 0, filter: b, transform: `translateX(${lineSign(l) * o.shift}px)` }],
-          { duration: o.out, delay: order(l, n) * o.line + k * 5, easing: "cubic-bezier(.5,0,.9,.4)", fill: "both" });
+          { duration: o.out, delay: order(l, n) * o.line + k * 7, easing: "cubic-bezier(.5,0,.9,.4)", fill: "both" });
       } catch (e) {}
     });
     const total = tops.length * o.line + o.out * .5 + 150;
@@ -224,7 +224,7 @@ function weaveTurn(el, target, dir) {
             w.animate(
               [{ opacity: 0, filter: b, transform: `translateX(${-lineSign(l) * o.shift}px)` },
                { opacity: 1, filter: "blur(0px)", transform: "none" }],
-              { duration: o.inn, delay: order(l, n) * o.line + k * 5, easing: "cubic-bezier(.2,.8,.2,1)", fill: "both" });
+              { duration: o.inn, delay: order(l, n) * o.line + k * 7, easing: "cubic-bezier(.2,.8,.2,1)", fill: "both" });
           } catch (e) {}
         });
         setTimeout(() => { ov.remove(); el._weave = null; }, tops2.length * o.line + o.inn + 150);
