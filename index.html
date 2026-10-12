@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="parser.js?v=64"></script>
-<script src="store.js?v=64"></script>
+<script src="parser.js?v=65"></script>
+<script src="store.js?v=65"></script>
 <style>
 @font-face{font-family:'Tishina Times';src:url('fonts/times.ttf') format('truetype');font-display:swap}
 :root{
@@ -24,7 +24,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 
 /* шапка */
 .top{position:relative;overflow:hidden;margin:0 -20px;padding:0;
-  background:url('header-cat.jpg?v=64') center 0/cover no-repeat;
+  background:url('header-cat.jpg?v=65') center 0/cover no-repeat;
   min-height:230px}
 .top::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(to bottom,rgba(0,0,0,.25),transparent 30%,transparent 55%,var(--bg))}
@@ -38,7 +38,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
 
 /* экран настроек */
 .set-top{position:relative;overflow:hidden;margin:0 -20px;padding:0;
-  background:url('header-set.jpg?v=64') center/cover no-repeat;
+  background:url('header-set.jpg?v=65') center/cover no-repeat;
   min-height:230px}
 .set-top::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(to bottom,rgba(0,0,0,.25),transparent 30%,transparent 55%,var(--bg))}
@@ -462,7 +462,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg>
     Домой
   </button>
-  <a class="navbtn" href="stats.html?v=64" style="text-decoration:none">
+  <a class="navbtn" href="stats.html?v=65" style="text-decoration:none">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20v-7"/><path d="M12 20V6"/><path d="M18 20v-11"/></svg>
     Статистика
   </a>
@@ -484,7 +484,10 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
   <div class="d-body">
     <h2 id="dTitle"></h2>
     <p class="da" id="dAuthor"></p>
-    <p class="da" id="dPages" style="margin-top:4px"></p>
+    <p class="da" id="dPagesWrap" style="margin-top:4px;display:flex;align-items:center;gap:6px;justify-content:center">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c65b4e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z"/></svg>
+      <span id="dPages"></span>
+    </p>
   <button class="read-btn d-read liquid-btn" id="dRead">
       <div class="liquid">
         <span class="blob b1"></span><span class="blob b2"></span>
@@ -616,7 +619,7 @@ body{font-family:'Manrope',-apple-system,system-ui,sans-serif;background:var(--b
       </div>
     </div>
   </div>
-<script src="reader.js?v=64"></script>
-<script src="app.js?v=64"></script>
+<script src="reader.js?v=65"></script>
+<script src="app.js?v=65"></script>
 </body>
 </html>
